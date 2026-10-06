@@ -1,0 +1,142 @@
+{
+  "title": "Why Don't We Drink Pig Milk?",
+  "target_seconds": 60,
+  "style": "16:9 landscape, full-bleed: the artwork fills the entire canvas edge to edge, like a single full-screen frame from an animated documentary on YouTube. Look: digital 2D animation background art, clean confident outlines of varying weight, cel shading with two tones of shadow, muted earthy natural palette, natural proportions, calm informative documentary mood, the scene continues past every edge of the frame. Match the art style of the attached reference frame exactly: the same line weight, the same flat two-tone cel shading, the same muted earthy palette and the same level of background detail",
+  "negative": "Do not include: any border, margin, frame, panel outline, comic panel border, rounded corners, vignette, paper texture, text, labels, captions, speech bubbles, cartoon faces on animals, chibi proportions or blush cheeks",
+  "character": "The Geek appears in this shot and must match the attached character sheet exactly: a skinny young man with messy short dark-brown hair, large round thin black-framed glasses over simple black dot eyes, a few freckles across his cheeks, peach skin, an oversized forest-green hoodie with two dangling drawstrings and a front pouch pocket, charcoal-grey jeans, black-and-white canvas sneakers. He is drawn in flat 2D comic style with thick black outlines and flat color, so he stands out against the detailed, textured environment. His humor comes from deadpan posture, not exaggerated faces",
+  "text": "Why don't we drink pig milk? Pigs are mammals. They nurse their young, and farms are full of them. So the milk is there. The problem is getting it out. A cow stores milk in a big chamber inside her udder, called a cistern. When she's milked it flows for several minutes. A sow has no cistern at all. Her milk sits deep in the tissue, and she only releases it when her piglets ask. They nose and massage her belly for about a minute. Then a hormone called oxytocin kicks in, and the milk flows for just ten to twenty seconds. After that she's done for the next hour. A cow also has four large teats. A sow has twelve to fourteen small ones, each giving a tiny amount. And a sow won't stand still for a milking machine. So pig milk is perfectly drinkable. It's just the hardest milk on the farm to collect.",
+  "segments": [
+    {
+      "id": 1,
+      "text": "Why don't we drink pig milk?",
+      "character": true,
+      "prompt": "A medium-wide shot of a quiet farmyard at golden hour. The Geek stands at a weathered wooden pig-pen fence holding an empty tall drinking glass, head tilted, looking at a large pink-grey sow on the other side who stares back at him with calm, unimpressed eyes. The pen has trampled mud, a stone water trough, scattered straw and a low wooden shelter with a rusty corrugated tin roof. In the background, a red dairy barn with a steel silo, a few Holstein cows grazing on a green pasture, rolling hills and a pale sky with thin clouds. Warm low sunlight casts long shadows across the mud."
+    },
+    {
+      "id": 2,
+      "text": "Pigs are mammals.",
+      "character": false,
+      "prompt": "A three-quarter side view of a mother sow standing in a sunny outdoor paddock, her heavy belly with two neat rows of teats clearly visible along her underside, drawn with accurate anatomy: bristly pink-grey skin, thick neck, wet snout, alert small eyes, floppy ears. Tufts of grass, churned mud, a wooden post-and-rail fence behind her and a hazy tree line on the horizon under midday light."
+    },
+    {
+      "id": 3,
+      "text": "They nurse their young,",
+      "character": false,
+      "prompt": "A low, eye-level close shot inside a farrowing pen: a sow lies on her side on fresh golden straw while a litter of small pink piglets presses against her belly, each one latched on, tiny ears flicking, tails curled. Warm orange light from a heat lamp above, the steel bars of the pen softly out of focus in the foreground, dust drifting in the light."
+    },
+    {
+      "id": 4,
+      "text": "and farms are full of them.",
+      "character": false,
+      "prompt": "A high aerial wide shot of a large working pig farm in the countryside: rows of long low barns with grey metal roofs, outdoor paddocks holding hundreds of pigs, tall feed silos, gravel tracks with a farm truck, and patchwork green and golden fields stretching to the horizon under a bright sky with scattered clouds."
+    },
+    {
+      "id": 5,
+      "text": "So the milk is there.",
+      "character": false,
+      "prompt": "An anatomical cutaway illustration of a sow lying on her side, seen in profile: the skin along her belly is rendered semi-transparent to reveal the mammary glands beneath as soft, glowing white clusters under each teat, arranged in two long rows. Plain muted warm-grey backdrop, clean even studio light, the sow's calm resting face at the left of the frame."
+    },
+    {
+      "id": 6,
+      "text": "The problem is getting it out.",
+      "character": true,
+      "prompt": "Inside a rustic barn stall, The Geek crouches beside a lying sow with a small stainless-steel pail in one hand, his other hand hovering awkwardly near her belly, frozen in uncertainty. The sow lifts her head and side-eyes him with suspicion. Straw on the floor, a wooden partition wall with hanging tools and a coiled rope, a single bare bulb, cool afternoon light through a small dusty window."
+    },
+    {
+      "id": 7,
+      "text": "A cow stores milk in a big chamber inside her udder,",
+      "character": false,
+      "prompt": "A side-view anatomical cutaway of a black-and-white Holstein dairy cow standing in a clean barn: her udder is shown semi-transparent, revealing a large rounded internal chamber above each teat filled with white milk, fed by branching ducts from the glandular tissue above. The rest of the cow is drawn normally with accurate markings. Muted barn interior behind her, soft even light."
+    },
+    {
+      "id": 8,
+      "text": "called a cistern.",
+      "character": false,
+      "prompt": "A close-up cross-section of a single cow udder quarter in the manner of a medical illustration: a large hollow cistern chamber full of white milk sits just above the teat canal, with fine ducts feeding into it from the pink glandular tissue above. Plain muted backdrop, soft light, precise anatomical detail."
+    },
+    {
+      "id": 9,
+      "text": "When she's milked it flows for several minutes.",
+      "character": false,
+      "prompt": "A modern milking parlour: a calm Holstein cow stands in a steel stall with four milking cups attached to her teats, clear tubes carrying a steady white stream of milk into a gleaming stainless-steel pipeline. A large round wall clock in the background, black rubber mats on the floor, bright clean overhead light, a farmer's rubber boots and overalls visible at the edge of the frame."
+    },
+    {
+      "id": 10,
+      "text": "A sow has no cistern at all.",
+      "character": false,
+      "prompt": "A side-view anatomical cutaway of a sow lying on her side, belly rendered semi-transparent: beneath each small teat there is only a compact cluster of glandular tissue with fine ducts, and no open chamber or pooled milk anywhere. Plain muted warm-grey backdrop, clean even light, the sow's relaxed face at the left of the frame."
+    },
+    {
+      "id": 11,
+      "text": "Her milk sits deep in the tissue,",
+      "character": false,
+      "prompt": "An extreme close-up, microscope-style scientific illustration of mammary tissue: thousands of tiny grape-like sacs clustered along branching ducts, each sac holding a small bead of white milk, wrapped in a fine web of red capillaries. Soft pink and cream tones, gentle depth of field, calm scientific mood."
+    },
+    {
+      "id": 12,
+      "text": "and she only releases it when her piglets ask.",
+      "character": false,
+      "prompt": "A tender close-up: a sow lying on straw lifts her head slightly as her litter of piglets crowds along her belly, squealing with open mouths and pressing their snouts into her side. Warm heat-lamp glow from above, a darker barn interior behind, soft-focus straw in the foreground."
+    },
+    {
+      "id": 13,
+      "text": "They nose and massage her belly for about a minute.",
+      "character": false,
+      "prompt": "A low-angle close shot along a sow's belly: a row of piglets vigorously nuzzle and butt their snouts up and down against her teats, bits of straw flicking up around them, while the sow lies still and relaxed with her eyes half closed. Warm light, shallow depth of field."
+    },
+    {
+      "id": 14,
+      "text": "Then a hormone called oxytocin kicks in,",
+      "character": false,
+      "prompt": "A stylized scientific cutaway of a sow in profile: a small gland at the base of her brain glows soft amber, and a trail of tiny glowing amber particles travels down through her bloodstream toward the mammary glands along her belly, which begin to glow white. Dark muted blue-grey backdrop, clean medical-illustration look."
+    },
+    {
+      "id": 15,
+      "text": "and the milk flows for just ten to twenty seconds.",
+      "character": false,
+      "prompt": "A close-up of a row of piglets nursing intensely and silently, cheeks working, eyes closed in concentration, while a large round stopwatch hangs on the pen's wooden wall behind them with its hand sweeping toward the twenty-second mark. Warm heat-lamp light, golden straw, soft shadows."
+    },
+    {
+      "id": 16,
+      "text": "After that she's done for the next hour.",
+      "character": true,
+      "prompt": "A medium shot inside a rustic farrowing barn at dusk. The Geek sits on an upturned wooden crate beside a sow's pen, elbows on his knees, chin sunk into one hand, staring flatly at an empty stainless-steel milking pail between his sneakers. Beyond the pen rail, the sow sleeps with her back turned to him, piglets heaped against her belly. On the plank wall above, a round old school clock whose hands show an hour gone by. Low orange light through gaps in the wall, long shadows across the straw, dust in the air, cobwebs in the rafters, a coiled rubber hose on a rusty nail."
+    },
+    {
+      "id": 17,
+      "text": "A cow also has four large teats.",
+      "character": false,
+      "prompt": "A close-up of a Holstein cow's full udder from a low side angle: four large, evenly spaced teats hang from a rounded udder with smooth skin and fine visible veins, the cow's black-and-white legs framing the shot. Straw-covered barn floor, soft even light."
+    },
+    {
+      "id": 18,
+      "text": "A sow has twelve to fourteen small ones,",
+      "character": false,
+      "prompt": "A low-angle close-up of a lying sow's belly: two long parallel rows of small teats run along her underside, fourteen in total, each tiny compared with her large body, bristly pink-grey skin, golden straw beneath her. Warm soft light, shallow depth of field."
+    },
+    {
+      "id": 19,
+      "text": "each giving a tiny amount.",
+      "character": false,
+      "prompt": "A close-up of a small clear glass laboratory measuring beaker standing on the worn wooden top rail of a pig pen, holding only a few drops of white milk at the very bottom, its empty graduated sides catching warm light. Behind it, softly out of focus, a mother pig lies on golden straw with her litter of piglets feeding in a row. Warm heat-lamp glow, dust in the air, shallow depth of field."
+    },
+    {
+      "id": 20,
+      "text": "And a sow won't stand still for a milking machine.",
+      "character": true,
+      "prompt": "Inside a modern steel milking stall built for cows: a stubborn sow has flopped down on her side on the black rubber mat, completely ignoring the dangling milking cups, while The Geek stands beside her holding the cluster of cups in both hands, shoulders slumped, staring down at her in defeat. Stainless-steel pipes and railings, bright overhead light, a hose coiled on the wall."
+    },
+    {
+      "id": 21,
+      "text": "So pig milk is perfectly drinkable.",
+      "character": false,
+      "prompt": "A still life on a rustic wooden farmhouse table by an open window: a clear glass of fresh white milk beside a small ceramic jug, a loaf of crusty bread and a folded linen cloth, and through the window a sow grazing in a sunny green paddock. Soft morning light, calm and homely mood."
+    },
+    {
+      "id": 22,
+      "text": "It's just the hardest milk on the farm to collect.",
+      "character": true,
+      "prompt": "A wide closing shot of a farmyard at sunset: The Geek sits on an upturned bucket in the mud, his hoodie splattered with mud and glasses slightly crooked, holding up a tiny shot glass with a few drops of milk and looking at it flatly. Behind him a sow and her piglets trot contentedly away toward the barn, while across the fence a line of Holstein cows files calmly into a milking parlour. Long golden shadows, warm orange sky."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "YtAutomation Gemini Runner",
+  "version": "2.0",
+  "description": "Carries out the image steps n8n sends through the bridge on 127.0.0.1:8766, in Gemini windows, one per Google account.",
+  "permissions": ["tabs", "scripting", "storage"],
+  "host_permissions": [
+    "https://gemini.google.com/*",
+    "https://*.googleusercontent.com/*",
+    "http://127.0.0.1:8766/*"
+  ],
+  "background": { "service_worker": "background.js" }
+}

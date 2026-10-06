@@ -1,0 +1,28 @@
+# third-party clones with their own git (opencut-controller holds local changes: see HANDOFF)
+opencut-classic/
+opencut-controller/
+
+# Python, models, local state
+tts/.venv/
+tts/models/
+tts/samples/
+__pycache__/
+.claude/
+dashboard-cache/
+usage.jsonl
+.test30.txt
+test-assets/
+
+# output: keep each video's story, prompts, timings and reference sheets; media stays local
+output/*
+!output/*/
+output/_*/
+output/*/*
+!output/*/*.py
+!output/*/*.md
+!output/*/script.json
+!output/*/segments.json
+!output/*/timings.json
+!output/*/voice-settings.json
+!output/*/*.srt
+!output/*/refs/
