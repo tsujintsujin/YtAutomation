@@ -23,6 +23,11 @@ loops can never take the same image or account; every change happens under one l
   POST /pool/loop    {slug, win, state, detail}  a loop reports running / done / noAccounts / robotCheck / stuck
   GET  /pool/status?slug=                  -> {loops, missing, onLimit}
 
+For the dashboard (dashboard.py). The bridge only watches the orders passing through it; it changes nothing:
+  GET  /status                             -> {claims, wins (window id -> account), recent (last orders)}
+  usage.jsonl                              one line per image saved {t, slug, image, account}, per limit reply
+                                           {t, event: "limit", account, image} and per robot check {t, event: "robot", account}
+
 usage: tts/.venv/Scripts/python bridge.py      (start_bridge.cmd starts it in its own window if it isn't up)
 """
 import base64
@@ -46,6 +51,42 @@ results = {}          # command id -> answer
 claims = {}           # slug -> time of the run's last activity (one n8n run per video at a time)
 STALE = 3 * 3600      # a claim with no activity for 3 h belongs to a run that died
 pools = {}            # slug -> the shared lists of that video's window loops (see the top of this file)
+USAGE = Path(__file__).parent / "usage.jsonl"
+wins = {}             # window id -> account in it, learned from openWindows / switchAccounts / newChat
+recent = []           # the last 60 orders: {t, name, ok, info}
+logged = set()        # limit / robot replies already written to usage.jsonl (look sees the same reply every 5 s)
+
+
+def watch(name, args, ans):
+    """Note what an order did: who is in which window, images saved, limit replies, robot checks."""
+    t = time.strftime("%Y-%m-%d %H:%M:%S")
+    lines = []
+    if name == "setup":
+        wins.clear()
+        logged.clear()
+    for acct, win in (ans.get("opened") or {}).items():
+        wins[str(win)] = acct
+    if name in ("switchAccounts", "newChat"):
+        for j in args.get("jobs", []):
+            wins[str(j["windowId"])] = j["account"]
+    if name == "saveImages":
+        by_id = {j["id"]: str(j["windowId"]) for j in args.get("jobs", [])}
+        for i in ans.get("saved", []):
+            lines.append({"t": t, "slug": args.get("slug"), "image": i, "account": wins.get(by_id.get(i))})
+    for win, f in (ans.get("found") or ans.get("sent") or {}).items():
+        acct = wins.get(str(win))
+        if f.get("limit") and (acct, f.get("forImage")) not in logged:
+            logged.add((acct, f.get("forImage")))
+            lines.append({"t": t, "event": "limit", "account": acct, "image": f.get("forImage")})
+        if f.get("robotCheck") and (acct, "robot") not in logged:
+            logged.add((acct, "robot"))
+            lines.append({"t": t, "event": "robot", "account": acct})
+    if lines:
+        with USAGE.open("a", encoding="utf-8") as fh:
+            fh.writelines(json.dumps(x) + "\n" for x in lines)
+    info = ans.get("error") or (f"saved {ans['saved']}" if "saved" in ans else "")
+    recent.append({"t": t, "name": name, "ok": bool(ans.get("ok")), "info": str(info)[:160]})
+    del recent[:-60]
 
 
 def pool(slug):
@@ -177,6 +218,10 @@ class H(BaseHTTPRequestHandler):
                     p = pool(q["slug"])
                     return self.send({"loops": p["loops"], "missing": len(missing(q["slug"])),
                                       "onLimit": list(p["onLimit"])})
+            if u.path == "/status":
+                with lock:
+                    return self.send({"claims": {k: round(time.time() - v) for k, v in claims.items()},
+                                      "wins": dict(wins), "recent": list(recent)})
             if u.path == "/health":
                 return self.send({"ok": True})
         except Exception as e:
@@ -200,6 +245,10 @@ class H(BaseHTTPRequestHandler):
                     print(f"{time.strftime('%H:%M:%S')} {r['name']}: no answer", flush=True)
                     return self.send({"ok": False, "error": "no answer from the extension (is its runner tab open?)"})
                 ans = results.pop(cid)
+                try:
+                    watch(r["name"], r.get("args", {}), ans)
+                except Exception as e:                               # watching must never break an order
+                    print(f"watch failed: {e}", flush=True)
             print(f"{time.strftime('%H:%M:%S')} {r['name']}: {json.dumps(ans)[:300]}", flush=True)
             return self.send(ans)
         if u.path.startswith("/pool/"):

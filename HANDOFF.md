@@ -85,6 +85,8 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 | bridge.py | `YtAutomation\bridge.py`, port 8766 | Started by n8n's "Start bridge to extension" node via `start_bridge.cmd` (own minimised window "Gemini bridge :8766", `Start-Process`, not cmd `start`). Holds commands for the runner, answers, writes `img/NNN.jpg` (verifies it is a real image), serves `/prompt`, `/refs`, `/missing`, `/accounts`, `/claim`, `/release`. |
 | Chrome extension "YtAutomation Gemini Runner" | `YtAutomation\gemini-extension\` (unpacked, MV3) | `background.js` only keeps a pinned **"Gemini runner"** tab open (reopens it if closed, not discardable). `runner.js` in that tab long-polls the bridge and carries out orders. It decides nothing and remembers nothing. **Any change to runner.js needs Justin to reload the extension at chrome://extensions** (Claude's Chrome tools cannot open chrome:// pages). Reloading kills any order in flight, so never reload during a run. |
 | Gemini accounts | `YtAutomation\gemini-accounts.json` | `accounts` = first 3 windows (justin.masiga.94 [Plus, Justin's main], justjecery, thejobstash), `pool` = all 9 signed-in accounts in switch order. Opened by `?authuser=<email>`, so /u/N order doesn't matter. Justin: "just use whatever is still available/has credits". |
+| Dashboard | `YtAutomation\dashboard.py` + `dashboard.html`, http://127.0.0.1:8770 | Built 2026-10-06. Start: `start_dashboard.cmd` (own minimised window "YtAutomation dashboard :8770", then opens the page). Not started by n8n; restarting it is safe during a run (it only reads and calls the same endpoints Justin would). Shows videos (images made / total, voice, srt, MP4, status), each video's image grid with line + prompt, MP4 player + .srt download, live run (rate, time left, windows, the runner's last orders), images per Gemini account per day, n8n runs with their failure reason. Buttons: Start (webhook), Stop (n8n stop + release claim + runner `setup` closes every Gemini window), Hold (HOLD file), Make again (moves img/NNN + img_clean/NNN into img/redo/; only videos without an MP4), Delete (removes the whole `output/<slug>/` permanently, after typing the name; refused during a run). Only answers 127.0.0.1/localhost; POSTs need the `X-Dash: 1` header. n8n's plain execution list leaves out running executions, so it also asks with `status=running` / `waiting`. Cache of finished runs: `dashboard-cache/runs.json`. |
+| Account counts | `bridge.py` `watch()` -> `usage.jsonl` | The bridge watches the orders passing through it (openWindows / switchAccounts / newChat tell it which account is in which window) and writes one line per image saved, per limit reply and per robot check. Started 2026-10-06 23:2x; earlier videos have no counts. **The window-loop rework changes the orders**: update `watch()` then (the `/pool/limit` call gives limits directly). |
 | Kokoro TTS | `YtAutomation\tts\` (venv `tts\.venv`, models `tts\models`) | `voice.py` uses `kokoro_onnx`; only knobs: voice, speed, pauses. No pitch/intonation control (punctuation and voice blending are the only levers). |
 | OpenCut | `YtAutomation\opencut-classic\` (editor :3000) + `opencut-controller\` (MCP over HTTP :3002) | Started/stopped by the workflow. Use 127.0.0.1, not localhost (IPv6). |
 
@@ -183,8 +185,12 @@ page (no traffic to Google).
 - Account risk: automating the Gemini web app goes against Google's terms; worst realistic case is limits or
   blocks on an account. justin.masiga.94 (his main, Plus) is in the first 3 windows; Justin said keep using
   whatever has credits.
-- No git: neither `YtAutomation` nor `n8n` is a git repo -> no backup. Workspace rule wants a private repo on
-  github.com/tsujintsujin; ask Justin once before creating/pushing (audit for secrets first).
+- Git: `YtAutomation` is on github.com/tsujintsujin/YtAutomation (private) since 2026-10-06. `.gitignore` keeps
+  media, the venv/models, `usage.jsonl` and the two OpenCut clones out; each video's scripts, prompts, timings,
+  refs and .srt are in. **Not backed up:** `opencut-controller/` is a clone of JXUE0/opencut-controller with
+  Justin's local changes (`src/index.ts`, `src/tools/export.ts`, `src/tools/project.ts`, `package.json`) and the
+  untracked `scripts/render-folder.mjs` + `scripts/_call.mjs` the workflow depends on. The `n8n` folder is not a
+  repo either. Ask Justin how he wants those kept.
 - Legacy, unused: `gemini_job.py` (old job server), `gen_images.py`, `make_video.py`, `output/_test-steps/`
   (a test folder Claude made without being asked). Clean up only if Justin says.
 - `PENDING_CHANGES.md` is the agreed-changes log Justin asked for: note agreed-but-not-done changes there,
