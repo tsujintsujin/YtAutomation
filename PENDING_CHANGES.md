@@ -12,6 +12,9 @@ segmentation inside n8n, replacing the 5-hour timer with a wait inside the run, 
 (only segments over 6 s, or every image; OpenCut keyframe export not yet checked).
 
 Done:
+- 2026-10-06: dashboard (dashboard.py / dashboard.html / start_dashboard.cmd, http://127.0.0.1:8770) with Start, Stop
+  (also closes the Gemini windows), Hold, Make again, Delete; bridge.py writes usage.jsonl (images per account,
+  limit replies, robot checks) and answers GET /status. See HANDOFF section 3.
 - 2026-10-05: removed "Skip images?" and the `skip_images` option.
 - 2026-10-05: step 8 goes straight to a new chat (no separate refresh).
 - 2026-10-05: step 3 checks every 5 s from the start (no 30 s wait).
