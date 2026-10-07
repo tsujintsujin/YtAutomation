@@ -55,6 +55,11 @@ svg.i { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none;
 .nav a.on { background: var(--accent-soft); color: var(--accent); }
 .nav a .n { margin-left: auto; font-size: 11px; font-weight: 700; background: var(--accent); color: #fff; border-radius: 99px; padding: 0 7px; }
 .side .foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 10px; }
+.svc.yt { margin: auto 0 10px; }
+.svc.js { margin: 0 0 10px; }
+.svc.js + .foot { margin-top: 0; }
+.svc .t { margin: 0 0 5px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--soft); }
+.svc .btn { width: 100%; justify-content: center; margin-top: 8px; }
 .main { margin-left: 196px; min-height: 100vh; }
 .top { position: sticky; top: 0; z-index: 20; height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 20px;
   background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
@@ -163,9 +168,13 @@ h1 span { color: var(--muted); }
 .vhead .actions .end { margin-left: auto; }
 .btn.icon { width: 38px; padding: 0; justify-content: center; }
 .ytgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 16px 20px 20px; }
-.ytc { display: flex; flex-direction: column; gap: 6px; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: inherit; font: inherit; }
-.ytc .im { display: block; width: 100%; pointer-events: none; }
-.ytc:hover .im { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ytc { display: flex; flex-direction: column; gap: 6px; }
+.ytc .imw { position: relative; }
+.ytc .im { display: block; width: 100%; }
+.ytc .pick { position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px;
+  background: rgba(12,19,34,.72); cursor: pointer; }
+.ytc .pick input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.ytc.ok .im { outline: 3px solid var(--accent); outline-offset: 1px; }
 .ytc b { font-size: 12px; font-weight: 700; color: var(--soft); }
 video { width: 100%; display: block; background: #000; aspect-ratio: 16/9; }
 .imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 16px 20px 20px; }
@@ -249,13 +258,14 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
 <body>
 <aside class="side" id="side">
   <div class="logo"><span class="mark"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span><span>Yt<b>Automation</b></span></div>
-  <div class="svc" id="svc"></div>
   <nav class="nav" id="nav">
     <a href="#/" data-p="videos"><svg class="i" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Videos</a>
     <a href="#/live" data-p="live"><svg class="i" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Live run<span class="n" id="liveN" hidden>1</span></a>
     <a href="#/accounts" data-p="accounts"><svg class="i" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Accounts</a>
     <a href="#/runs" data-p="runs"><svg class="i" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Runs</a>
   </nav>
+  <div class="svc yt" id="svc"></div>
+  <div class="svc js" id="jsvc"></div>
   <div class="foot nav">
     <a href="http://127.0.0.1:5678/workflow/ytrender00000001" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>Open in n8n</a>
   </div>
@@ -337,9 +347,15 @@ const runLabel = r => r.live ? ['running', 'Running'] : r.outcome === 'made' ? [
 // ---------- shell ----------
 function shell() {
   const h = S.health;
-  const svc = [['n8n', h.n8n ? 'on' : h.n8nState === 'starting' ? 'idle' : 'off', h.n8nState || (h.n8n ? 'running' : 'down')], ['Bridge', h.bridge ? 'on' : 'off', h.bridge ? 'running' : 'down'],
+  const svc = [['n8n', h.n8n ? 'on' : ['starting', 'restarting'].includes(h.n8nState) ? 'idle' : 'off', h.n8nState || (h.n8n ? 'running' : 'down')], ['Bridge', h.bridge ? 'on' : 'off', h.bridge ? 'running' : 'down'],
     ['OpenCut', h.opencut ? 'on' : 'idle', h.opencut ? 'running' : 'idle']];
-  $('#svc').innerHTML = svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('');
+  const restarting = h.n8nState === 'restarting';
+  $('#svc').innerHTML = `<p class="t">YtAutomation</p>` + svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('')
+    + `<button class="btn sm" data-n8n ${S.run || restarting ? 'disabled' : ''} title="${S.run ? 'A run is going; stop it first' : 'Ends n8n, even when it is frozen, and starts it again in its own minimised window. Takes about 3 minutes.'}">${restarting ? 'Restarting n8n…' : 'Restart n8n'}</button>`;
+  const j = h.jobstash || {};
+  $('#jsvc').innerHTML = `<p class="t">TheJobStash</p>` + [['Scorer', j.scorer], ['Tunnel', j.tunnel]].map(([n, on]) =>
+    `<div><strong>${n}</strong><span><span class="dot ${on ? 'on' : j.starting ? 'idle' : 'off'}"></span> ${on ? 'running' : j.starting ? 'starting' : 'down'}</span></div>`).join('')
+    + (j.scorer && j.tunnel ? '' : `<button class="btn sm primary" data-js ${j.starting ? 'disabled' : ''} title="Closes any old scorer and tunnel windows, then starts both fresh, each in its own minimised window.">${j.starting ? 'Starting…' : 'Start'}</button>`);
   const r = S.run;
   $('#runPill').innerHTML = r ? `<span class="dot on" style="background:var(--accent)"></span><span class="lbl">${esc(r.slug || 'starting')}${r.video ? ` · ${r.video.made}/${r.video.total}` : ''}</span>`
     : robot() ? `<span class="dot off"></span><span class="lbl">Robot check</span>` : `<span class="dot idle"></span><span class="lbl">Idle</span>`;
@@ -472,15 +488,23 @@ async function renderVideo(slug, keepScroll) {
     ${V.mp4 ? `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>The video</h3><p>${(V.mp4Size / 1048576).toFixed(0)} MB MP4${V.srt ? ' · subtitles ready for upload' : ''}</p></div>
       <div class="actions" style="margin-left:auto">${V.srt ? `<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.srt">${ic.dl}.srt</a>` : ''}<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4" download>${ic.dl}MP4</a></div></div>
       <video controls preload="metadata" src="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4"></video></section>` : ''}
-    ${V.thumbs.length ? `<section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Thumbnails</h3><p>${V.thumbs.length} ideas for YouTube. Click one to see it full size.</p></div><span class="badge">${V.thumbs.filter(t => t.v).length}</span></div>
-      <div class="ytgrid" id="ytgrid">${V.thumbs.map(t => `<button class="ytc" data-id="${t.id}" aria-label="Thumbnail ${t.id}: ${esc(t.text)}">${t.v
-        ? `<span class="im" style="background-image:url('/ythumb/${encodeURIComponent(V.slug)}/${t.id}?v=${t.v}')"><span class="no">${t.id}</span></span>`
-        : `<span class="im missing">${t.id} · not made yet</span>`}<b>${esc(t.text)}</b></button>`).join('')}</div></section>` : ''}
+    ${V.thumbs.length ? `<section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Thumbnails</h3><p>${V.thumbs.length} ideas for YouTube. Click one to see it full size. Tick up to 3 to use on YouTube (${V.thumbs.filter(t => t.ok).length} of 3 picked).</p></div><span class="badge">${V.thumbs.filter(t => t.v).length}</span></div>
+      <div class="ytgrid" id="ytgrid">${V.thumbs.map(t => `<div class="ytc${t.ok ? ' ok' : ''}">${t.v
+        ? `<span class="imw"><button class="im" data-id="${t.id}" style="background-image:url('/ythumb/${encodeURIComponent(V.slug)}/${t.id}?v=${t.v}')" aria-label="Thumbnail ${t.id}: ${esc(t.text)}"><span class="no">${t.id}</span></button>
+          <label class="pick" title="Use on YouTube"><input type="checkbox" data-pick="${t.id}" aria-label="Use thumbnail ${t.id} on YouTube"${t.ok ? ' checked' : ''}></label></span>`
+        : `<span class="im missing">${t.id} · not made yet</span>`}<b>${esc(t.text)}</b></div>`).join('')}</div></section>` : ''}
     <section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Images</h3><p>One per segment. Click one for its line and prompt${V.mp4 ? '' : ', or to make it again'}.</p></div><span class="badge">${made}</span></div>
       <div class="tabs" id="vtabs" style="margin:14px 20px 0">${[['all', 'All', V.segments.length], ['made', 'Made', made], ['missing', 'Missing', missing]].map(([k, l, c]) => `<button data-k="${k}" class="${vFilter === k ? 'on' : ''}">${l} <span class="c">${c}</span></button>`).join('')}</div>
       <div class="imgs" id="imgs"></div></section>`;
   drawImgs();
-  if ($('#ytgrid')) $('#ytgrid').onclick = e => { const b = e.target.closest('.ytc'); if (b) openThumb(+b.dataset.id); };
+  if ($('#ytgrid')) $('#ytgrid').onclick = async e => {
+    const c = e.target.closest('input[data-pick]');
+    if (!c) { const b = e.target.closest('.im[data-id]'); if (b) openThumb(+b.dataset.id); return; }
+    if (c.checked && V.thumbs.filter(t => t.ok).length >= 3) { c.checked = false; return toast('Only 3 thumbnails can be picked. Untick one first.', true); }
+    try { await api('/api/thumbpick', { slug: V.slug, id: +c.dataset.pick, on: c.checked }); }
+    catch (err) { c.checked = !c.checked; return toast(err.message, true); }
+    renderVideo(V.slug, true);
+  };
   $('#vtabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; vFilter = b.dataset.k; document.querySelectorAll('#vtabs button').forEach(x => x.classList.toggle('on', x === b)); drawImgs(); };
   $('#page .actions').onclick = e => { const b = e.target.closest('button'); if (b) act(b.dataset.a, V.slug); };
   if (keepScroll) scrollTo(0, y);
@@ -624,6 +648,21 @@ async function refresh(force) {
 window.addEventListener('hashchange', () => { scrollTo(0, 0); render(); });
 $('#refresh').onclick = () => refresh(true);
 $('#stopTop').onclick = () => act('stop');
+$('#svc').onclick = async e => {
+  const b = e.target.closest('[data-n8n]');
+  if (!b || b.disabled) return;
+  if (!confirm("Restart n8n? It is down for about 3 minutes. TheJobStash's workflows run on the same n8n and pause too.")) return;
+  b.disabled = true;
+  try { toast((await api('/api/n8n/restart', {})).message); } catch (err) { toast(err.message, true); }
+  refresh(true);
+};
+$('#jsvc').onclick = async e => {
+  const b = e.target.closest('[data-js]');
+  if (!b || b.disabled) return;
+  b.disabled = true;
+  try { toast((await api('/api/jobstash/start', {})).message); } catch (err) { toast(err.message, true); }
+  refresh(true);
+};
 $('#menuBtn').onclick = () => document.body.classList.toggle('nav-open');
 $('#qs').oninput = e => { query = e.target.value; if (route().p !== 'videos') location.hash = '#/'; else { $('#q').value = query; groups(); } };
 document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); (innerWidth > 720 ? $('#qs') : ($('#q') || $('#qs'))).focus(); } });

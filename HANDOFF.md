@@ -27,6 +27,9 @@ free Gemini web app driven through his own Chrome; voice is local Kokoro; editin
    playlist "Cat Behavior, Explained". First video done this way 2026-10-07 by Claude in Justin's Chrome; the
    copy and settings are in `JinTheGeek/channel-copy.md`. The MP4 is >10 MB, so Chrome's file_upload tool can't
    take it: serve the folder on 127.0.0.1 (CORS for studio.youtube.com) and set the file input from the page.
+   **Which 3 thumbnails** (Justin, 2026-10-07): the ones he ticked on the dashboard's Thumbnails card, saved in
+   `output/<slug>/thumbs-approved.json` (list of ids, max 3; the dashboard refuses a 4th). None ticked (or no file) =
+   pick 3 of the made `thumbs/thumb-N.jpg` at random. 1 or 2 ticked: ask him, he didn't say.
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
@@ -36,8 +39,27 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
   one-word segment. Shorter segments = more images (~250 for a 13 min video) = more Gemini quota.
 - **Every image prompt is fully standalone**: full style + negatives + character descriptions in every prompt,
   never "same as before" / "as above". Gemini sees each prompt in a fresh chat.
-- Reference sheets live in `output/<slug>/refs/`: `style-ref.jpg`, `geek-sheet.jpg`, `cat-sheet.jpg`
-  (attached to every prompt). The prompt text format is fixed (see `bridge.py` `prompt_text`):
+- **Prompts are built by `prompt_kit.py`** (this folder), never by hand and never by a per-video copy of the style
+  text. Each video's `scenes.py` gives `(geek, cat, place, action)` per segment plus its own `PLACES` and side
+  characters; `build_script.py` calls `prompt_kit.build`. Rules (Justin, 2026-10-07, after why-cats-knead came out
+  with a different sofa, bedroom, kitchen and blanket in almost every shot, kittens in roadside fields, and the
+  style ref's backpack leaking in):
+  - **The only things a prompt may point to are the 3 attached images**, always attached in this order: 1 the room
+    (`style-ref.jpg`, the Geek's living room), 2 the Geek sheet, 3 the cat sheet. Every prompt says what each of
+    the 3 is for in that shot ("not used in this shot" when the Geek or cat is absent). Everything else, every
+    place, prop and side character, is described in full inside the prompt. No "same", "again", "the Geek's
+    home", no name without its description in that prompt; `prompt_kit.check` fails the build otherwise.
+  - **Every scene has a place.** Places are written once, with fixed colours, layout and light, and pasted in
+    full every time: the Geek's home (living room = the attached room, kitchen, bedroom, hallway, office) lives in
+    `prompt_kit.HOME`; each video adds its own (kitten box, savanna, other people's homes...). A scene with no
+    place fails the build. Close-ups use the close-up version of their place (what the subject is on + what shows
+    behind). Shots of one moment stay in one place unless the narration moves. Diagrams use `plain`.
+  - **Side characters and props are written once** in `scenes.py` (`MOTHER`, `WILDCAT`, `FLEECE`...) and used
+    through f-strings, so the mother cat or the blanket can't change colour between shots.
+  - **Place test before the full run**: one image per place, checked on a contact sheet, before the rest.
+  - **Check by looking**: contact sheets of each batch, comparing each background with the shots beside it.
+- Reference sheets live in `output/<slug>/refs/`: `style-ref.jpg` (the room), `geek-sheet.jpg`, `cat-sheet.jpg`
+  (all 3 attached to every prompt, in that order). The prompt text format is fixed (see `bridge.py` `prompt_text`):
   `Generate 1 separate images, one for each numbered prompt below. Each prompt is complete on its own.\n\n1. (image NNN) <prompt>`
   The `(image NNN)` tag matters: step 3 uses it to tell a new answer from an old one.
 - `script.json` = `{"title", "voice": "am_liam", "segments": [{"id", "text", "geek", "cat", "scene", "prompt"}]}`.
@@ -110,7 +132,7 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 | bridge.py | `YtAutomation\bridge.py`, port 8766 | Started by n8n's "Start bridge to extension" node via `start_bridge.cmd` (own minimised window "Gemini bridge :8766", `Start-Process`, not cmd `start`). Holds commands for the runner, answers, writes `img/NNN.jpg` (verifies it is a real image), serves `/prompt`, `/refs`, `/missing`, `/accounts`, `/claim`, `/release`. |
 | Chrome extension "YtAutomation Gemini Runner" | `YtAutomation\gemini-extension\` (unpacked, MV3) | `background.js` only keeps a pinned **"Gemini runner"** tab open (reopens it if closed, not discardable). `runner.js` in that tab long-polls the bridge and carries out orders. It decides nothing and remembers nothing. **Any change to runner.js needs Justin to reload the extension at chrome://extensions** (Claude's Chrome tools cannot open chrome:// pages). Reloading kills any order in flight, so never reload during a run. |
 | Gemini accounts | `YtAutomation\gemini-accounts.json` | `accounts` = first 3 windows (justjecery, thejobstash, tsujin.giamas.p), `pool` = 8 signed-in accounts in switch order. **justin.masiga.94 is out** (Justin, 2026-10-07): it owns the Jin YouTube channel, and a Google ban for the Gemini automation would take the channel with it. Never add it back. Opened by `?authuser=<email>`, so /u/N order doesn't matter. Justin: "just use whatever is still available/has credits". |
-| Dashboard | `YtAutomation\dashboard.py` + `dashboard.html`, http://127.0.0.1:8770 | Built 2026-10-06. Start: `YtAutomation Dashboard.lnk` (pinned to Justin's taskbar; icon `dashboard.ico`) runs `start_dashboard.cmd`: starts whatever is down, each in its own minimised window (n8n via `..\n8n\start_n8n.cmd`, window "n8n :5678", not waited for; the bridge via `start_bridge.cmd`; the dashboard, window "YtAutomation dashboard :8770"), then opens the page in Chrome (the PC's default browser is Edge). Measured cold, 2026-10-07: bridge 9 s, page 12 s, n8n ~3 min until ready. n8n's `/healthz` answers while its database is still loading, so the dashboard's n8n dot and Start use `/healthz/readiness` (dot shows "starting" in between). n8n does not start by itself after a reboot: open the shortcut. The .lnk is not in git: it is `cmd.exe /c "<folder>\start_dashboard.cmd"`, window minimised, icon dashboard.ico. Not started by n8n; restarting it is safe during a run (it only reads and calls the same endpoints Justin would). Shows videos (images made / total, voice, srt, MP4, status), each video's image grid with line + prompt, MP4 player + .srt download, live run (rate, time left, windows, the runner's last orders), images per Gemini account per day, n8n runs with their failure reason. Buttons: Start (webhook), Stop (n8n stop + release claim + runner `setup` closes every Gemini window), Hold (HOLD file), Make again (moves img/NNN + img_clean/NNN into img/redo/; only videos without an MP4), Delete (removes the whole `output/<slug>/` permanently, after typing the name; refused during a run). Thumbnails: each video row shows them; the video page has a Thumbnails card (click = full size + Download). Delete is the trash icon at the far right of the video page. Every error message (robot-check notice, "Last run failed", "script.json problem", red pop-ups) has a trash button; a deleted notice stays hidden in that browser (localStorage `gone`: `robot:<run>`, `run:<run>`, `script:<slug>:<error>`), a new run's error shows again. Only answers 127.0.0.1/localhost; POSTs need the `X-Dash: 1` header. n8n's plain execution list leaves out running executions, so it also asks with `status=running` / `waiting`. Cache of finished runs: `dashboard-cache/runs.json`. |
+| Dashboard | `YtAutomation\dashboard.py` + `dashboard.html`, http://127.0.0.1:8770 | Built 2026-10-06. Start: `YtAutomation Dashboard.lnk` (pinned to Justin's taskbar; icon `dashboard.ico`) runs `start_dashboard.cmd`: starts whatever is down, each in its own minimised window (n8n via `..\n8n\start_n8n.cmd`, window "n8n :5678", not waited for; the bridge via `start_bridge.cmd`; the dashboard, window "YtAutomation dashboard :8770"), then opens the page in Chrome (the PC's default browser is Edge). Measured cold, 2026-10-07: bridge 9 s, page 12 s, n8n ~3 min until ready. n8n's `/healthz` answers while its database is still loading, so the dashboard's n8n dot and Start use `/healthz/readiness` (dot shows "starting" in between). n8n does not start by itself after a reboot: open the shortcut. The .lnk is not in git: it is `cmd.exe /c "<folder>\start_dashboard.cmd"`, window minimised, icon dashboard.ico. Not started by n8n; restarting it is safe during a run (it only reads and calls the same endpoints Justin would). Shows videos (images made / total, voice, srt, MP4, status), each video's image grid with line + prompt, MP4 player + .srt download, live run (rate, time left, windows, the runner's last orders), images per Gemini account per day, n8n runs with their failure reason. Buttons: Start (webhook), Stop (n8n stop + release claim + runner `setup` closes every Gemini window), Hold (HOLD file), Make again (moves img/NNN + img_clean/NNN into img/redo/; only videos without an MP4), Delete (removes the whole `output/<slug>/` permanently, after typing the name; refused during a run). Thumbnails: each video row shows them; the video page has a Thumbnails card (click = full size + Download; checkbox top-right = use on YouTube, max 3, `thumbs-approved.json`, POST `/api/thumbpick`). Delete is the trash icon at the far right of the video page. Every error message (robot-check notice, "Last run failed", "script.json problem", red pop-ups) has a trash button; a deleted notice stays hidden in that browser (localStorage `gone`: `robot:<run>`, `run:<run>`, `script:<slug>:<error>`), a new run's error shows again. Only answers 127.0.0.1/localhost; POSTs need the `X-Dash: 1` header. n8n's plain execution list leaves out running executions, so it also asks with `status=running` / `waiting`. Cache of finished runs: `dashboard-cache/runs.json`. |
 | Account counts | `bridge.py` `watch()` -> `usage.jsonl` | The bridge watches the orders passing through it (openWindows / switchAccounts / newChat tell it which account is in which window) and writes one line per image saved, per limit reply and per robot check. Started 2026-10-06 23:2x; earlier videos have no counts. **The window-loop rework changes the orders**: update `watch()` then (the `/pool/limit` call gives limits directly). |
 | Kokoro TTS | `YtAutomation\tts\` (venv `tts\.venv`, models `tts\models`) | `voice.py` uses `kokoro_onnx`; only knobs: voice, speed, pauses. No pitch/intonation control (punctuation and voice blending are the only levers). |
 | OpenCut | `YtAutomation\opencut-classic\` (editor :3000) + `opencut-controller\` (MCP over HTTP :3002) | Started/stopped by the workflow. Use 127.0.0.1, not localhost (IPv6). |
@@ -128,8 +150,8 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 Groups as they appear in the editor (top to bottom):
 
 1. **Start** — "Start: make a video" (webhook `POST /webhook/yt-render` `{"slug": "...", "voice": "am_liam"}`,
-   answers at once) or "Every 5 hours" -> "Find unfinished video" (`pending.py`: oldest `output/<slug>/` with
-   script.json, no MP4, no `HOLD` file, not starting with `_`) -> "Pick that video".
+   answers at once). The only trigger: **no timer** (Justin had the "Every 5 hours" timer removed, 2026-10-07;
+   it started runs by itself, two at once. Never add a timer back). `pending.py` is no longer used.
    Then: Video name ok? -> Start bridge to extension -> Bridge running? -> "Mark video in progress"
    (`/claim`; a second run on the same video stops at "Stop: already in progress").
 2. **Voice** — `voice.py output\<slug> --voice <v> --speed 1.0 --if-needed`. Skips only if voice.wav +
@@ -150,10 +172,11 @@ Groups as they appear in the editor (top to bottom):
    stop the run (Google's `google.com/sorry` page in any window).
 6. **Steps 4-8** — open each image's link in a tab, pause, save to `img/NNN.jpg`, close tabs, pause, note
    accounts on limit + switch those windows to the next free account, pause, new chat in every window.
-7. **After the 8 steps** — images still missing: pause 10-30 s, next round. "image input not found" at step 2:
-   **Restart windows** (close all, forget them, back to step 1; accounts on limit stay noted), up to 3 times in a
-   row, then fail. Every account on limit: release the claim, end ("Wait for next try"; the 5-hour timer picks
-   it up again). 3 rounds with no image saved and no new limit: fail.
+7. **After the 8 steps** — images still missing: pause 10-30 s, next round. "image input not found" at step 2: nothing
+   extra, step 8 already reloaded that window, it gets a prompt again next round (Justin, 2026-10-07: refresh, never
+   close/reopen windows for this). The runner attaches the 3 refs by dropping them on the input box (Gemini's new
+   upload menu has no file input in the page, 2026-10-07). Every account on limit: release the claim, end ("Wait for next try"; Justin starts it
+   again). 3 rounds with no image saved and no new limit: fail.
 8. **Make the video** — Prepare images (`voice.py --images-only`) -> Make subtitles (`make_srt.py`) ->
    OpenCut assemble + export -> Stop OpenCut -> Release -> MP4 done.
 9. **Failed** — Collect failure -> Release -> Mark failed (execution shows red with the reason).
@@ -211,8 +234,7 @@ page (no traffic to Google).
 - **The 10-30 s pause between rounds** came from Claude's reading of "apply all discussed"; Justin never picked
   that number. Options offered: remove / 3-8 s / keep. Not decided.
 - Discussed, NOT agreed (ask before building): full-size image download, Real-ESRGAN upscaler (Justin has a
-  GTX 1660 Ti; he is testing an upscaler on `img/043.jpg`), segmentation inside n8n, replacing the 5-hour timer
-  with a wait inside the run, slow pan across images, background music, title/thumbnail/upload,
+  GTX 1660 Ti; he is testing an upscaler on `img/043.jpg`), segmentation inside n8n, slow pan across images, background music, title/thumbnail/upload,
   notifications (Justin: "for now no need to notify me").
 - Account risk: automating the Gemini web app goes against Google's terms; worst realistic case is limits or
   blocks on an account (Google's terms forbid automated access and allow account termination). justin.masiga.94
@@ -265,5 +287,5 @@ Learned the hard way in this session; every point cost him hours.
 2. Make `output/<slug>/` with `script.json` (2-4 s segments, standalone prompts, voice `am_liam`) and `refs/`.
 3. Check no run is going, then start it:
    `curl -X POST http://127.0.0.1:5678/webhook/yt-render -H "Content-Type: application/json" -d '{"slug":"<slug>","voice":"am_liam"}'`
-   (or let the 5-hour timer find it; add a `HOLD` file to keep a folder from being picked up).
+   (or the dashboard's Start button).
 4. Follow it in the bridge window or n8n -> Executions. The MP4 and .srt land in `output/<slug>/`.

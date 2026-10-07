@@ -8,6 +8,7 @@ its buttons do only what Justin would do by hand:
   Redo    move img/NNN.* and img_clean/NNN.jpg into img/redo/ (the next run makes that image again; only for videos
           without an MP4)
   Delete  remove the whole output/<slug>/ folder, permanently; only after typing the name, never during a run
+  TheJobStash Start  close any old scorer/tunnel windows, then start both fresh (what scorer.cmd does, minus n8n)
 
 Image counts per account come from usage.jsonl, which the bridge writes as it saves images.
 The n8n API key is read from the Credentials folder and never leaves this process.
@@ -16,8 +17,10 @@ usage: tts/.venv/Scripts/python dashboard.py     (start_dashboard.cmd starts it 
 """
 import io
 import json
+import os
 import re
 import shutil
+import subprocess
 import time
 import urllib.request
 from collections import defaultdict
@@ -35,6 +38,8 @@ PORT = 8770
 N8N = "http://127.0.0.1:5678"
 BRIDGE = "http://127.0.0.1:8766"
 WORKFLOW = "ytrender00000001"
+JOBSTASH = Path(r"D:\AIO Freelance\TheJobStash")
+CLOUDFLARED = Path(os.environ["APPDATA"]) / r"npm\node_modules\cloudflared\bin\cloudflared.exe"
 KEY = Path(r"D:\AIO Freelance\Credentials\n8n\api-key.txt").read_text(encoding="utf-8").strip()
 SLUG = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 IMG = re.compile(r"^(\d{3})\.(jpg|jpeg|png|webp)$", re.I)
@@ -66,14 +71,61 @@ def up(url):
 
 
 def n8n_state():
-    """'running' once n8n can take a run, 'starting' while it answers but its database is still loading, else 'down'."""
+    """'running' once n8n can take a run, 'starting' while it answers but its database is still loading,
+    'restarting' for a while after the dashboard restarted it, else 'down'."""
     try:
         urllib.request.urlopen(N8N + "/healthz/readiness", timeout=2)
         return "running"
     except urllib.error.HTTPError:
         return "starting"
     except Exception:
-        return "starting" if up(N8N + "/healthz") else "down"
+        if up(N8N + "/healthz"):
+            return "starting"
+        return "restarting" if time.time() - _n8n_restarted < 300 else "down"
+
+
+_n8n_restarted = 0                       # when the dashboard last restarted n8n
+
+
+def n8n_restart():
+    """End n8n (also when it is frozen: process alive, port open, never answers) and start it again the way
+    start_dashboard.cmd does. Refused while a video run is going, since that would kill the run."""
+    global _n8n_restarted
+    if n8n_state() == "running" and any(r["live"] for r in runs(10)):
+        raise ValueError("a run is going; stop it first")
+    if time.time() - _n8n_restarted < 60:
+        raise ValueError("already restarting; give it a few minutes")
+    # n8n's own process and its task runner both run from the global npm n8n folder
+    subprocess.run(["powershell", "-NoProfile", "-Command",
+                    "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | "
+                    "Where-Object { $_.CommandLine -match 'node_modules\\\\n8n\\\\' } | "
+                    "ForEach-Object { Stop-Process -Id $_.ProcessId -Force }"], capture_output=True, timeout=30)
+    si = subprocess.STARTUPINFO()
+    si.dwFlags, si.wShowWindow = subprocess.STARTF_USESHOWWINDOW, 7          # SW_SHOWMINNOACTIVE
+    subprocess.Popen(["cmd", "/c", r"title n8n :5678 && .\start_n8n.cmd"], cwd=HERE.parent / "n8n",
+                     creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=si)
+    _n8n_restarted = time.time()
+    return {"message": "restarting n8n; it takes about 3 minutes to be ready"}
+
+
+def ok(url):
+    try:
+        urllib.request.urlopen(url, timeout=2)
+        return True
+    except Exception:
+        return False
+
+
+_js_started = 0                          # when the dashboard last started TheJobStash's parts
+
+
+def jobstash():
+    """TheJobStash's scorer (py_server.py :3300) and its tunnel (cloudflared's /ready, metrics on 20241-20245),
+    which are what let thejobstash.com take resumes. n8n is the same n8n as above."""
+    s = {"scorer": ok("http://127.0.0.1:3300/healthz"),
+         "tunnel": any(ok(f"http://127.0.0.1:{p}/ready") for p in range(20241, 20246))}
+    s["starting"] = not (s["scorer"] and s["tunnel"]) and time.time() - _js_started < 30
+    return s
 
 
 def bridge_status():
@@ -120,12 +172,21 @@ def thumbnails(d):
         ts = json.loads(f.read_text(encoding="utf-8"))["thumbnails"] if f.exists() else []
     except (ValueError, KeyError):
         return []
+    ok = approved(d)
     out = []
     for t in ts:
         p = d / "thumbs" / f"thumb-{t['id']}.jpg"
         out.append({"id": t["id"], "text": t.get("text", ""), "scene": t.get("scene", ""),
-                    "v": int(p.stat().st_mtime) if p.exists() else None})
+                    "v": int(p.stat().st_mtime) if p.exists() else None, "ok": t["id"] in ok})
     return out
+
+
+def approved(d):
+    """Thumbnail ids Justin ticked for YouTube (at most 3), from thumbs-approved.json."""
+    try:
+        return json.loads((d / "thumbs-approved.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
 
 
 def folder(slug):
@@ -263,7 +324,8 @@ def accounts(wins):
 def state():
     b = bridge_status()
     n8n_now = n8n_state()
-    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000")}
+    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000"),
+              "jobstash": jobstash()}
     try:
         rs = runs() if health["n8n"] else []
     except Exception as e:
@@ -351,6 +413,43 @@ def stop():
     return {"message": f"stopped run(s) {stopped or 'none'}, released {list(b['claims']) or 'nothing'}, {closed}"}
 
 
+# Every window that runs TheJobStash's scorer or tunnel, whoever opened it (this dashboard, scorer.cmd, a terminal):
+# the process itself, whatever holds :3300, and the cmd window each one runs in.
+_JS_KILL = ("$p = Get-CimInstance Win32_Process; "
+            "$own = @((Get-NetTCPConnection -LocalPort 3300 -State Listen -ErrorAction SilentlyContinue).OwningProcess); "
+            "$hit = @($p | ? { ($_.Name -in 'cmd.exe','python.exe','cloudflared.exe' -and "
+            "$_.CommandLine -match 'py_server\\.py|tunnel run jobstash-scorer') -or $own -contains $_.ProcessId }); "
+            "$ids = @($hit.ProcessId) + @($p | ? { $_.Name -eq 'cmd.exe' -and $hit.ParentProcessId -contains $_.ProcessId } "
+            "| % ProcessId); $ids | sort -Unique | % { taskkill /F /T /PID $_ 2>$null | Out-Null }")
+
+
+def jobstash_start():
+    """Restart TheJobStash's scorer and tunnel: close every window already running either (dead ones sit at `pause`,
+    and a stale py_server keeps :3300 so a new one cannot start), then start both fresh, each in its own minimised
+    window, with the same commands and .env.cloudflare as TheJobStash\\scorer.cmd (minus n8n, which is already the
+    one above). Close a window to stop that part."""
+    global _js_started
+    s = jobstash()
+    if s["starting"]:
+        raise ValueError("already starting; give it a few seconds")
+    env = dict(os.environ)
+    for line in (JOBSTASH / ".env.cloudflare").read_text(encoding="utf-8").splitlines():
+        k, sep, v = line.partition("=")
+        if sep and k and v and not k.startswith("#"):
+            env[k] = v
+    subprocess.run(["powershell", "-NoProfile", "-Command", _JS_KILL], timeout=60,
+                   creationflags=subprocess.CREATE_NO_WINDOW)
+    si = subprocess.STARTUPINFO()
+    si.dwFlags, si.wShowWindow = subprocess.STARTF_USESHOWWINDOW, 7          # SW_SHOWMINNOACTIVE
+    for title, cmd in [("jobstash scorer :3300", "python py_server.py"),
+                       ("jobstash tunnel", f"{CLOUDFLARED} tunnel run jobstash-scorer")]:
+        # own console and no inherited handles, so it outlives this dashboard; `pause` keeps a crash readable
+        subprocess.Popen(["cmd", "/c", f"title {title} && {cmd} & pause"], cwd=JOBSTASH, env=env,
+                         creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=si)
+    _js_started = time.time()
+    return {"message": "restarting TheJobStash scorer and tunnel"}
+
+
 def hold(slug, on):
     f = folder(slug) / "HOLD"
     if on:
@@ -358,6 +457,18 @@ def hold(slug, on):
     elif f.exists():
         f.unlink()
     return {"message": ("holding " if on else "released hold on ") + slug}
+
+
+def thumb_pick(slug, i, on):
+    d = folder(slug)
+    i = int(i)
+    if not (d / "thumbs" / f"thumb-{i}.jpg").exists():
+        raise ValueError(f"thumbnail {i} is not made yet")
+    ok = [x for x in approved(d) if x != i] + ([i] if on else [])
+    if len(ok) > 3:
+        raise ValueError("only 3 thumbnails can be picked; untick one first")
+    (d / "thumbs-approved.json").write_text(json.dumps(sorted(ok)), encoding="utf-8")
+    return {"message": f"thumbnail {i} {'picked' if on else 'unpicked'}", "ok": sorted(ok)}
 
 
 def redo(slug, i):
@@ -512,8 +623,14 @@ class H(BaseHTTPRequestHandler):
                 return self.send(start(r["slug"]))
             if act == "/api/stop":
                 return self.send(stop())
+            if act == "/api/n8n/restart":
+                return self.send(n8n_restart())
+            if act == "/api/jobstash/start":
+                return self.send(jobstash_start())
             if act == "/api/hold":
                 return self.send(hold(r["slug"], bool(r["on"])))
+            if act == "/api/thumbpick":
+                return self.send(thumb_pick(r["slug"], r["id"], bool(r["on"])))
             if act == "/api/redo":
                 return self.send(redo(r["slug"], r["id"]))
             if act == "/api/delete":
