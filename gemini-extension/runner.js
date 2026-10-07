@@ -53,8 +53,8 @@ const windowTab = async winId => {
   const w = await chrome.windows.get(winId, { populate: true }).catch(() => null);
   return w && w.tabs.find(t => /gemini\.google\.com/.test(t.url || t.pendingUrl || ''));
 };
-const inPage = async (tabId, func, args = []) =>
-  (await chrome.scripting.executeScript({ target: { tabId }, func, args }).catch(e => [{ result: { error: String(e) } }]))[0].result;
+const inPage = async (tabId, func, args = [], world = 'ISOLATED') =>
+  (await chrome.scripting.executeScript({ target: { tabId }, func, args, world }).catch(e => [{ result: { error: String(e) } }]))[0].result;
 // Every command works on all its windows at the same time; no window waits for another.
 const each = (list, fn) => Promise.all(list.map(fn));
 // For actions that reach Google (opening a page, sending a prompt): each window first waits its own random 1-3 s,
@@ -91,8 +91,15 @@ async function listWindows({ windowIds }) {
 
 async function openWindows({ accounts }) {
   const opened = {};
-  await eachStaggered(accounts, async acct => {
-    const w = await chrome.windows.create({ url: chatUrl(acct), focused: false });
+  // Justin: the windows go on the second screen, 3 columns across its full width with no gaps, 3/4 of its height
+  // (main screen if there is no second). They must stay uncovered: Gemini only builds its image input in a
+  // window that is actually on screen.
+  const displays = await chrome.system.display.getInfo();
+  const area = (displays.find(d => !d.isPrimary) || displays[0]).workArea;
+  const colW = Math.floor(area.width / 3), rowH = Math.floor(area.height * 3 / 4);
+  await eachStaggered(accounts, async (acct, i) => {
+    const w = await chrome.windows.create({ url: chatUrl(acct), focused: false,
+      left: area.left + (i % 3) * colW, top: area.top, width: colW, height: rowH });
     opened[acct] = w.id;
     await loaded(w.tabs[0].id);
   });
@@ -117,17 +124,21 @@ async function sendPrompt(text, refs) {
   const waitFor = async (fn, ms) => { for (let t = 0; t < ms; t += 250) { const v = fn(); if (v) return v; await sleep(250); } return null; };
   const ed = await waitFor(() => document.querySelector('rich-textarea .ql-editor'), 30000);
   if (!ed) return { error: 'input box not found' };
+  // The image input exists only once the "Upload & tools" menu has been drawn, which needs the window on screen
+  // (Gemini, 2026-10-07; before, it was always in the page). Fill it, then wait until all refs show as previews.
   const menu = [...document.querySelectorAll('button')].find(b => /^upload/i.test(b.getAttribute('aria-label') || ''));
-  if (!menu) return { error: 'Upload button not found' };
+  if (!menu) return { error: 'Upload button not found', visibility: document.visibilityState };
   const imgInput = () => [...document.querySelectorAll('input[type=file]')].find(i => i.accept === 'image/*');
-  if (!imgInput()) menu.click();                               // the menu is a toggle: click only if closed
-  const input = await waitFor(imgInput, 5000);
-  if (!input) return { error: 'image input not found' };
+  if (!imgInput()) menu.click();
+  const input = await waitFor(imgInput, 15000);
+  if (!input) return { error: 'image input not found', visibility: document.visibilityState };
   const dt = new DataTransfer();
   refs.forEach(r => dt.items.add(new File([Uint8Array.from(atob(r.b64), c => c.charCodeAt(0))], r.name, { type: 'image/jpeg' })));
   input.files = dt.files;
   input.dispatchEvent(new Event('change', { bubbles: true }));
-  await sleep(500);
+  const previews = () => document.querySelectorAll('uploader-file-preview').length;
+  if (!await waitFor(() => previews() >= refs.length, 15000))
+    return { error: 'reference images did not attach', previews: previews(), visibility: document.visibilityState };
   if (imgInput()) menu.click();                                // close the menu again
   ed.focus();
   document.execCommand('selectAll');

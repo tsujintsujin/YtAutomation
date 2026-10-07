@@ -1,7 +1,7 @@
 """Voice: script.json -> audio/NNN.wav, voice.wav, timings.json. Needs no images.
 --images-only: the separate image prep for the edit (img/NNN.* -> img_clean/NNN.jpg, border-trimmed, 1920x1080).
---if-needed: skip the voice when voice.wav and timings.json are already newer than script.json and were made with
-the same voice and speed (recorded in voice-settings.json).
+--if-needed: skip the voice when voice.wav and timings.json exist and were made from the same narration text, voice
+and speed (recorded in voice-settings.json), even if script.json was rebuilt with new image prompts.
 
 usage: tts/.venv/Scripts/python voice.py output/<slug> [--voice am_santa] [--speed 1.0]
 
@@ -10,6 +10,7 @@ pause after each (mid-segment too), cumulative timing. Segment N owns [start, en
 the images tile the whole voice track with no gaps.
 """
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -75,9 +76,16 @@ def main():
         return
 
     done = [out / "voice.wav", out / "timings.json"]
-    settings = {"voice": voice, "speed": a.speed}
+    # The voice depends only on the narration, the voice and the speed, so a script.json rebuilt with new image
+    # prompts must not redo it. Older voice-settings.json had no "texts": then fall back to the file dates once.
+    texts = hashlib.sha1(json.dumps([s["text"] for s in segs]).encode("utf-8")).hexdigest()
+    settings = {"voice": voice, "speed": a.speed, "texts": texts}
     made_with = json.loads((out / "voice-settings.json").read_text(encoding="utf-8")) if (out / "voice-settings.json").exists() else None
-    if a.if_needed and made_with == settings and             all(f.exists() and f.stat().st_mtime > (out / "script.json").stat().st_mtime for f in done):
+    if made_with and "texts" not in made_with and made_with == {"voice": voice, "speed": a.speed} and \
+            all(f.exists() and f.stat().st_mtime > (out / "script.json").stat().st_mtime for f in done):
+        made_with = settings
+        (out / "voice-settings.json").write_text(json.dumps(settings), encoding="utf-8")
+    if a.if_needed and made_with == settings and all(f.exists() for f in done):
         timings = json.loads((out / "timings.json").read_text(encoding="utf-8"))
         print(json.dumps({"ok": True, "folder": str(out), "voice": voice, "segments": len(timings),
                           "seconds": timings[-1]["end"], "took": 0, "skipped": "already up to date", "over_6s": []}))

@@ -60,6 +60,17 @@ USAGE = Path(__file__).parent / "usage.jsonl"
 wins = {}             # window id -> account in it, learned from openWindows / switchAccounts / newChat
 recent = []           # the last 60 orders: {t, name, ok, info}
 logged = set()        # limit / robot replies already written to usage.jsonl (look sees the same reply every 5 s)
+LOG = Path(__file__).parent / "bridge.log"
+
+
+def log(line):
+    """Log to bridge.log, never to the console: a console write can block (e.g. text selected in the window) and
+    froze every order on 2026-10-07. Never call it while holding the lock."""
+    try:
+        with LOG.open("a", encoding="utf-8") as fh:
+            fh.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {line}\n")
+    except OSError:
+        pass
 
 
 def watch(name, args, ans):
@@ -265,16 +276,21 @@ class H(BaseHTTPRequestHandler):
                 queue.append({"id": cid, "name": r["name"], "args": r.get("args", {})})
                 lock.notify_all()
                 got = lock.wait_for(lambda: cid in results, timeout=float(r.get("timeout", 900)))
+                watch_err = None
                 if not got:
                     queue[:] = [c for c in queue if c["id"] != cid]
-                    print(f"{time.strftime('%H:%M:%S')} {r['name']}: no answer", flush=True)
-                    return self.send({"ok": False, "error": "no answer from the extension (is its runner tab open?)"})
-                ans = results.pop(cid)
-                try:
-                    watch(r["name"], r.get("args", {}), ans)
-                except Exception as e:                               # watching must never break an order
-                    print(f"watch failed: {e}", flush=True)
-            print(f"{time.strftime('%H:%M:%S')} {r['name']}: {json.dumps(ans)[:300]}", flush=True)
+                else:
+                    ans = results.pop(cid)
+                    try:
+                        watch(r["name"], r.get("args", {}), ans)
+                    except Exception as e:                           # watching must never break an order
+                        watch_err = e
+            if not got:
+                log(f"{r['name']}: no answer")
+                return self.send({"ok": False, "error": "no answer from the extension (is its runner tab open?)"})
+            if watch_err:
+                log(f"watch failed: {watch_err}")
+            log(f"{r['name']}: {json.dumps(ans)[:300]}")
             return self.send(ans)
         if u.path.startswith("/pool/"):
             try:
@@ -319,5 +335,5 @@ class H(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    print("bridge on 127.0.0.1:8766", flush=True)
+    log("bridge on 127.0.0.1:8766")
     ThreadingHTTPServer(("127.0.0.1", 8766), H).serve_forever()
