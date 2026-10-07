@@ -8,6 +8,11 @@ runner tab carries them out in Gemini. Nothing here decides the flow.
   runner    GET  /refs?slug=                            -> the 3 reference sheets (base64 JPEG)
   runner    POST /image?slug= {"id": N, "b64": ...}     -> writes output/<slug>/img/NNN.jpg (must open as an image)
   n8n       GET  /missing?slug=                         -> image numbers not yet in img/
+Thumbnails: same calls with kind=thumbnail. Their prompts are in output/<slug>/thumbnails.json (not script.json: a
+newer script.json makes voice.py redo the voice), tagged "(thumbnail N)", saved as thumbs/thumb-N.jpg, never in img/.
+  runner    GET  /prompt?slug=&id=&kind=thumbnail       -> the full prompt text for one thumbnail
+  runner    POST /image?slug=&kind=thumbnail {"id": N, "b64": ...}  -> writes output/<slug>/thumbs/thumb-N.jpg
+  n8n       GET  /thumbs/missing?slug=                  -> thumbnail numbers not yet in thumbs/ ([] without thumbnails.json)
   n8n       POST /claim {"slug"}, POST /release {"slug"} -> one n8n run per video: a claim fails while another run holds it
   n8n       GET  /accounts                              -> gemini-accounts.json: the 3 window accounts first, then the rest
 
@@ -71,12 +76,13 @@ def watch(name, args, ans):
             wins[str(j["windowId"])] = j["account"]
     if name == "saveImages":
         by_id = {j["id"]: str(j["windowId"]) for j in args.get("jobs", [])}
+        key = "thumb" if args.get("kind") == "thumbnail" else "image"
         for i in ans.get("saved", []):
-            lines.append({"t": t, "slug": args.get("slug"), "image": i, "account": wins.get(by_id.get(i))})
+            lines.append({"t": t, "slug": args.get("slug"), key: i, "account": wins.get(by_id.get(i))})
     for win, f in (ans.get("found") or ans.get("sent") or {}).items():
         acct = wins.get(str(win))
-        if f.get("limit") and (acct, f.get("forImage")) not in logged:
-            logged.add((acct, f.get("forImage")))
+        if f.get("limit") and (acct, f.get("forKind"), f.get("forImage")) not in logged:
+            logged.add((acct, f.get("forKind"), f.get("forImage")))
             lines.append({"t": t, "event": "limit", "account": acct, "image": f.get("forImage")})
         if f.get("robotCheck") and (acct, "robot") not in logged:
             logged.add((acct, "robot"))
@@ -156,6 +162,22 @@ def prompt_text(slug, i):                    # same text as gemini_job.py's batc
                       f"\n1. (image {i:03d}) {p}"])
 
 
+def thumbnails(slug):
+    f = folder(slug) / "thumbnails.json"
+    return json.loads(f.read_text(encoding="utf-8"))["thumbnails"] if f.exists() else []
+
+
+def thumbs_missing(slug):
+    have = {int(p.stem.split("-")[1]) for p in (folder(slug) / "thumbs").glob("thumb-[0-9]*.jpg")}
+    return [t["id"] for t in thumbnails(slug) if t["id"] not in have]
+
+
+def thumb_prompt_text(slug, i):
+    p = {t["id"]: t["prompt"] for t in thumbnails(slug)}[i]
+    return "\n".join(["Generate 1 separate images, one for each numbered prompt below. Each prompt is complete on its own.",
+                      f"\n1. (thumbnail {i}) {p}"])
+
+
 def refs(slug):
     out = []
     for name in ("style-ref.jpg", "geek-sheet.jpg", "cat-sheet.jpg"):
@@ -206,8 +228,11 @@ class H(BaseHTTPRequestHandler):
                     return self.send(queue.pop(0) if queue else {})
             if u.path == "/missing":
                 return self.send({"missing": missing(q["slug"])})
+            if u.path == "/thumbs/missing":
+                return self.send({"missing": thumbs_missing(q["slug"])})
             if u.path == "/prompt":
-                return self.send({"text": prompt_text(q["slug"], int(q["id"]))})
+                text = (thumb_prompt_text if q.get("kind") == "thumbnail" else prompt_text)(q["slug"], int(q["id"]))
+                return self.send({"text": text})
             if u.path == "/refs":
                 return self.send(refs(q["slug"]))
             if u.path == "/accounts":
@@ -277,6 +302,11 @@ class H(BaseHTTPRequestHandler):
             try:
                 data = base64.b64decode(r["b64"])
                 Image.open(io.BytesIO(data)).verify()              # refuse anything that isn't a real image
+                if q.get("kind") == "thumbnail":
+                    thumbs = folder(q["slug"]) / "thumbs"
+                    thumbs.mkdir(exist_ok=True)
+                    (thumbs / f"thumb-{int(r['id'])}.jpg").write_bytes(data)
+                    return self.send({"ok": True})
                 img = folder(q["slug"]) / "img"
                 img.mkdir(exist_ok=True)
                 for old in img.glob(f"{int(r['id']):03d}.*"):

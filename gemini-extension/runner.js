@@ -4,10 +4,12 @@
 //   setup          {}                         -> closes every other runner tab, Gemini tab and image tab
 //   listWindows    { windowIds }              -> { open: [windowIds that still have a Gemini tab] }
 //   openWindows    { accounts }               -> { opened: { account: windowId } }
-//   prompt         { slug, jobs:[{windowId, id}] } -> { sent: { windowId: {id, sent} | {id, error} }, sentAt }
+//   prompt         { slug, kind?, jobs:[{windowId, id}] } -> { sent: { windowId: {id, sent} | {id, error} }, sentAt }
 //   look           { windowIds }              -> { found: { windowId: {src} | {limit} | {waiting} | {gone} | {robotCheck} } }
+//                                                each with forKind ('image' | 'thumbnail') and forImage (its number)
 //   openTabs       { jobs:[{windowId, url}] }  -> { tabIds }
-//   saveImages     { slug, jobs:[{windowId, id, src}] } -> { saved: [ids], errors: { id: error } }
+//   saveImages     { slug, kind?, jobs:[{windowId, id, src}] } -> { saved: [ids], errors: { id: error } }
+// kind: 'image' (default, a segment image -> img/NNN.jpg) or 'thumbnail' (-> thumbs/thumb-N.jpg).
 //   closeTabs      { tabIds }                 -> {}
 //   switchAccounts { jobs:[{windowId, account}] } -> {}
 //   newChat        { jobs:[{windowId, account}] } -> {}   a new chat for that account
@@ -97,14 +99,14 @@ async function openWindows({ accounts }) {
   return { opened };
 }
 
-async function prompt({ slug, jobs }) {
+async function prompt({ slug, kind = 'image', jobs }) {
   const refs = jobs.length ? await get(`/refs?slug=${encodeURIComponent(slug)}`) : [];
   const sent = {};
   await eachStaggered(jobs, async ({ windowId, id }) => {
     if (await robotCheck(windowId)) { sent[windowId] = { id, error: 'Google robot check', robotCheck: true }; return; }
     const tab = await windowTab(windowId);
     if (!tab) { sent[windowId] = { id, error: 'no Gemini tab in this window' }; return; }
-    const { text } = await get(`/prompt?slug=${encodeURIComponent(slug)}&id=${id}`);
+    const { text } = await get(`/prompt?slug=${encodeURIComponent(slug)}&id=${id}&kind=${kind}`);
     sent[windowId] = Object.assign({ id }, await inPage(tab.id, sendPrompt, [text, refs]));
   });
   return { sent, sentAt: Date.now() };
@@ -140,7 +142,8 @@ async function sendPrompt(text, refs) {
 }
 
 // Look once: does the last answer have a loaded "AI generated" image, or say the limit is reached? Also reports
-// the image number in the prompt above that answer ("(image NNN)"), so n8n can tell a new answer from an old one.
+// the number in the prompt above that answer ("(image NNN)" or "(thumbnail N)"), so n8n can tell a new answer from
+// an old one.
 async function look({ windowIds }) {
   const found = {};
   await each(windowIds, async windowId => {
@@ -150,14 +153,15 @@ async function look({ windowIds }) {
     found[windowId] = await inPage(tab.id, () => {
       const resp = [...document.querySelectorAll('model-response')].pop();
       const box = resp && (resp.closest('.conversation-container') || resp.parentElement);
-      const tag = box && box.querySelector('user-query')?.textContent.match(/\(image (\d{3})\)/);
-      const forImage = tag ? +tag[1] : null;
+      const tag = box && box.querySelector('user-query')?.textContent.match(/\((image|thumbnail) (\d+)\)/);
+      const forKind = tag ? tag[1] : null;
+      const forImage = tag ? +tag[2] : null;
       if (resp) {
         const img = [...resp.querySelectorAll('img')].find(i => /AI generated/i.test(i.alt || '') && i.classList.contains('loaded'));
-        if (img) return { src: img.src, forImage };
-        if (/limit resets|create more images as soon as your limit/i.test(resp.innerText)) return { limit: true, forImage };
+        if (img) return { src: img.src, forKind, forImage };
+        if (/limit resets|create more images as soon as your limit/i.test(resp.innerText)) return { limit: true, forKind, forImage };
       }
-      return { waiting: true, forImage };
+      return { waiting: true, forKind, forImage };
     });
   });
   return { found };
@@ -169,8 +173,8 @@ async function openTabs({ jobs }) {
   return { tabIds };
 }
 
-// Save the image at src (read inside its window's Gemini page) as img/NNN.jpg, NNN = the id n8n gives.
-async function saveImages({ slug, jobs }) {
+// Save the image at src (read inside its window's Gemini page) as img/NNN.jpg (or thumbs/thumb-N.jpg), the id n8n gives.
+async function saveImages({ slug, kind = 'image', jobs }) {
   const saved = [], errors = {};
   await each(jobs, async ({ windowId, id, src }) => {
     const tab = await windowTab(windowId);
@@ -180,7 +184,7 @@ async function saveImages({ slug, jobs }) {
       return { b64 };
     }, [src]) : { error: 'no Gemini tab in this window' };
     if (out.error) { errors[id] = out.error; return; }
-    const ack = await post(`/image?slug=${encodeURIComponent(slug)}`, { id, b64: out.b64 });
+    const ack = await post(`/image?slug=${encodeURIComponent(slug)}&kind=${kind}`, { id, b64: out.b64 });
     if (ack.ok) saved.push(id); else errors[id] = ack.error;
   });
   return { saved, errors };

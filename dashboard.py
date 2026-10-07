@@ -112,6 +112,22 @@ def images(d):
     return out
 
 
+def thumbnails(d):
+    """The video's YouTube thumbnails: [{id, text, scene, v}] from thumbnails.json, v = mtime of thumbs/thumb-N.jpg
+    (None until it is made)."""
+    f = d / "thumbnails.json"
+    try:
+        ts = json.loads(f.read_text(encoding="utf-8"))["thumbnails"] if f.exists() else []
+    except (ValueError, KeyError):
+        return []
+    out = []
+    for t in ts:
+        p = d / "thumbs" / f"thumb-{t['id']}.jpg"
+        out.append({"id": t["id"], "text": t.get("text", ""), "scene": t.get("scene", ""),
+                    "v": int(p.stat().st_mtime) if p.exists() else None})
+    return out
+
+
 def folder(slug):
     if not SLUG.match(slug or ""):
         raise ValueError("bad video name")
@@ -141,6 +157,7 @@ def video_summary(d):
         "changed": max([d.stat().st_mtime] + [p.stat().st_mtime for p in imgs.values()]),
         "lastImage": max([p.stat().st_mtime for p in imgs.values()], default=0),
         "firstId": min(imgs, default=None),
+        "thumbs": thumbnails(d),
     }
 
 
@@ -464,6 +481,13 @@ class H(BaseHTTPRequestHandler):
                 if not p:
                     return self.send({"error": "no such image"}, code=404)
                 if parts[0] == "thumb":
+                    return self.send(thumb(p), "image/jpeg", extra={"Cache-Control": "max-age=86400"})
+                return self.file(p)
+            if parts[0] in ("ythumb", "ythumbfull") and len(parts) == 3:
+                p = folder(parts[1]) / "thumbs" / f"thumb-{int(parts[2])}.jpg"
+                if not p.exists():
+                    return self.send({"error": "no such thumbnail"}, code=404)
+                if parts[0] == "ythumb":
                     return self.send(thumb(p), "image/jpeg", extra={"Cache-Control": "max-age=86400"})
                 return self.file(p)
             if parts[0] == "file" and len(parts) == 3:

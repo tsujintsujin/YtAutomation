@@ -113,6 +113,13 @@ h1 span { color: var(--muted); }
 .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 22px; padding: 14px 20px 18px; }
 .entry { display: flex; gap: 12px; padding: 10px; margin: 0 -10px; border-radius: 14px; cursor: pointer; min-width: 0; }
 .entry:hover { background: var(--input); }
+.vlist { padding: 8px 20px 12px; }
+.vrow { display: flex; gap: 18px; align-items: center; margin: 0 -10px; }
+.vrow .info { display: flex; gap: 12px; width: 300px; flex: none; min-width: 0; }
+.yts { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.yt { aspect-ratio: 16/9; border-radius: 7px; border: 1px solid var(--line); background: var(--input) center/cover; }
+.yt.missing { border: 1.5px dashed var(--line); background: none; display: grid; place-items: center; color: var(--muted); font-size: 11px; font-weight: 600; }
+.yts .none { grid-column: 1/-1; color: var(--muted); font-size: 13px; }
 .entry .thumb { width: 44px; height: 44px; border-radius: 10px; background: var(--accent-soft) center/cover; color: var(--accent);
   display: grid; place-items: center; flex: none; }
 .entry h4 { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.025em; line-height: 1.3; overflow-wrap: anywhere; }
@@ -139,6 +146,7 @@ h1 span { color: var(--muted); }
 .banner .tile { background: var(--red); color: #fff; }
 .banner h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--red); }
 .banner p { margin: 2px 0 0; font-size: 13px; color: var(--soft); }
+.banner .bx { margin-left: auto; flex: none; color: var(--red); border-color: color-mix(in srgb, var(--red) 40%, transparent); }
 
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); }
 .stat { background: var(--surface); padding: 14px 20px; min-width: 0; }
@@ -151,6 +159,14 @@ h1 span { color: var(--muted); }
 .vhead { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
 .vhead h1 { margin-bottom: 8px; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.vhead .actions { flex-basis: 100%; }
+.vhead .actions .end { margin-left: auto; }
+.btn.icon { width: 38px; padding: 0; justify-content: center; }
+.ytgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 16px 20px 20px; }
+.ytc { display: flex; flex-direction: column; gap: 6px; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: inherit; font: inherit; }
+.ytc .im { display: block; width: 100%; pointer-events: none; }
+.ytc:hover .im { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ytc b { font-size: 12px; font-weight: 700; color: var(--soft); }
 video { width: 100%; display: block; background: #000; aspect-ratio: 16/9; }
 .imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: 16px 20px 20px; }
 .im { position: relative; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; background: var(--input) center/cover; cursor: pointer;
@@ -211,6 +227,10 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
   .top .runpill .lbl { display: none; }
   .page { padding: 24px 16px 70px; }
   .grid3 { grid-template-columns: minmax(0, 1fr); padding: 10px 16px 14px; }
+  .vlist { padding: 6px 16px 10px; }
+  .vrow { flex-direction: column; align-items: stretch; gap: 10px; }
+  .vrow .info { width: auto; }
+  .ytgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px 16px 16px; gap: 10px; }
   .card-h, .card-b { padding-left: 16px; padding-right: 16px; }
   .imgs { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 12px 16px 16px; gap: 8px; }
   .tbl th, .tbl td { padding-left: 16px; padding-right: 16px; }
@@ -319,7 +339,7 @@ function shell() {
   $('#svc').innerHTML = svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('');
   const r = S.run;
   $('#runPill').innerHTML = r ? `<span class="dot on" style="background:var(--accent)"></span><span class="lbl">${esc(r.slug || 'starting')}${r.video ? ` · ${r.video.made}/${r.video.total}` : ''}</span>`
-    : S.robot ? `<span class="dot off"></span><span class="lbl">Robot check</span>` : `<span class="dot idle"></span><span class="lbl">Idle</span>`;
+    : robot() ? `<span class="dot off"></span><span class="lbl">Robot check</span>` : `<span class="dot idle"></span><span class="lbl">Idle</span>`;
   $('#stopTop').hidden = !r;
   $('#liveN').hidden = !r;
 }
@@ -346,10 +366,13 @@ async function render() {
 }
 
 // ---------- videos ----------
+const robotGone = () => { try { return localStorage.getItem('robotGone'); } catch (e) { return null; } };
+const robot = () => S.robot && String(S.robot.id) !== robotGone() ? S.robot : null;
 function robotBanner() {
-  const r = S.robot;
+  const r = robot();
   return r ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>Google's robot check is showing</h4>
-    <p>Run ${esc(r.id)} on <b>${esc(r.slug)}</b> stopped at ${when(r.stoppedAt)}. Solve it in the Gemini window, then press Start on the video.</p></div></div>` : '';
+    <p>Run ${esc(r.id)} on <b>${esc(r.slug)}</b> stopped at ${when(r.stoppedAt)}. Solve it in the Gemini window, then press Start on the video.</p></div>
+    <button class="btn icon bx" id="robotX" aria-label="Delete this notice" title="Delete this notice">${ic.trash}</button></div>` : '';
 }
 function liveCard(onLive) {
   const r = S.run;
@@ -381,16 +404,24 @@ function groups() {
     if (!vs.length) return '';
     return `<section class="card"><div class="card-h"><span class="tile">${k === 'done' ? ic.check : k === 'failed' ? ic.alert : k === 'running' ? ic.pulse : k === 'hold' ? ic.pause : k === 'draft' ? ic.doc : ic.clock}</span>
       <div><h3>${STATUS[k]}</h3><p>${SUB[k]}</p></div><span class="badge">${vs.length}</span></div>
-      <div class="grid3">${vs.map(v => `<a class="entry" href="#/video/${encodeURIComponent(v.slug)}">
-        <span class="thumb" ${v.made ? `style="background-image:url('/thumb/${encodeURIComponent(v.slug)}/${firstId(v)}')"` : ''}>${v.made ? '' : ic.film}</span>
-        <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'No script.json yet'}${v.status === 'failed' && v.lastRun ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></a>`).join('')}</div></section>`;
+      <div class="vlist">${vs.map(v => `<a class="entry vrow" href="#/video/${encodeURIComponent(v.slug)}">
+        <div class="info"><span class="thumb" ${v.made ? `style="background-image:url('/thumb/${encodeURIComponent(v.slug)}/${firstId(v)}')"` : ''}>${v.made ? '' : ic.film}</span>
+        <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'No script.json yet'}${v.status === 'failed' && v.lastRun ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></div>
+        <div class="yts" aria-label="Thumbnails">${ytStrip(v)}</div></a>`).join('')}</div></section>`;
   }).join('');
   $('#groups').innerHTML = html || `<div class="card"><div class="empty">No video matches.</div></div>`;
 }
 const firstId = v => v.firstId || 1;
+const ytStrip = v => (v.thumbs || []).length ? v.thumbs.map(t => t.v
+  ? `<span class="yt" style="background-image:url('/ythumb/${encodeURIComponent(v.slug)}/${t.id}?v=${t.v}')" title="${esc(t.text)}"></span>`
+  : `<span class="yt missing" title="${esc(t.text)}, not made yet">${t.id}</span>`).join('') : '<span class="none">No thumbnails</span>';
 const short = s => s.length > 70 ? s.slice(0, 68) + '…' : s;
 function bindVideos() {
   groups();
+  if ($('#robotX')) $('#robotX').onclick = () => {
+    try { localStorage.setItem('robotGone', String(S.robot.id)); } catch (e) {}
+    $('#robotX').closest('.banner').remove(); shell();
+  };
   $('#q').oninput = e => { query = e.target.value; $('#qs').value = query; groups(); };
   $('#tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.k;
     document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); groups(); };
@@ -414,7 +445,7 @@ async function renderVideo(slug, keepScroll) {
         ${running ? `<button class="btn danger" data-a="stop">${ic.stop}Stop run</button>`
           : `<button class="btn primary" data-a="start" ${!V.script || V.mp4 || anyRun || !S.health.n8n ? 'disabled' : ''} title="${!V.script ? 'No script.json yet' : V.mp4 ? 'Already has its MP4' : anyRun ? 'Another run is going' : !S.health.n8n ? 'n8n is not ready yet (see its dot, top left)' : 'Start making this video now'}">${ic.play}Start</button>`}
         <button class="btn" data-a="hold" ${V.mp4 ? 'disabled' : ''}>${ic.pause}${V.hold ? 'Release hold' : 'Hold'}</button>
-        <button class="btn danger" data-a="delete" ${anyRun ? 'disabled title="Stop the run first"' : ''}>${ic.trash}Delete</button>
+        <button class="btn danger icon end" data-a="delete" aria-label="Delete video" ${anyRun ? 'disabled title="Stop the run first"' : 'title="Delete this video"'}>${ic.trash}</button>
       </div></div>
     <div style="margin:16px 0 22px">${bar(V)}</div>
     ${V.scriptError ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>script.json problem</h4><p>${esc(V.scriptError)}</p></div></div>` : ''}
@@ -422,10 +453,15 @@ async function renderVideo(slug, keepScroll) {
     ${V.mp4 ? `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>The video</h3><p>${(V.mp4Size / 1048576).toFixed(0)} MB MP4${V.srt ? ' · subtitles ready for upload' : ''}</p></div>
       <div class="actions" style="margin-left:auto">${V.srt ? `<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.srt">${ic.dl}.srt</a>` : ''}<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4" download>${ic.dl}MP4</a></div></div>
       <video controls preload="metadata" src="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4"></video></section>` : ''}
+    ${V.thumbs.length ? `<section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Thumbnails</h3><p>${V.thumbs.length} ideas for YouTube. Click one to see it full size.</p></div><span class="badge">${V.thumbs.filter(t => t.v).length}</span></div>
+      <div class="ytgrid" id="ytgrid">${V.thumbs.map(t => `<button class="ytc" data-id="${t.id}" aria-label="Thumbnail ${t.id}: ${esc(t.text)}">${t.v
+        ? `<span class="im" style="background-image:url('/ythumb/${encodeURIComponent(V.slug)}/${t.id}?v=${t.v}')"><span class="no">${t.id}</span></span>`
+        : `<span class="im missing">${t.id} · not made yet</span>`}<b>${esc(t.text)}</b></button>`).join('')}</div></section>` : ''}
     <section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Images</h3><p>One per segment. Click one for its line and prompt${V.mp4 ? '' : ', or to make it again'}.</p></div><span class="badge">${made}</span></div>
       <div class="tabs" id="vtabs" style="margin:14px 20px 0">${[['all', 'All', V.segments.length], ['made', 'Made', made], ['missing', 'Missing', missing]].map(([k, l, c]) => `<button data-k="${k}" class="${vFilter === k ? 'on' : ''}">${l} <span class="c">${c}</span></button>`).join('')}</div>
       <div class="imgs" id="imgs"></div></section>`;
   drawImgs();
+  if ($('#ytgrid')) $('#ytgrid').onclick = e => { const b = e.target.closest('.ytc'); if (b) openThumb(+b.dataset.id); };
   $('#vtabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; vFilter = b.dataset.k; document.querySelectorAll('#vtabs button').forEach(x => x.classList.toggle('on', x === b)); drawImgs(); };
   $('#page .actions').onclick = e => { const b = e.target.closest('button'); if (b) act(b.dataset.a, V.slug); };
   if (keepScroll) scrollTo(0, y);
@@ -451,6 +487,15 @@ function openImg(id) {
     try { toast((await api('/api/redo', { slug: V.slug, id })).message); d.close(); await refresh(true); }
     catch (e) { toast(e.message, true); }
   };
+}
+function openThumb(id) {
+  const t = V.thumbs.find(x => x.id === id);
+  const d = $('#dlg');
+  d.innerHTML = `${t.v ? `<img src="/ythumbfull/${encodeURIComponent(V.slug)}/${id}?v=${t.v}" alt="Thumbnail ${id}: ${esc(t.text)}">` : `<div class="ph">Thumbnail ${id} is not made yet</div>`}
+    <div class="mb"><div class="mh"><h3>Thumbnail ${id}</h3><div class="row">${t.v ? `<a class="btn sm" href="/ythumbfull/${encodeURIComponent(V.slug)}/${id}?v=${t.v}" download="${esc(V.slug)}-thumb-${id}.jpg">${ic.dl}Download</a>` : ''}<button class="btn sm" id="close">Close</button></div></div>
+    <p class="say">“${esc(t.text)}”</p>${t.scene ? `<p class="scene">${esc(t.scene)}</p>` : ''}</div>`;
+  d.showModal();
+  $('#close').onclick = () => d.close();
 }
 const d0 = $('#dlg'); d0.addEventListener('click', e => { if (e.target === d0) d0.close(); });
 
