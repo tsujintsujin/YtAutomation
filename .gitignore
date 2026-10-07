@@ -26,3 +26,6 @@ output/*/*
 !output/*/voice-settings.json
 !output/*/*.srt
 !output/*/refs/
+
+# taskbar shortcut: holds paths of this PC (made by hand, see HANDOFF)
+*.lnk
