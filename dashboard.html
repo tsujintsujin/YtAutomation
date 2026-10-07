@@ -210,7 +210,9 @@ dialog .prompt { font-size: 12px; color: var(--soft); background: var(--input); 
 dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 50; background: var(--text); color: var(--bg);
   padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 500; max-width: calc(100vw - 32px); box-shadow: 0 8px 30px rgba(0,0,0,.2); }
-.toast.bad { background: var(--red); color: #fff; }
+.toast.bad { background: var(--red); color: #fff; display: flex; align-items: center; gap: 10px; }
+.toast .bx { width: 30px; height: 30px; flex: none; background: transparent; color: #fff; border-color: rgba(255,255,255,.55); }
+.toast .bx:hover:not(:disabled) { background: #fff; color: var(--red); }
 
 /* ---- small screens ---- */
 @media (max-width: 860px) {
@@ -317,6 +319,7 @@ function toast(msg, bad) {
   const t = document.createElement('div');
   t.className = 'toast' + (bad ? ' bad' : '');
   t.textContent = msg;
+  if (bad) t.insertAdjacentHTML('beforeend', trashBtn(''));
   document.body.append(t);
   setTimeout(() => t.remove(), bad ? 9000 : 5000);
 }
@@ -365,14 +368,34 @@ async function render() {
   if (p === 'videos') bindVideos();
 }
 
+// ---------- deleted notices ----------
+// Every error notice has a trash button; a deleted one stays hidden in this browser (only that notice: a new run's
+// error shows again). Keys: robot:<run>, run:<run>, script:<slug>:<error>.
+const goneSet = () => { try { return new Set(JSON.parse(localStorage.getItem('gone') || '[]')); } catch (e) { return new Set(); } };
+const isGone = k => goneSet().has(k);
+function forget(k) {
+  try { const g = goneSet(); g.add(k); localStorage.setItem('gone', JSON.stringify([...g].slice(-300))); } catch (e) {}
+}
+// the robot notice deleted before this list existed stays deleted
+try { const old = localStorage.getItem('robotGone'); if (old) { forget('robot:' + old); localStorage.removeItem('robotGone'); } } catch (e) {}
+const trashBtn = k => `<button class="btn icon bx" data-gone="${esc(k)}" aria-label="Delete this message" title="Delete this message">${ic.trash}</button>`;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-gone]');
+  if (!b) return;
+  e.preventDefault();
+  if (b.dataset.gone) forget(b.dataset.gone);
+  const box = b.closest('.banner, .toast');
+  if (box) box.remove();
+  if (S) shell();
+});
+
 // ---------- videos ----------
-const robotGone = () => { try { return localStorage.getItem('robotGone'); } catch (e) { return null; } };
-const robot = () => S.robot && String(S.robot.id) !== robotGone() ? S.robot : null;
+const robot = () => S.robot && !isGone('robot:' + S.robot.id) ? S.robot : null;
 function robotBanner() {
   const r = robot();
   return r ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>Google's robot check is showing</h4>
     <p>Run ${esc(r.id)} on <b>${esc(r.slug)}</b> stopped at ${when(r.stoppedAt)}. Solve it in the Gemini window, then press Start on the video.</p></div>
-    <button class="btn icon bx" id="robotX" aria-label="Delete this notice" title="Delete this notice">${ic.trash}</button></div>` : '';
+    ${trashBtn('robot:' + r.id)}</div>` : '';
 }
 function liveCard(onLive) {
   const r = S.run;
@@ -406,7 +429,7 @@ function groups() {
       <div><h3>${STATUS[k]}</h3><p>${SUB[k]}</p></div><span class="badge">${vs.length}</span></div>
       <div class="vlist">${vs.map(v => `<a class="entry vrow" href="#/video/${encodeURIComponent(v.slug)}">
         <div class="info"><span class="thumb" ${v.made ? `style="background-image:url('/thumb/${encodeURIComponent(v.slug)}/${firstId(v)}')"` : ''}>${v.made ? '' : ic.film}</span>
-        <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'No script.json yet'}${v.status === 'failed' && v.lastRun ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></div>
+        <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'No script.json yet'}${v.status === 'failed' && v.lastRun && !isGone('run:' + v.lastRun.id) ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></div>
         <div class="yts" aria-label="Thumbnails">${ytStrip(v)}</div></a>`).join('')}</div></section>`;
   }).join('');
   $('#groups').innerHTML = html || `<div class="card"><div class="empty">No video matches.</div></div>`;
@@ -418,10 +441,6 @@ const ytStrip = v => (v.thumbs || []).length ? v.thumbs.map(t => t.v
 const short = s => s.length > 70 ? s.slice(0, 68) + '…' : s;
 function bindVideos() {
   groups();
-  if ($('#robotX')) $('#robotX').onclick = () => {
-    try { localStorage.setItem('robotGone', String(S.robot.id)); } catch (e) {}
-    $('#robotX').closest('.banner').remove(); shell();
-  };
   $('#q').oninput = e => { query = e.target.value; $('#qs').value = query; groups(); };
   $('#tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.k;
     document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); groups(); };
@@ -448,8 +467,8 @@ async function renderVideo(slug, keepScroll) {
         <button class="btn danger icon end" data-a="delete" aria-label="Delete video" ${anyRun ? 'disabled title="Stop the run first"' : 'title="Delete this video"'}>${ic.trash}</button>
       </div></div>
     <div style="margin:16px 0 22px">${bar(V)}</div>
-    ${V.scriptError ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>script.json problem</h4><p>${esc(V.scriptError)}</p></div></div>` : ''}
-    ${sv.lastRun && sv.lastRun.outcome === 'failed' && !running ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>Last run failed</h4><p>Run ${esc(sv.lastRun.id)}, ${when(sv.lastRun.stoppedAt)}: ${esc(sv.lastRun.reason)}</p></div></div>` : ''}
+    ${V.scriptError && !isGone('script:' + V.slug + ':' + V.scriptError) ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>script.json problem</h4><p>${esc(V.scriptError)}</p></div>${trashBtn('script:' + V.slug + ':' + V.scriptError)}</div>` : ''}
+    ${sv.lastRun && sv.lastRun.outcome === 'failed' && !running && !isGone('run:' + sv.lastRun.id) ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>Last run failed</h4><p>Run ${esc(sv.lastRun.id)}, ${when(sv.lastRun.stoppedAt)}: ${esc(sv.lastRun.reason)}</p></div>${trashBtn('run:' + sv.lastRun.id)}</div>` : ''}
     ${V.mp4 ? `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>The video</h3><p>${(V.mp4Size / 1048576).toFixed(0)} MB MP4${V.srt ? ' · subtitles ready for upload' : ''}</p></div>
       <div class="actions" style="margin-left:auto">${V.srt ? `<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.srt">${ic.dl}.srt</a>` : ''}<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4" download>${ic.dl}MP4</a></div></div>
       <video controls preload="metadata" src="/file/${encodeURIComponent(V.slug)}/${encodeURIComponent(V.slug)}.mp4"></video></section>` : ''}
