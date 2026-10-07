@@ -24,6 +24,8 @@ output/*/*
 !output/*/segments.json
 !output/*/timings.json
 !output/*/voice-settings.json
+!output/*/thumb-ideas.json
+!output/*/thumbnails.json
 !output/*/*.srt
 !output/*/refs/
 

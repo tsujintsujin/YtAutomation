@@ -12,6 +12,11 @@ segmentation inside n8n, replacing the 5-hour timer with a wait inside the run, 
 (only segments over 6 s, or every image; OpenCut keyframe export not yet checked).
 
 Done:
+- 2026-10-07: thumbnails: 5 per video (thumb-ideas.json -> thumbnails.py -> thumbnails.json), n8n group
+  "3b. Thumbnails" makes them in one separate Gemini window before the images -> thumbs/thumb-N.jpg. First real run
+  (why-cats-knead, run 413): 5/5 in 09:57-10:14 (thumbnail 3 needed a second try), then the image steps started.
+  Dashboard: thumbnails in each video row + a Thumbnails card (click = full size, download); Delete is a trash icon on
+  the right; the robot-check notice has a delete button (hides that run's notice in this browser).
 - 2026-10-06: dashboard (dashboard.py / dashboard.html / start_dashboard.cmd, http://127.0.0.1:8770) with Start, Stop
   (also closes the Gemini windows), Hold, Make again, Delete; bridge.py writes usage.jsonl (images per account,
   limit replies, robot checks) and answers GET /status. See HANDOFF section 3.

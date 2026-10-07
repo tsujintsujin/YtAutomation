@@ -19,9 +19,11 @@ free Gemini web app driven through his own Chrome; voice is local Kokoro; editin
 2. **Claude (in a session)** writes the story (~12 min of narration) and runs it through `/humanize`.
 3. **Justin** reviews and approves it.
 4. **Claude** builds the setup in `output/<slug>/`: segments, one standalone image prompt per segment,
-   character reference sheets in `refs/`, and `script.json`.
-5. **n8n** does everything else unattended: voice -> images -> resize -> subtitles -> OpenCut -> MP4.
-6. **Justin** watches the MP4 and uploads it by hand (title/description/thumbnail/upload are not built).
+   character reference sheets in `refs/`, `script.json`, and 5 thumbnail ideas (`thumb-ideas.json` ->
+   `python thumbnails.py output/<slug>` -> `thumbnails.json`).
+5. **n8n** does everything else unattended: voice -> thumbnails -> images -> resize -> subtitles -> OpenCut -> MP4.
+6. **Justin** picks one of the 5 thumbnails in `thumbs/`, watches the MP4 and uploads it by hand
+   (title/description/upload are not built).
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
@@ -38,6 +40,12 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 - `script.json` = `{"title", "voice": "am_liam", "segments": [{"id", "text", "geek", "cat", "scene", "prompt"}]}`.
   The cat video's `build_script.py`, `scenes.py`, `seg_rule.py` show how it was produced; reuse the approach,
   but with the 2-4 s rule.
+- **Thumbnails: 5 different ideas per video** (Justin, 2026-10-07: "you write 5 different ideas, you have it image
+  generated, i choose"). Write `output/<slug>/thumb-ideas.json` = `{"thumbnails": [{"text", "scene"}]}`: `text` is
+  2-4 words in capitals, no apostrophes (Gemini misspells less), `scene` shows the Geek and the cat. Then
+  `python thumbnails.py output/<slug>` wraps each in the fixed template (style, Geek, cat, title on the left third,
+  same negatives) -> `thumbnails.json`, every prompt standalone. **Not in script.json**: a script.json newer than
+  voice.wav makes voice.py redo the voice. Saved by n8n as `thumbs/thumb-1.jpg` ... `thumb-5.jpg`.
 
 ---
 
@@ -110,7 +118,14 @@ Groups as they appear in the editor (top to bottom):
 2. **Voice** — `voice.py output\<slug> --voice <v> --speed 1.0 --if-needed`. Skips only if voice.wav +
    timings.json are newer than script.json AND `voice-settings.json` has the same voice and speed.
 3. **Images: setup** — Accounts -> "Setup: close leftovers" (closes every other runner tab and every Gemini /
-   Gemini image tab) -> "Setup: forget windows and limits" -> Images missing -> All images in?
+   Gemini image tab) -> "Setup: forget windows and limits" -> 3b -> Images missing -> All images in?
+3b. **Thumbnails** — once per run, only if `thumbnails.json` has thumbnails not yet in `thumbs/`. One separate
+   Gemini window (first account not on limit) makes them one at a time, the same way as an image: prompt (tag
+   `(thumbnail N)`), pause 1-3 s, look every 5 s up to 6 min, open the image tab, pause, save to `thumbs/thumb-N.jpg`,
+   close the tab, pause, on limit note the account and switch the window to the next free one, pause, new chat.
+   Ends when all are saved, every account is on limit, or 3 tries in a row save nothing and note no limit
+   (thumbnails skipped, the video goes on). Robot check stops the run. Then "Thumbs: close window" (runner `setup`)
+   and on to Images missing. Accounts noted on limit here stay noted for the image steps. ~5-6 min per video.
 4. **Steps 1-2** — decide accounts, open windows (up to 3; accounts not on limit, list order), remember windows;
    decide prompts (one missing image per window), prompt each window; pause 1-3 s.
 5. **Step 3** — look in each window every **5 s** (no initial wait) until each shows its "AI generated" image
