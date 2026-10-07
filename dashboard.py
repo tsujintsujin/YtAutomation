@@ -65,6 +65,17 @@ def up(url):
         return False
 
 
+def n8n_state():
+    """'running' once n8n can take a run, 'starting' while it answers but its database is still loading, else 'down'."""
+    try:
+        urllib.request.urlopen(N8N + "/healthz/readiness", timeout=2)
+        return "running"
+    except urllib.error.HTTPError:
+        return "starting"
+    except Exception:
+        return "starting" if up(N8N + "/healthz") else "down"
+
+
 def bridge_status():
     try:
         return http(BRIDGE + "/status", timeout=3)
@@ -234,7 +245,8 @@ def accounts(wins):
 
 def state():
     b = bridge_status()
-    health = {"n8n": up(N8N + "/healthz"), "bridge": b is not None, "opencut": up("http://127.0.0.1:3000")}
+    n8n_now = n8n_state()
+    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000")}
     try:
         rs = runs() if health["n8n"] else []
     except Exception as e:
@@ -297,6 +309,8 @@ def start(slug):
         raise ValueError("this video has no script.json yet")
     if v["mp4"]:
         raise ValueError("this video already has its MP4")
+    if n8n_state() != "running":
+        raise ValueError("n8n is not ready: open the dashboard shortcut (it starts n8n), wait for its dot to turn green, then press Start")
     if any(r["live"] for r in runs(10)):
         raise ValueError("a run is already going; stop it first")
     http(N8N + "/webhook/yt-render", "POST", {"slug": slug, "voice": v["voice"]}, timeout=15)
