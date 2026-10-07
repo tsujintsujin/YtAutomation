@@ -43,6 +43,18 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 - `script.json` = `{"title", "voice": "am_liam", "segments": [{"id", "text", "geek", "cat", "scene", "prompt"}]}`.
   The cat video's `build_script.py`, `scenes.py`, `seg_rule.py` show how it was produced; reuse the approach,
   but with the 2-4 s rule.
+- **Channel intro + outro in every video** (Justin, 2026-10-07): the video opens with the story's question, then
+  the intro clip with the voice line "We'll talk more about that in this video", then the story goes on; the outro
+  plays after the last segment. Write `output/<slug>/intro.json` (NOT in script.json, same reason as thumbnails):
+  `{"after_segment": N, "intro": "intro-outro/final/jin-intro.mp4", "intro_voice": "intro-outro/final/intro-voice-am_liam.wav",
+  "intro_voice_text": "We'll talk more about that in this video.", "intro_voice_at": 0.6, "outro": "intro-outro/final/jin-outro.mp4"}`
+  where N = the segment that ends the opening question. The voice line is a separate file because other channels
+  may use another voice (this channel: Kokoro am_liam, speed 1.0). `render-folder.mjs` and `make_srt.py` read it
+  (n8n's "Make the video" needs nothing else): narration and images after N move later by the intro's length, one
+  soundtrack is built with ffmpeg in `output/<slug>/edit/`. The clips are HyperFrames projects in
+  `intro-outro/intro` and `intro-outro/outro` (4 s each, Geek + JIN on the channel orange; `cutout_geek.py` cut the
+  Geek out of `JinTheGeek/ProfileImage.jpg`); renders copied to `intro-outro/final/`. Preview them with
+  `npx hyperframes preview <dir> --background --port=3010` (never the default 3002: that is the OpenCut controller).
 - **Thumbnails: 5 different ideas per video** (Justin, 2026-10-07: "you write 5 different ideas, you have it image
   generated, i choose"). Write `output/<slug>/thumb-ideas.json` = `{"thumbnails": [{"text", "scene"}]}`: `text` is
   a question in capitals that **always starts with "WHY"** (Justin, 2026-10-07: "all thumbnails should be WHY xxxxxx";
