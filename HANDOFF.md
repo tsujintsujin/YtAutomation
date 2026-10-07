@@ -22,8 +22,11 @@ free Gemini web app driven through his own Chrome; voice is local Kokoro; editin
    character reference sheets in `refs/`, `script.json`, and 5 thumbnail ideas (`thumb-ideas.json` ->
    `python thumbnails.py output/<slug>` -> `thumbnails.json`).
 5. **n8n** does everything else unattended: voice -> thumbnails -> images -> resize -> subtitles -> OpenCut -> MP4.
-6. **Justin** picks one of the 5 thumbnails in `thumbs/`, watches the MP4 and uploads it by hand
-   (title/description/upload are not built).
+6. **Justin** watches the MP4. Upload goes to the Jin channel (@jinthegeek) in YouTube Studio: title,
+   humanized description with chapters, tags, 3 thumbnails in Test & Compare, the .srt as English subtitles,
+   playlist "Cat Behavior, Explained". First video done this way 2026-10-07 by Claude in Justin's Chrome; the
+   copy and settings are in `JinTheGeek/channel-copy.md`. The MP4 is >10 MB, so Chrome's file_upload tool can't
+   take it: serve the folder on 127.0.0.1 (CORS for studio.youtube.com) and set the file input from the page.
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
