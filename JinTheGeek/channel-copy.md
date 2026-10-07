@@ -61,4 +61,4 @@ cat behavior, why do cats follow you, why does my cat follow me, cats following 
 - Description, keywords, audience "not made for kids" (channel default)
 - Upload defaults: category Pets & Animals, video + title language English
 - Banner: banner-1.jpg upscaled to banner-1-2048.jpg (YouTube minimum 2048x1152)
-- Country of residence: NOT set (Justin's call: tax/payout country)
+- Country of residence: Philippines (set 2026-10-07, Justin)
