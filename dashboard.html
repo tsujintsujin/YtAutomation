@@ -314,7 +314,7 @@ const runLabel = r => r.live ? ['running', 'Running'] : r.outcome === 'made' ? [
 // ---------- shell ----------
 function shell() {
   const h = S.health;
-  const svc = [['n8n', h.n8n ? 'on' : 'off', h.n8n ? 'running' : 'down'], ['Bridge', h.bridge ? 'on' : 'off', h.bridge ? 'running' : 'down'],
+  const svc = [['n8n', h.n8n ? 'on' : h.n8nState === 'starting' ? 'idle' : 'off', h.n8nState || (h.n8n ? 'running' : 'down')], ['Bridge', h.bridge ? 'on' : 'off', h.bridge ? 'running' : 'down'],
     ['OpenCut', h.opencut ? 'on' : 'idle', h.opencut ? 'running' : 'idle']];
   $('#svc').innerHTML = svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('');
   const r = S.run;
@@ -401,7 +401,7 @@ async function renderVideo(slug, keepScroll) {
   try { V = await api('/api/video?slug=' + encodeURIComponent(slug)); }
   catch (e) { $('#page').innerHTML = `<a class="back" href="#/">${ic.back}All videos</a><div class="card"><div class="empty">${esc(e.message)}</div></div>`; return; }
   const sv = S.videos.find(x => x.slug === slug) || {};
-  lastVSig = JSON.stringify([V, sv.status, !!S.run]);
+  lastVSig = JSON.stringify([V, sv.status, !!S.run, S.health.n8n]);
   const status = sv.status || (V.mp4 ? 'done' : 'waiting');
   const running = status === 'running', anyRun = !!S.run;
   const made = V.segments.filter(s => s.v).length, missing = V.segments.length - made;
@@ -412,7 +412,7 @@ async function renderVideo(slug, keepScroll) {
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${st(status)}<span class="muted">${made} / ${V.total} images · voice ${esc(V.voice)}</span></div>${ticks({ ...V, status })}</div>
       <div class="actions">
         ${running ? `<button class="btn danger" data-a="stop">${ic.stop}Stop run</button>`
-          : `<button class="btn primary" data-a="start" ${!V.script || V.mp4 || anyRun ? 'disabled' : ''} title="${!V.script ? 'No script.json yet' : V.mp4 ? 'Already has its MP4' : anyRun ? 'Another run is going' : 'Start making this video now'}">${ic.play}Start</button>`}
+          : `<button class="btn primary" data-a="start" ${!V.script || V.mp4 || anyRun || !S.health.n8n ? 'disabled' : ''} title="${!V.script ? 'No script.json yet' : V.mp4 ? 'Already has its MP4' : anyRun ? 'Another run is going' : !S.health.n8n ? 'n8n is not ready yet (see its dot, top left)' : 'Start making this video now'}">${ic.play}Start</button>`}
         <button class="btn" data-a="hold" ${V.mp4 ? 'disabled' : ''}>${ic.pause}${V.hold ? 'Release hold' : 'Hold'}</button>
         <button class="btn danger" data-a="delete" ${anyRun ? 'disabled title="Stop the run first"' : ''}>${ic.trash}Delete</button>
       </div></div>
@@ -544,7 +544,7 @@ async function refresh(force) {
       shell();
       const v = await api('/api/video?slug=' + encodeURIComponent(arg));
       if (my !== seq) return;
-      const vsig = JSON.stringify([v, (S.videos.find(x => x.slug === arg) || {}).status, !!S.run]);
+      const vsig = JSON.stringify([v, (S.videos.find(x => x.slug === arg) || {}).status, !!S.run, S.health.n8n]);
       if (force || vsig !== lastVSig) await renderVideo(arg, true);
     } else if (same && !force) shell();
     else if (p === 'videos' && $('#groups')) {          // keep the search box focused while typing
