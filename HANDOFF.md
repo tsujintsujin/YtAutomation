@@ -42,7 +42,9 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
   but with the 2-4 s rule.
 - **Thumbnails: 5 different ideas per video** (Justin, 2026-10-07: "you write 5 different ideas, you have it image
   generated, i choose"). Write `output/<slug>/thumb-ideas.json` = `{"thumbnails": [{"text", "scene"}]}`: `text` is
-  2-4 words in capitals, no apostrophes (Gemini misspells less), `scene` shows the Geek and the cat. Then
+  a question in capitals that **always starts with "WHY"** (Justin, 2026-10-07: "all thumbnails should be WHY xxxxxx";
+  "NOT EVEN THE BATHROOM?" was "far from being good"), short, no apostrophes (Gemini misspells less);
+  `thumbnails.py` refuses any other title. `scene` shows the Geek and the cat. Then
   `python thumbnails.py output/<slug>` wraps each in the fixed template (style, Geek, cat, title on the left third,
   same negatives) -> `thumbnails.json`, every prompt standalone. **Not in script.json**: a script.json newer than
   voice.wav makes voice.py redo the voice. Saved by n8n as `thumbs/thumb-1.jpg` ... `thumb-5.jpg`.
