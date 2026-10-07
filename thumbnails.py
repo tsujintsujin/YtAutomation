@@ -54,6 +54,8 @@ def build(folder):
            for i, t in enumerate(ideas, 1)]
     for t in out:
         assert "{" not in t["prompt"], f"thumbnail {t['id']}: placeholder left in the prompt"
+        # Justin's rule: every thumbnail title is a WHY question
+        assert t["text"].startswith("WHY "), f"thumbnail {t['id']}: title must start with WHY: {t['text']}"
     (folder / "thumbnails.json").write_text(json.dumps({"thumbnails": out}, indent=2, ensure_ascii=False) + "\n",
                                             encoding="utf-8")
     return out
