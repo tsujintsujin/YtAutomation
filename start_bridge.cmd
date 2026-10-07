@@ -10,7 +10,8 @@ echo starting bridge on :8766
 powershell -NoProfile -Command "Start-Process cmd -WindowStyle Minimized -WorkingDirectory '%~dp0' -ArgumentList '/c','title Gemini bridge :8766 && tts\.venv\Scripts\python bridge.py'"
 for /l %%i in (1,1,15) do (
     curl -s -o nul --max-time 3 http://127.0.0.1:8766/health && (echo bridge ready& exit /b 0)
-    %SystemRoot%\System32\timeout.exe /t 1 /nobreak >nul
+    REM ping, not timeout.exe: timeout needs a console and exits at once under n8n, so the loop never waited
+    ping -n 2 127.0.0.1 >nul
 )
 echo bridge did not come up. Check its minimised window.
 exit /b 1

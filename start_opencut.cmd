@@ -31,7 +31,8 @@ for /l %%i in (1,1,90) do (
         echo OpenCut ready: editor http://127.0.0.1:3000  controller http://127.0.0.1:3002/mcp
         exit /b 0
     )
-    %SystemRoot%\System32\timeout.exe /t 2 /nobreak >nul
+    REM ping, not timeout.exe: timeout needs a console and exits at once under n8n, so the loop never waited
+    ping -n 3 127.0.0.1 >nul
 )
 echo OpenCut did not come up within 3 minutes. Check the two minimised windows.
 exit /b 1
