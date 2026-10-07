@@ -26,8 +26,18 @@ output/*/*
 !output/*/voice-settings.json
 !output/*/thumb-ideas.json
 !output/*/thumbnails.json
+!output/*/intro.json
 !output/*/*.srt
 !output/*/refs/
 
 # taskbar shortcut: holds paths of this PC (made by hand, see HANDOFF)
 *.lnk
+
+# HyperFrames intro/outro projects: keep sources and intro-outro/final/ (used by every render), not scratch renders
+intro-outro/*/renders/
+intro-outro/*/snapshots/
+intro-outro/*/.media/
+intro-outro/render-*.log
+intro-outro/*/.hyperframes/
+intro-outro/*/.thumbnails/
+intro-outro/*/.waveform-cache/

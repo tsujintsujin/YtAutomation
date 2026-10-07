@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Fredoka";
+        src: url("assets/Fredoka.ttf") format("truetype");
+        font-weight: 300 700;
+      }
+      :root {
+        /* channel colours, taken from JinTheGeek/ProfileImage.jpg */
+        --orange-hi: #ffc23a;
+        --orange-lo: #f59a1c;
+        --icon: #ffe3a3;
+        --hoodie: #4f7a52;
+        --hoodie-dark: #3c5f3f;
+        --ink: #3b2a20;
+        --white: #fffaf0;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--orange-lo); }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Fredoka", sans-serif;
+      }
+      #scene { position: absolute; inset: 0; }
+      #bg {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 40%, var(--orange-hi) 0%, var(--orange-lo) 75%);
+      }
+      .icon {
+        position: absolute;
+        color: var(--icon);
+        opacity: 0.55;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .icon svg { display: block; }
+      .star { width: 120px; height: 120px; fill: var(--icon); }
+      .brace { width: 100%; height: auto; fill: none; stroke: var(--icon); stroke-width: 7; stroke-linecap: round; }
+      #geek {
+        position: absolute;
+        left: 170px;
+        bottom: -90px; /* hoodie runs past the frame edge so the bounce and lean never show the cut-out's bottom */
+        height: 990px;
+        width: auto;
+        transform-origin: 50% 100%;
+      }
+      #brand {
+        position: absolute;
+        left: 960px;
+        right: 120px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 36px;
+      }
+      #word { display: flex; gap: 10px; }
+      .letter {
+        display: block;
+        font-size: 330px;
+        font-weight: 700;
+        line-height: 0.9;
+        color: var(--ink);
+        -webkit-text-stroke: 14px var(--white);
+        paint-order: stroke fill;
+      }
+      #bar {
+        width: 560px;
+        height: 22px;
+        border-radius: 11px;
+        background: var(--hoodie);
+        transform-origin: 0 50%;
+      }
+      #handle {
+        padding: 18px 46px;
+        border-radius: 999px;
+        background: var(--white);
+        color: var(--hoodie-dark);
+        font-size: 64px;
+        font-weight: 600;
+      }
+      #wipe {
+        position: absolute;
+        top: -10%;
+        bottom: -10%;
+        left: -15%;
+        width: 130%;
+        background: var(--hoodie);
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-x3dq" id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="1920" data-height="1080">
+      <section data-hf-id="hf-gtjs" id="scene" class="clip" data-start="0" data-duration="4" data-track-index="0">
+        <div data-hf-id="hf-2xc0" id="bg"></div>
+        <div data-hf-id="hf-1771" id="icons">
+          <div data-hf-id="hf-1h67" class="icon" style="left: 90px; top: 80px; width: 210px"><svg data-hf-id="hf-n594" class="brace" viewBox="0 0 100 60"><path data-hf-id="hf-480m" d="M30 5Q18 5 18 15V24Q18 30 10 30Q18 30 18 36V45Q18 55 30 55M70 5Q82 5 82 15V24Q82 30 90 30Q82 30 82 36V45Q82 55 70 55" /></svg></div>
+          <div data-hf-id="hf-xwm3" class="icon" style="left: 1660px; top: 60px; width: 182px"><svg data-hf-id="hf-j3jk" class="brace" viewBox="0 0 100 60"><path data-hf-id="hf-w322" d="M30 5Q18 5 18 15V24Q18 30 10 30Q18 30 18 36V45Q18 55 30 55M70 5Q82 5 82 15V24Q82 30 90 30Q82 30 82 36V45Q82 55 70 55" /></svg></div>
+          <div data-hf-id="hf-z17n" class="icon" style="left: 1500px; top: 860px; width: 196px"><svg data-hf-id="hf-hwmh" class="brace" viewBox="0 0 100 60"><path data-hf-id="hf-whd3" d="M30 5Q18 5 18 15V24Q18 30 10 30Q18 30 18 36V45Q18 55 30 55M70 5Q82 5 82 15V24Q82 30 90 30Q82 30 82 36V45Q82 55 70 55" /></svg></div>
+          <div data-hf-id="hf-y1zd" class="icon" style="left: 40px; top: 760px"><svg data-hf-id="hf-y6dc" class="star" viewBox="0 0 100 100"><polygon data-hf-id="hf-1sp4" points="50,5 61,38 96,38 68,59 79,93 50,72 21,93 32,59 4,38 39,38" /></svg></div>
+          <div data-hf-id="hf-acu1" class="icon" style="left: 880px; top: 70px"><svg data-hf-id="hf-e4zc" class="star" viewBox="0 0 100 100"><polygon data-hf-id="hf-uku8" points="50,5 61,38 96,38 68,59 79,93 50,72 21,93 32,59 4,38 39,38" /></svg></div>
+          <div data-hf-id="hf-cyqf" class="icon" style="left: 1780px; top: 520px"><svg data-hf-id="hf-cy29" class="star" viewBox="0 0 100 100"><polygon data-hf-id="hf-tdx5" points="50,5 61,38 96,38 68,59 79,93 50,72 21,93 32,59 4,38 39,38" /></svg></div>
+        </div>
+        <img data-hf-id="hf-2sw1" id="geek" src="assets/geek.png" alt="">
+        <div data-hf-id="hf-ed66" id="brand" data-layout-allow-occlusion="true">
+          <div data-hf-id="hf-u1cp" id="word">
+            <span data-hf-id="hf-ufdl" class="letter">J</span><span data-hf-id="hf-vmao" class="letter">I</span><span data-hf-id="hf-su5h" class="letter">N</span>
+          </div>
+          <div data-hf-id="hf-2to0" id="bar"></div>
+          <div data-hf-id="hf-gmsx" id="handle">@jinthegeek</div>
+        </div>
+        <div data-hf-id="hf-omfg" id="wipe"></div>
+      </section>
+
+      <audio data-hf-id="hf-26mk" id="sfx-whoosh-in" src="assets/whoosh.mp3" data-start="0" data-duration="0.57" data-track-index="2" data-volume="0.7"></audio>
+      <audio data-hf-id="hf-mm53" id="sfx-pop" src="assets/pop.mp3" data-start="0.4" data-duration="0.72" data-track-index="3" data-volume="0.6"></audio>
+      <audio data-hf-id="hf-9cr0" id="sfx-whoosh-out" src="assets/whoosh.mp3" data-start="3.4" data-duration="0.57" data-track-index="4" data-volume="0.7"></audio>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // open: green panel slides off to the right, revealing the orange scene
+      tl.fromTo("#wipe", { xPercent: 0, skewX: 0 }, { xPercent: 110, skewX: -12, duration: 0.4, ease: "power2.inOut" }, 0);
+      // background icons drift slowly the whole time
+      tl.fromTo("#icons", { y: 20 }, { y: -30, duration: 4, ease: "none" }, 0);
+      // the Geek pops up from below, then gives a little wave-lean
+      tl.fromTo("#geek", { y: 900, rotation: -6 }, { y: 0, rotation: 0, duration: 0.6, ease: "back.out(1.5)" }, 0.3);
+      tl.fromTo("#geek", { rotation: 0 }, { rotation: 3, duration: 0.25, ease: "sine.inOut", yoyo: true, repeat: 3, immediateRender: false }, 1.0);
+      // JIN drops in letter by letter
+      tl.fromTo(".letter", { y: -500, scale: 1.3, opacity: 0 }, { y: 0, scale: 1, opacity: 1, duration: 0.55, ease: "bounce.out", stagger: 0.12 }, 0.55);
+      tl.fromTo("#bar", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 1.2);
+      tl.fromTo("#handle", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "back.out(1.7)" }, 1.4);
+      // close: green panel sweeps back in from the left and covers everything at 3.9 s
+      tl.fromTo("#wipe", { xPercent: -110, skewX: -12 }, { xPercent: 0, skewX: 0, duration: 0.45, ease: "power3.out", immediateRender: false }, 3.45);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
