@@ -8,6 +8,7 @@ its buttons do only what Justin would do by hand:
   Redo    move img/NNN.* and img_clean/NNN.jpg into img/redo/ (the next run makes that image again; only for videos
           without an MP4)
   Delete  remove the whole output/<slug>/ folder, permanently; only after typing the name, never during a run
+  TheJobStash Start  start TheJobStash's scorer and/or tunnel, whichever is down (what scorer.cmd does, minus n8n)
 
 Image counts per account come from usage.jsonl, which the bridge writes as it saves images.
 The n8n API key is read from the Credentials folder and never leaves this process.
@@ -16,8 +17,10 @@ usage: tts/.venv/Scripts/python dashboard.py     (start_dashboard.cmd starts it 
 """
 import io
 import json
+import os
 import re
 import shutil
+import subprocess
 import time
 import urllib.request
 from collections import defaultdict
@@ -35,6 +38,8 @@ PORT = 8770
 N8N = "http://127.0.0.1:5678"
 BRIDGE = "http://127.0.0.1:8766"
 WORKFLOW = "ytrender00000001"
+JOBSTASH = Path(r"D:\AIO Freelance\TheJobStash")
+CLOUDFLARED = Path(os.environ["APPDATA"]) / r"npm\node_modules\cloudflared\bin\cloudflared.exe"
 KEY = Path(r"D:\AIO Freelance\Credentials\n8n\api-key.txt").read_text(encoding="utf-8").strip()
 SLUG = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 IMG = re.compile(r"^(\d{3})\.(jpg|jpeg|png|webp)$", re.I)
@@ -74,6 +79,26 @@ def n8n_state():
         return "starting"
     except Exception:
         return "starting" if up(N8N + "/healthz") else "down"
+
+
+def ok(url):
+    try:
+        urllib.request.urlopen(url, timeout=2)
+        return True
+    except Exception:
+        return False
+
+
+_js_started = 0                          # when the dashboard last started TheJobStash's parts
+
+
+def jobstash():
+    """TheJobStash's scorer (py_server.py :3300) and its tunnel (cloudflared's /ready, metrics on 20241-20245),
+    which are what let thejobstash.com take resumes. n8n is the same n8n as above."""
+    s = {"scorer": ok("http://127.0.0.1:3300/healthz"),
+         "tunnel": any(ok(f"http://127.0.0.1:{p}/ready") for p in range(20241, 20246))}
+    s["starting"] = not (s["scorer"] and s["tunnel"]) and time.time() - _js_started < 30
+    return s
 
 
 def bridge_status():
@@ -263,7 +288,8 @@ def accounts(wins):
 def state():
     b = bridge_status()
     n8n_now = n8n_state()
-    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000")}
+    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000"),
+              "jobstash": jobstash()}
     try:
         rs = runs() if health["n8n"] else []
     except Exception as e:
@@ -349,6 +375,33 @@ def stop():
     ans = http(BRIDGE + "/command", "POST", {"name": "setup", "args": {}, "timeout": 90}, timeout=100)
     closed = f"closed {ans.get('closedTabs', 0)} Gemini tab(s)" if ans.get("ok") else f"windows not closed: {ans.get('error')}"
     return {"message": f"stopped run(s) {stopped or 'none'}, released {list(b['claims']) or 'nothing'}, {closed}"}
+
+
+def jobstash_start():
+    """Start whichever of TheJobStash's scorer and tunnel is down, each in its own minimised window, with the same
+    commands and .env.cloudflare as TheJobStash\\scorer.cmd (minus n8n, which is already the one above).
+    Close a window to stop that part."""
+    global _js_started
+    s = jobstash()
+    if s["scorer"] and s["tunnel"]:
+        raise ValueError("TheJobStash is already running")
+    if s["starting"]:
+        raise ValueError("already starting; give it a few seconds")
+    env = dict(os.environ)
+    for line in (JOBSTASH / ".env.cloudflare").read_text(encoding="utf-8").splitlines():
+        k, sep, v = line.partition("=")
+        if sep and k and v and not k.startswith("#"):
+            env[k] = v
+    si = subprocess.STARTUPINFO()
+    si.dwFlags, si.wShowWindow = subprocess.STARTF_USESHOWWINDOW, 7          # SW_SHOWMINNOACTIVE
+    todo = ([("jobstash scorer :3300", "python py_server.py")] if not s["scorer"] else []) + \
+           ([("jobstash tunnel", f"{CLOUDFLARED} tunnel run jobstash-scorer")] if not s["tunnel"] else [])
+    for title, cmd in todo:
+        # own console and no inherited handles, so it outlives this dashboard; `pause` keeps a crash readable
+        subprocess.Popen(["cmd", "/c", f"title {title} && {cmd} & pause"], cwd=JOBSTASH, env=env,
+                         creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=si)
+    _js_started = time.time()
+    return {"message": "starting TheJobStash " + " and ".join(t.split()[1] for t, _ in todo)}
 
 
 def hold(slug, on):
@@ -512,6 +565,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send(start(r["slug"]))
             if act == "/api/stop":
                 return self.send(stop())
+            if act == "/api/jobstash/start":
+                return self.send(jobstash_start())
             if act == "/api/hold":
                 return self.send(hold(r["slug"], bool(r["on"])))
             if act == "/api/redo":
