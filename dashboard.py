@@ -198,13 +198,22 @@ def folder(slug):
     return d
 
 
+def story_title(d):
+    """A story waiting for approval (script.md, no script.json yet) is titled by its opening question."""
+    f = d / "script.md"
+    if not f.exists():
+        return None
+    first = f.read_text(encoding="utf-8").strip().split("?")[0]
+    return first + "?" if first and len(first) < 120 else None
+
+
 def video_summary(d):
     s = script(d)
     imgs = images(d)
     mp4 = d / f"{d.name}.mp4"
     return {
         "slug": d.name,
-        "title": (s or {}).get("title") or d.name.replace("-", " ").capitalize(),
+        "title": (s or {}).get("title") or story_title(d) or d.name.replace("-", " ").capitalize(),
         "voice": (s or {}).get("voice", "am_liam"),
         "script": s is not None,
         "scriptError": (s or {}).get("error"),
@@ -223,9 +232,11 @@ def video_summary(d):
 
 
 def videos():
-    """Every output/<slug>/ that is a video (has script.json or its MP4); "_" folders are tests."""
+    """Every output/<slug>/ that is a video (has script.json, its MP4, or a story to approve in script.md);
+    "_" folders are tests."""
     return [video_summary(d) for d in OUT.iterdir()
-            if d.is_dir() and not d.name.startswith("_") and ((d / "script.json").exists() or (d / f"{d.name}.mp4").exists())]
+            if d.is_dir() and not d.name.startswith("_")
+            and any((d / f).exists() for f in ("script.json", f"{d.name}.mp4", "script.md"))]
 
 
 # ---------- n8n runs ----------
