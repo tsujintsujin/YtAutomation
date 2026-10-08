@@ -1,0 +1,65 @@
+Why do cats love boxes so much? You buy your cat a fancy new bed and it ignores it completely. Then it climbs straight into the cardboard box the bed came in. So what is it about a plain old box that a cat just can't resist?
+
+A parcel turns up at your door on a quiet afternoon. You carry it inside and set it down on the floor. You open it up and lift out whatever you ordered. Maybe it's a lamp or a pair of shoes or a lovely new cat tree. And before you've even folded the flaps down there's a cat sitting inside the box.
+
+It doesn't matter how big the box is. It doesn't matter if the cat barely fits. A big chunky cat will happily cram itself into a tiny shoe box with its sides spilling over the edges. Then it just sits there looking extremely pleased with itself. Meanwhile the expensive thing that came in the box lies forgotten on the floor.
+
+People joke about this constantly. You can spend a small fortune on toys and the cat would still rather have the packaging. But there are real reasons hiding behind it. Some of them go back thousands of years and some are about how a cat feels on the inside. Let's start with the oldest one.
+
+Your house cat comes from a small wild cat that lived in deserts and dry grasslands. That wild cat was a hunter. But it was also small enough to end up as somebody else's lunch. Foxes and jackals and birds of prey and bigger cats would all have been glad to eat it. So a small wild cat needed two things at the same time. It needed a way to hunt and it needed a way to stay out of sight.
+
+The answer to both turned out to be a good hiding spot. Think of a gap between two rocks or a hollow under a thorny bush. Or maybe an old burrow dug into the ground by some other animal. Somewhere small and dark with walls on every side. Tucked in there the cat could rest without anything creeping up behind it. And it could watch the world outside without being seen.
+
+Cats are what scientists call ambush hunters. They don't chase prey for miles the way wolves do. Instead they wait patiently and quietly. They hide somewhere still and they barely move a whisker. Then when a mouse wanders close enough they explode out in one fast pounce. For an ambush hunter a good hiding spot is the most important tool there is.
+
+Now look at a cardboard box the way your cat does. It has walls on every side. It has one opening to peek out of. It's just big enough for one cat. Honestly it's pretty much the perfect hunting hide. Your cat sits in there with only its eyes and ears poking out. It feels safe and it feels ready for action. Anything that wanders past is about to get ambushed. And quite often that something turns out to be your ankle.
+
+The second big reason is stress. Cats are animals that like things to stay the same. They like the same food and the same routine and the same quiet corners. When something changes they can get anxious pretty quickly. A new house or a new pet or a loud party can all rattle a cat. And when a cat feels stressed its first instinct is usually to hide.
+
+Scientists have actually put this to the test. In 2014 a team at Utrecht University in the Netherlands studied cats that had just arrived at an animal shelter. A shelter is a really stressful place for a cat. Everything is new and noisy and smells of strangers. Some of the new arrivals were given a box to hide in. The others didn't get one.
+
+The cats with boxes settled in much faster. Within a few days they were calmer and less stressed than the cats without boxes. They got used to their new surroundings and the people around them more quickly. Something as simple as a cardboard box made a real difference.
+
+So a box isn't just a toy for a cat. It's more like a safe room. When the world gets too loud the cat can duck inside and shut it all out. In there nothing can come at it from behind or from the side. It only has to keep an eye on one small opening. For a nervous animal that's a huge weight off its shoulders.
+
+That's also why cats love all sorts of other small spaces. Think about all the odd places you've found your cat over the years. Your cat has probably curled up inside an open drawer. It has probably squeezed under the bed or into the bathroom sink. Laundry baskets and paper shopping bags are big favorites too. Some cats wedge themselves onto a shelf between two rows of books. All of those spots share one thing in common. They wrap around the cat and make it feel snug and protected.
+
+And remember how much time a cat spends asleep. Most cats doze for a big part of every single day. An animal that sleeps that much is going to be very fussy about where it sleeps. A sleeping cat can't keep watch. So it wants a spot where nothing can sneak up on it while it naps. A box gives it exactly that.
+
+This love of tight spaces starts very early. When a mother cat is about to give birth she goes looking for a nest. She wants somewhere dark and quiet and tucked well out of the way. A closet floor or the back of a cupboard or yes an old cardboard box. If she feels the nest isn't safe enough she may even carry her kittens somewhere new. She picks them up one at a time by the scruff of the neck. So the very first home most kittens ever know is a small enclosed space. It's warm and it's dark and it's full of their mother's smell. No wonder a box still feels like home years later.
+
+And this explains the fancy bed problem too. A brand new cat bed is usually open on top and open on the sides. It sits out in the middle of the room where everyone can see it. It also smells of the factory and the shop instead of the cat. The box it came in might smell strange too. But the box has walls and a roof of sorts and only one way in. To a cat that's a far better deal. Give the new bed a few weeks and an old blanket that smells of home. Plenty of cats will warm up to it in the end.
+
+The third reason is warmth. Cats like to be a good deal warmer than we do. Scientists talk about something called the thermoneutral zone. That's the range of temperatures where an animal doesn't have to burn any energy to warm up or cool down. For people that zone sits somewhere around room temperature. For cats it sits a lot higher. It's roughly thirty to thirty six degrees Celsius. That works out to about eighty six to ninety seven degrees Fahrenheit.
+
+Most of our homes are quite a bit cooler than that. So a cat lounging in an ordinary living room is often a little bit chilly. That's why cats follow sunny patches across the floor all day long. It's why they sleep on top of warm laptops and pressed up against radiators. And it's one more reason they love boxes.
+
+Cardboard turns out to be a surprisingly good insulator. It traps the warmth of the cat's body inside the box. A small box holds that heat even better because there's less air to warm up. So when your cat squeezes into a box that looks way too small it might know exactly what it's doing. It has found itself a cozy little heater.
+
+The fourth reason is that boxes are new and interesting. An indoor cat lives in a pretty small world. It knows every corner of your home and every smell in it. So when a box arrives it's a genuinely big event. It has come from somewhere far away. It smells of trucks and warehouses and all the people who handled it. A curious cat simply has to go and investigate.
+
+And once it has investigated the cat often wants to claim the thing. Cats have scent glands on their cheeks and on their chins. When a cat rubs its face along the edge of a box it's leaving its smell behind. It's quietly stamping the box as its own property. Plenty of cats also love to scratch and chew the cardboard. Scratching leaves even more scent from glands in their paws. It also feels wonderful on their claws. So a cardboard box is a hiding spot and a scratching post and a chew toy rolled into one.
+
+Now here's the strangest part of the whole story. Cats don't even need a real box.
+
+You may have seen a trend online where people stick a square of tape on the floor. It's just four lines of tape making an empty square. And very often the cat strolls over and sits right in the middle of it. It's as if the cat has decided that the square counts as a box.
+
+In 2021 a researcher named Gabriella Smith decided to test this properly. She ran a study with the help of cat owners in their own homes. The owners laid out shapes on the floor and noted what their cats did. One of those shapes was a real square made of tape. Another was a famous optical illusion called the Kanizsa square.
+
+The Kanizsa square doesn't actually have any sides at all. It's just four shapes that look like little round pac men. They sit in the four corners with their open mouths pointing inward. Your brain fills in the missing lines and you see a square that isn't really there.
+
+The cats in the study sat in that illusion square about as often as the real one. That hints that cats might fall for the same illusion that we do. Their brains seem to fill in the missing edges too. It also means that even the idea of a box can be enough for a cat. The internet already had a name for all of this. If it fits then I sits.
+
+Big cats love boxes too by the way. Sanctuaries that look after lions and tigers have filmed them playing with giant cardboard boxes. The huge cats pounce on them and squeeze into them and rip them to shreds. They do it exactly like a house cat would. That instinct runs right through the whole cat family.
+
+So should you give your cat boxes? You absolutely should if you can. A cardboard box is one of the cheapest and best presents you can give a cat. Just give it a quick check first. Pull out any staples and long strips of packing tape. Take out any plastic bags or loose ties. And cut off any handles that a cat could get its head stuck in.
+
+If your cat seems stressed it helps to offer more than one hiding spot around the house. A box in a quiet corner can do a nervous cat a world of good. That's especially true after a move or when you've got guests over. You can even cut a little doorway in the side of a box and put a soft blanket inside. Some people stack a pile of boxes into a whole cardboard castle.
+
+There's one thing worth watching for though. Hiding is perfectly normal but a big change in hiding is worth noticing. If your cat suddenly hides all the time and stops eating it may be unwell. The same goes if it stops using its litter box. Cats often hide away when they're sick or in pain. So if the hiding comes with other changes it's a good idea to call your vet.
+
+So why do cats love boxes so much?
+
+Because they come from small wild cats that needed safe hiding spots to survive. Because a box is the perfect place for an ambush hunter to lie in wait. Because walls on every side make an anxious cat feel safe. Because cardboard keeps a cat warm in a home that feels a bit chilly to them. Because a new box is full of strange smells and fresh cardboard to scratch. And because a cat's brain loves the idea of a box so much that a square of tape will do.
+
+So the next time a parcel arrives leave the box out for a while. Watch your cat climb in and turn around and settle down. It looks a bit silly to us. But to your cat that box is a hunting hide and a safe room and a warm bed all at once. And honestly that's a much better present than whatever came inside it.
