@@ -227,9 +227,9 @@ page (no traffic to Google).
 
 - **why-cats-knead (biscuits) — state 2026-10-08.** `why-cats-knead.mp4` (run 444, 11:57) has the opening question
   (segments 309-311), the intro at 0:08, the outro at the end: placement checked in the frames. Its voice is the
-  sentence version Justin rejected because commas run together. The story breaks the new text rules in 114 of 240
-  sentences (HANDOFF "Rules for the story text"): it needs a rewrite, Justin's approval, then new segments, so new
-  images for changed segments. Not started; ask Justin first. Comma tests: `output/why-cats-knead/voice-tests/`.
+  sentence version Justin rejected because commas run together. The text rules (HANDOFF "Rules for the story
+  text") are for NEW scripts; existing videos are not remade unless Justin says so. Comma tests:
+  `output/why-cats-knead/voice-tests/`.
 - **opencut-controller is not in git:** `scripts/render-folder.mjs` (intro/outro placement) exists only on this PC.
 
 - **Window-loop rework — AGREED by Justin, half built, NOT deployed.** Justin's expectation: each window runs
