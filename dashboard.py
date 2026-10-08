@@ -4,7 +4,6 @@ its buttons do only what Justin would do by hand:
   Start   POST n8n /webhook/yt-render {slug, voice}       (same as HANDOFF section 7)
   Stop    n8n: stop every running "YouTube Render" execution; bridge: release the claim, then the runner's `setup`
           order closes every Gemini window and tab
-  Hold    create / delete output/<slug>/HOLD              (the 5-hour timer skips held videos)
   Redo    move img/NNN.* and img_clean/NNN.jpg into img/redo/ (the next run makes that image again; only for videos
           without an MP4)
   Delete  remove the whole output/<slug>/ folder, permanently; only after typing the name, never during a run
@@ -223,7 +222,6 @@ def video_summary(d):
         "srt": (d / f"{d.name}.srt").exists(),
         "mp4": mp4.exists(),
         "mp4Size": mp4.stat().st_size if mp4.exists() else 0,
-        "hold": (d / "HOLD").exists(),
         "changed": max([d.stat().st_mtime] + [p.stat().st_mtime for p in imgs.values()]),
         "lastImage": max([p.stat().st_mtime for p in imgs.values()], default=0),
         "firstId": min(imgs, default=None),
@@ -351,8 +349,6 @@ def state():
             v["status"] = "running"
         elif v["mp4"]:
             v["status"] = "done"
-        elif v["hold"]:
-            v["status"] = "hold"
         elif not v["script"]:
             v["status"] = "draft"
         elif last and last["outcome"] == "failed":
@@ -459,15 +455,6 @@ def jobstash_start():
                          creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=si)
     _js_started = time.time()
     return {"message": "restarting TheJobStash scorer and tunnel"}
-
-
-def hold(slug, on):
-    f = folder(slug) / "HOLD"
-    if on:
-        f.write_text("held from the dashboard\n", encoding="utf-8")
-    elif f.exists():
-        f.unlink()
-    return {"message": ("holding " if on else "released hold on ") + slug}
 
 
 def thumb_pick(slug, i, on):
@@ -638,8 +625,6 @@ class H(BaseHTTPRequestHandler):
                 return self.send(n8n_restart())
             if act == "/api/jobstash/start":
                 return self.send(jobstash_start())
-            if act == "/api/hold":
-                return self.send(hold(r["slug"], bool(r["on"])))
             if act == "/api/thumbpick":
                 return self.send(thumb_pick(r["slug"], r["id"], bool(r["on"])))
             if act == "/api/redo":
