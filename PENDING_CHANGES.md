@@ -12,6 +12,12 @@ segmentation inside n8n, replacing the 5-hour timer with a wait inside the run, 
 (only segments over 6 s, or every image; OpenCut keyframe export not yet checked).
 
 Done:
+- 2026-10-08: Gemini account order: justin.masiga.sub, zaframelanie0524, theoj5442, soypremium050,
+  justin.masiga.1994 first (first three open the windows). Story text rules: max one comma per sentence (4+ words
+  each side), no phrase of 3 words or less (Kokoro ignores commas; nine voice fixes failed). voice.py: no cut-in
+  silence (rejected as glitchy), one recording per sentence.
+- 2026-10-07: voice.py speaks whole sentences (timestamped Kokoro places the image cuts); replaces the 10-06
+  per-piece split below, which sounded choppy. Opening question first, then the channel intro (intro.json), outro last.
 - 2026-10-07: thumbnails: 5 per video (thumb-ideas.json -> thumbnails.py -> thumbnails.json), n8n group
   "3b. Thumbnails" makes them in one separate Gemini window before the images -> thumbs/thumb-N.jpg. First real run
   (why-cats-knead, run 413): 5/5 in 09:57-10:14 (thumbnail 3 needed a second try), then the image steps started.
