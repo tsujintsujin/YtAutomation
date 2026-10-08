@@ -55,10 +55,56 @@ cat behavior, why do cats follow you, why does my cat follow me, cats following 
 - https://youtu.be/kDC76Sw3fvY (Public), playlist "Cat Behavior, Explained"
 - Thumbnail Test & Compare: thumb-1, thumb-3, thumb-4 (thumb-2 left out: same text as thumb-1, smaller)
 - Subtitles: English, from why-cats-follow-owners.srt
-- Paid promotion: No. AI use: No. End screen: none yet (no second video to point to)
+- Paid promotion: No. AI use: No. End screen: none at upload (no second video then)
 
 ## Channel setup done 2026-10-07
 - Description, keywords, audience "not made for kids" (channel default)
 - Upload defaults: category Pets & Animals, video + title language English
 - Banner: banner-1.jpg upscaled to banner-1-2048.jpg (YouTube minimum 2048x1152)
 - Country of residence: Philippines (set 2026-10-07, Justin)
+
+## Video 2
+
+### Title
+Why Does Your Cat Knead You?
+
+### Description
+Long day. You finally flop onto the couch and, what, three seconds later? The cat's on your lap. One turn, then another, and the paws get going. Left, right, left, right, purring like a tiny outboard motor... and then a claw goes clean through your jeans. The internet calls this making biscuits. Cute name. Still doesn't explain why a grown predator wants to knead you like bread dough.
+
+It goes back to day one, honestly. A newborn kitten pushes on its mother's belly to get the milk flowing, and the habit just never switches off. We get into that, plus why some cats drool or suck on blankets mid-knead, the scent glands in their paws (yep, it's marking you as its own), the old idea that wild cats flattened grass to make a bed, the stretching and self-soothing side of it, why some cats never knead at all, air biscuits, lions and tigers doing it too. And the practical bit: handling the claws without punishing your cat, why declawing is never the answer, and when kneading is worth a word with your vet.
+
+Chapters
+0:00 Why does your cat knead you?
+0:12 Making biscuits
+1:19 It starts on day one
+2:12 The kitten habit that never switched off
+3:08 Drooling, purring and treating you like mom
+3:51 Scent glands in their paws
+4:29 Your cat is labeling you
+4:59 Making the bed, wild cat style
+6:04 A good stretch
+6:26 Kneading to calm down
+6:53 Cats in heat and mothers-to-be
+7:19 Not every cat kneads
+7:39 Air biscuits and other kneading styles
+8:10 Big cats knead too
+8:23 The claws
+8:49 What to do about it
+9:37 Never declaw
+9:55 When kneading is a worry
+11:01 So why do cats knead you?
+
+#cats #catbehavior #pets
+
+### Tags
+cat behavior, why do cats knead, why does my cat knead me, cat kneading, making biscuits, cats making biscuits, air biscuits, cat kneading blanket, cat kneading and purring, cat scent glands, kitten nursing, cat claws, why do cats, cat facts, pet behavior, cat drooling
+
+### Settings
+Same as video 1. Captions: why-cats-knead.srt. Thumbnails (Justin ticked): thumb-1, thumb-2, thumb-4.
+
+### Published 2026-10-08
+- https://youtu.be/Y8l6nt-n-O0 (Public), playlist "Cat Behavior, Explained"
+- Thumbnail Test & Compare: thumb-1, thumb-2, thumb-4 (ticked by Justin)
+- Subtitles: English, from why-cats-knead.srt
+- Paid promotion: No. AI use: No.
+- End screen: one video element, "Why Do Cats Follow You Everywhere?" (chosen as a specific video, not "most recent upload"), last 20 s
