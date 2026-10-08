@@ -1,18 +1,18 @@
 {
-  "_note": "Gemini accounts for the image step, opened by email (?authuser=), so Chrome's /u/N slot order doesn't matter. 'accounts': the 3 windows opened first. 'pool': every account signed in to this Chrome; a window whose account hits its limit switches to the next one here that isn't on limit. justin.masiga.94 removed 2026-10-07 (Justin): it owns the Jin YouTube channel, so it stays out of the Gemini automation.",
+  "_note": "Gemini accounts for the image step, opened by email (?authuser=), so Chrome's /u/N slot order doesn't matter. 'accounts': the 3 windows opened first. 'pool': every account signed in to this Chrome; a window whose account hits its limit switches to the next one here that isn't on limit. justin.masiga.94 removed 2026-10-07 (Justin): it owns the Jin YouTube channel, so it stays out of the Gemini automation. 2026-10-08 (Justin): justin.masiga.sub, zaframelanie0524, theoj5442, soypremium050, justin.masiga.1994 go first; the first three open the windows.",
   "accounts": [
-    "justjecery@gmail.com",
-    "thejobstash@gmail.com",
-    "tsujin.giamas.p@gmail.com"
+    "justin.masiga.sub@gmail.com",
+    "zaframelanie0524@gmail.com",
+    "theoj5442@gmail.com"
   ],
   "pool": [
-    "justjecery@gmail.com",
-    "thejobstash@gmail.com",
-    "tsujin.giamas.p@gmail.com",
     "justin.masiga.sub@gmail.com",
     "zaframelanie0524@gmail.com",
     "theoj5442@gmail.com",
     "soypremium050@gmail.com",
-    "justin.masiga.1994@gmail.com"
+    "justin.masiga.1994@gmail.com",
+    "justjecery@gmail.com",
+    "thejobstash@gmail.com",
+    "tsujin.giamas.p@gmail.com"
   ]
 }

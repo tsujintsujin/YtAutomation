@@ -5,9 +5,15 @@ and speed (recorded in voice-settings.json), even if script.json was rebuilt wit
 
 usage: tts/.venv/Scripts/python voice.py output/<slug> [--voice am_santa] [--speed 1.0]
 
-Each segment is split after every punctuation mark; one TTS call per piece, a punctuation-sized
-pause after each (mid-segment too), cumulative timing. Segment N owns [start, end) where end includes its trailing pause, so
-the images tile the whole voice track with no gaps.
+Whole sentences are spoken in one TTS call, so the voice keeps its flow and only falls at a real sentence end
+(2026-10-07: the old one-call-per-comma-piece voice sounded choppy, every pause like a period, and short pieces were
+mispronounced). A sentence usually spans several 2-4 s segments. Where each one starts inside the sentence comes
+from the model itself: tts/models/kokoro-v1.0-timestamped.onnx is the same Kokoro v1.0 (identical audio, checked)
+exported with a duration for every phoneme, so a cut sits in the middle of the word gap between two segments.
+Commas get no pause from this voice (25 ms, tested 2026-10-08: punctuation swaps, misaki phonemes, longer
+durations inside the model, cut-in silence and splitting all failed or sounded wrong), so the story is written
+with at most one comma per sentence (HANDOFF "Rules for the story text"). Segment N owns [start, end) where end
+includes any trailing pause, so the images tile the whole voice track with no gaps.
 """
 import argparse
 import hashlib
@@ -18,23 +24,60 @@ import time
 from pathlib import Path
 
 import numpy as np
+import onnxruntime
 import soundfile as sf
 from kokoro_onnx import Kokoro
 from PIL import Image, ImageChops, ImageOps
 
 HERE = Path(__file__).parent
-PAUSE = {",": 0.22, ";": 0.22, ":": 0.22, ".": 0.45, "!": 0.45, "?": 0.5}  # silence after each piece, by its last mark
-NO_MARK = 0.2  # segment cut mid-sentence (no punctuation at its end)
+PAUSE = {".": 0.45, "!": 0.45, "?": 0.5}  # silence after a sentence, by its last mark
+NO_MARK = 0.2  # the script ends without a sentence mark
+SR = 24000
+MAX_TOKENS = 510  # Kokoro's limit per call
+SENTENCE_END = re.compile(r'[.!?]+["”’)]*$')
+METHOD = "sentences+timestamped"  # recorded in voice-settings.json, so a voice made the old way is redone
 
 
-def pieces(text):
-    """Split a segment after every punctuation mark (so a period mid-segment gets its own pause).
-    A mark only counts when followed by a space or the end: "3.5" stays whole, "..." is one mark."""
-    return re.findall(r'\S.*?(?:[,;:.!?]+["”’)]*(?=\s|$)|$)', text)
+def sentences(segs):
+    """Consecutive segments, grouped so each group ends where a sentence ends."""
+    groups, cur = [], []
+    for s in segs:
+        cur.append(s)
+        if SENTENCE_END.search(s["text"].strip()):
+            groups.append(cur)
+            cur = []
+    return groups + ([cur] if cur else [])
 
 
-def pause_after(piece):
-    return PAUSE.get(piece.rstrip('"”’)')[-1:], NO_MARK)
+def speak(kokoro, model, group, voice, speed):
+    """One sentence group -> (audio, [start second of each segment in it]). Each segment is phonemized on its own
+    and the pieces joined with a space, so the token where each segment begins is known exactly; the model's
+    per-token durations then give the time of the word gap before it."""
+    phon = [kokoro.tokenizer.phonemize(x["text"].strip(), "en-us") for x in group]
+    tokens = kokoro.tokenizer.tokenize(" ".join(phon))
+    first = [len(kokoro.tokenizer.tokenize(" ".join(phon[:i]) + " ")) if i else 0 for i in range(len(group))]
+    if len(tokens) > MAX_TOKENS:                   # too long for one call: speak it in two halves, split at a segment
+        h = len(group) // 2
+        if h == 0:
+            raise ValueError(f"segment {group[0]['id']} alone is {len(tokens)} phoneme tokens (max {MAX_TOKENS})")
+        a1, s1 = speak(kokoro, model, group[:h], voice, speed)
+        a2, s2 = speak(kokoro, model, group[h:], voice, speed)
+        return np.concatenate([a1, a2]), s1 + [len(a1) / SR + x for x in s2]
+    style = kokoro.get_voice_style(voice)[len(tokens)].reshape(1, 256).astype(np.float32)
+    wav, dur = model.run(None, {"input_ids": np.array([[0, *tokens, 0]], dtype=np.int64), "style": style,
+                                "speed": np.array([speed], dtype=np.float32)})
+    wav, dur = wav.ravel(), dur.ravel()
+    edge = np.concatenate([[0], np.cumsum(dur)]) * len(wav) / dur.sum()   # edge[k] = sample where input k starts
+    # input k = token k-1 (k=0 and the last are the model's padding). Keep speech only: from the first token to
+    # the last spoken one, 50 ms either side. The silence the model gives the closing mark is dropped: the sentence
+    # pause after the group (PAUSE) replaces it, otherwise every sentence end got two pauses.
+    spoken = len(kokoro.tokenizer.tokenize(" ".join(phon).rstrip(' .,!?;:"”’)…—')))
+    lo, hi = max(0, int(edge[1] - 0.05 * SR)), min(len(wav), int(edge[spoken + 1] + 0.05 * SR))
+    loud = np.flatnonzero(np.abs(wav[lo:hi]) > 0.01 * np.abs(wav).max())   # then trim to the first/last sound (-40 dB)
+    if len(loud):
+        lo, hi = lo + max(0, loud[0] - int(0.03 * SR)), lo + min(hi - lo, loud[-1] + int(0.03 * SR))
+    starts = [0.0] + [((edge[f] + edge[f + 1]) / 2 - lo) / SR for f in first[1:]]   # middle of the space token
+    return wav[lo:hi], starts
 
 
 def trim_border(src, dst, size=(1920, 1080)):
@@ -79,7 +122,7 @@ def main():
     # The voice depends only on the narration, the voice and the speed, so a script.json rebuilt with new image
     # prompts must not redo it. Older voice-settings.json had no "texts": then fall back to the file dates once.
     texts = hashlib.sha1(json.dumps([s["text"] for s in segs]).encode("utf-8")).hexdigest()
-    settings = {"voice": voice, "speed": a.speed, "texts": texts}
+    settings = {"voice": voice, "speed": a.speed, "texts": texts, "method": METHOD}
     made_with = json.loads((out / "voice-settings.json").read_text(encoding="utf-8")) if (out / "voice-settings.json").exists() else None
     if made_with and "texts" not in made_with and made_with == {"voice": voice, "speed": a.speed} and \
             all(f.exists() and f.stat().st_mtime > (out / "script.json").stat().st_mtime for f in done):
@@ -92,30 +135,35 @@ def main():
         return
 
     (out / "audio").mkdir(exist_ok=True)
-    kokoro = Kokoro(str(HERE / "tts/models/kokoro-v1.0.onnx"), str(HERE / "tts/models/voices-v1.0.bin"))
-    full, timings, t, sr = [], [], 0.0, 24000
-    for s in segs:
-        parts = []
-        for p in pieces(s["text"].strip()):
-            samples, sr = kokoro.create(p, voice=voice, speed=a.speed, lang="en-us")
-            parts += [samples, np.zeros(int(sr * pause_after(p)), dtype=samples.dtype)]
-        piece = np.concatenate(parts)
-        sf.write(out / "audio" / f"{s['id']:03d}.wav", piece, sr)
-        full.append(piece)
-        dur = len(piece) / sr  # sample-exact, so cumulative timing cannot drift from voice.wav
-        timings.append({"id": s["id"], "start": round(t, 4), "end": round(t + dur, 4)})
-        t += dur
+    kokoro = Kokoro(str(HERE / "tts/models/kokoro-v1.0.onnx"), str(HERE / "tts/models/voices-v1.0.bin"))  # phonemizer + voices
+    model = onnxruntime.InferenceSession(str(HERE / "tts/models/kokoro-v1.0-timestamped.onnx"))
+    groups = sentences(segs)
+    full, starts, t, sr = [], {}, 0.0, SR
+    for g in groups:
+        samples, inner = speak(kokoro, model, g, voice, a.speed)
+        end = SENTENCE_END.search(g[-1]["text"].strip())
+        pause = np.zeros(int(sr * (PAUSE[end.group()[0]] if end else NO_MARK)), dtype=samples.dtype)
+        full += [samples, pause]
+        for x, st in zip(g, inner):
+            starts[x["id"]] = t + st
+        t += (len(samples) + len(pause)) / sr       # sample-exact, so timing cannot drift from voice.wav
+    wav = np.concatenate(full)
+    sf.write(out / "voice.wav", wav, sr)
+    order = [x["id"] for x in segs]
+    timings = [{"id": i, "start": round(starts[i], 4), "end": round(starts[order[k + 1]] if k + 1 < len(order) else t, 4)}
+               for k, i in enumerate(order)]
+    for x in timings:                             # per-segment slices, as before (not used by the edit)
+        sf.write(out / "audio" / f"{x['id']:03d}.wav", wav[int(x["start"] * sr):int(x["end"] * sr)], sr)
 
     # 6 s per image is Justin's hard max. Length here includes the trailing pause (= how long the image shows).
     long = [x for x in timings if x["end"] - x["start"] > 6.0]
     for x in long:
         print(f"OVER 6s: segment {x['id']} is {x['end'] - x['start']:.2f}s", file=sys.stderr)
 
-    sf.write(out / "voice.wav", np.concatenate(full), sr)
     (out / "timings.json").write_text(json.dumps(timings, indent=1), encoding="utf-8")
     (out / "voice-settings.json").write_text(json.dumps(settings), encoding="utf-8")
     print(json.dumps({"ok": True, "folder": str(out), "voice": voice, "segments": len(segs),
-                      "seconds": round(t, 2), "took": round(time.time() - t0, 1),
+                      "seconds": round(t, 2), "took": round(time.time() - t0, 1), "sentences": len(groups),
                       "over_6s": [{"id": x["id"], "seconds": round(x["end"] - x["start"], 2)} for x in long]}))
 
 

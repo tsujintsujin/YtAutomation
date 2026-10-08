@@ -33,6 +33,16 @@ free Gemini web app driven through his own Chrome; voice is local Kokoro; editin
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
+### Rules for the story text (step 2) — Justin, 2026-10-08
+Kokoro (am_liam) does not pause at commas: inside a sentence it gives every mark the minimum length (25 ms), only
+the sentence end gets a real pause. Nine fixes were tried and none worked (`output/why-cats-knead/voice-tests/`).
+So the narration is written for the voice:
+- **Avoid commas.** At most **one comma per sentence**, and only in the middle: **at least 4 words on each side**
+  of it. No comma lists ("Left paw, right paw, purring, eyes half shut" is out).
+- **No phrase of 3 words or less.** Every sentence, and each part on either side of a comma, has at least 4 words
+  ("The cat.", "Then twice.", "Making biscuits." are out).
+- Where a pause is wanted, end the sentence: a full stop is the only pause Kokoro makes.
+
 ### Rules for the setup (step 4)
 - **Segments: 2-4 seconds each, 4 s max** (Justin, 2026-10-05, after watching the first video: 4-6 s per image
   "really is long"). The first video used 3-6 s; do not copy that. Cut per phrase / punctuation; never a
@@ -65,6 +75,11 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 - `script.json` = `{"title", "voice": "am_liam", "segments": [{"id", "text", "geek", "cat", "scene", "prompt"}]}`.
   The cat video's `build_script.py`, `scenes.py`, `seg_rule.py` show how it was produced; reuse the approach,
   but with the 2-4 s rule.
+- **Every video OPENS with the question** (Justin, 2026-10-07: "the intro of the whole video should have the
+  questions, intro vid, resume main content"). The first seconds of narration are the question itself (2-3 short
+  segments), then the intro clip, then the story. Not a question found a minute in: the first biscuits render put the
+  intro at 1:08 and that was wrong. why-cats-knead: `opening.py` puts segments 309-311 in front (new ids, so the
+  story keeps its ids and images; re-run it after build_script.py). New videos: write the opening into script.md.
 - **Channel intro + outro in every video** (Justin, 2026-10-07): the video opens with the story's question, then
   the intro clip with the voice line "We'll talk more about that in this video", then the story goes on; the outro
   plays after the last segment. Write `output/<slug>/intro.json` (NOT in script.json, same reason as thumbnails):
@@ -131,10 +146,10 @@ No AI model inside n8n without asking Justin first. The writing stays with Claud
 | Deploy a workflow change | `python build_yt_workflow.py && python push_yt_workflow.py` (in `D:\AIO Freelance\n8n\`) | Pushes through the n8n API and publishes. **No restart needed**; Justin refreshes the editor to see it. API key: `D:\AIO Freelance\Credentials\n8n\api-key.txt` (listed in `Credentials/README.md`; never copy it anywhere). A running execution keeps the version it started with. |
 | bridge.py | `YtAutomation\bridge.py`, port 8766 | Started by n8n's "Start bridge to extension" node via `start_bridge.cmd` (own minimised window "Gemini bridge :8766", `Start-Process`, not cmd `start`). Holds commands for the runner, answers, writes `img/NNN.jpg` (verifies it is a real image), serves `/prompt`, `/refs`, `/missing`, `/accounts`, `/claim`, `/release`. |
 | Chrome extension "YtAutomation Gemini Runner" | `YtAutomation\gemini-extension\` (unpacked, MV3) | `background.js` only keeps a pinned **"Gemini runner"** tab open (reopens it if closed, not discardable). `runner.js` in that tab long-polls the bridge and carries out orders. It decides nothing and remembers nothing. **Any change to runner.js needs Justin to reload the extension at chrome://extensions** (Claude's Chrome tools cannot open chrome:// pages). Reloading kills any order in flight, so never reload during a run. |
-| Gemini accounts | `YtAutomation\gemini-accounts.json` | `accounts` = first 3 windows (justjecery, thejobstash, tsujin.giamas.p), `pool` = 8 signed-in accounts in switch order. **justin.masiga.94 is out** (Justin, 2026-10-07): it owns the Jin YouTube channel, and a Google ban for the Gemini automation would take the channel with it. Never add it back. Opened by `?authuser=<email>`, so /u/N order doesn't matter. Justin: "just use whatever is still available/has credits". |
+| Gemini accounts | `YtAutomation\gemini-accounts.json` | `accounts` = first 3 windows, `pool` = 8 signed-in accounts in switch order. Since 2026-10-08 (Justin) the order is justin.masiga.sub, zaframelanie0524, theoj5442, soypremium050, justin.masiga.1994, then justjecery, thejobstash, tsujin.giamas.p; the first three open the windows (thumbnails use the first one not on limit). **justin.masiga.94 is out** (Justin, 2026-10-07): it owns the Jin YouTube channel, and a Google ban for the Gemini automation would take the channel with it. Never add it back. Opened by `?authuser=<email>`, so /u/N order doesn't matter. Justin: "just use whatever is still available/has credits". |
 | Dashboard | `YtAutomation\dashboard.py` + `dashboard.html`, http://127.0.0.1:8770 | Built 2026-10-06. Start: `YtAutomation Dashboard.lnk` (pinned to Justin's taskbar; icon `dashboard.ico`) runs `start_dashboard.cmd`: starts whatever is down, each in its own minimised window (n8n via `..\n8n\start_n8n.cmd`, window "n8n :5678", not waited for; the bridge via `start_bridge.cmd`; the dashboard, window "YtAutomation dashboard :8770"), then opens the page in Chrome (the PC's default browser is Edge). Measured cold, 2026-10-07: bridge 9 s, page 12 s, n8n ~3 min until ready. n8n's `/healthz` answers while its database is still loading, so the dashboard's n8n dot and Start use `/healthz/readiness` (dot shows "starting" in between). n8n does not start by itself after a reboot: open the shortcut. The .lnk is not in git: it is `cmd.exe /c "<folder>\start_dashboard.cmd"`, window minimised, icon dashboard.ico. Not started by n8n; restarting it is safe during a run (it only reads and calls the same endpoints Justin would). Shows videos (images made / total, voice, srt, MP4, status), each video's image grid with line + prompt, MP4 player + .srt download, live run (rate, time left, windows, the runner's last orders), images per Gemini account per day, n8n runs with their failure reason. Buttons: Start (webhook), Stop (n8n stop + release claim + runner `setup` closes every Gemini window), Hold (HOLD file), Make again (moves img/NNN + img_clean/NNN into img/redo/; only videos without an MP4), Delete (removes the whole `output/<slug>/` permanently, after typing the name; refused during a run). Thumbnails: each video row shows them; the video page has a Thumbnails card (click = full size + Download; checkbox top-right = use on YouTube, max 3, `thumbs-approved.json`, POST `/api/thumbpick`). Delete is the trash icon at the far right of the video page. Every error message (robot-check notice, "Last run failed", "script.json problem", red pop-ups) has a trash button; a deleted notice stays hidden in that browser (localStorage `gone`: `robot:<run>`, `run:<run>`, `script:<slug>:<error>`), a new run's error shows again. Only answers 127.0.0.1/localhost; POSTs need the `X-Dash: 1` header. n8n's plain execution list leaves out running executions, so it also asks with `status=running` / `waiting`. Cache of finished runs: `dashboard-cache/runs.json`. |
 | Account counts | `bridge.py` `watch()` -> `usage.jsonl` | The bridge watches the orders passing through it (openWindows / switchAccounts / newChat tell it which account is in which window) and writes one line per image saved, per limit reply and per robot check. Started 2026-10-06 23:2x; earlier videos have no counts. **The window-loop rework changes the orders**: update `watch()` then (the `/pool/limit` call gives limits directly). |
-| Kokoro TTS | `YtAutomation\tts\` (venv `tts\.venv`, models `tts\models`) | `voice.py` uses `kokoro_onnx`; only knobs: voice, speed, pauses. No pitch/intonation control (punctuation and voice blending are the only levers). |
+| Kokoro TTS | `YtAutomation\tts\` (venv `tts\.venv`, models `tts\models`) | `voice.py` speaks whole sentences in one call (2026-10-07; the 10-06 one-call-per-comma-piece version sounded choppy, "every pause is a period", and mispronounced short pieces like "sore feet"). Image cuts inside a sentence come from `tts/models/kokoro-v1.0-timestamped.onnx` (onnx-community export of the same Kokoro v1.0: identical audio, checked, plus per-phoneme durations); `kokoro_onnx` only supplies phonemes and voices. Pause 0.45 s after `.`/`!`, 0.5 s after `?`; comma pauses are the model's own. Measured 191 words/min at speed 1.0. Knobs: voice, speed. No pitch/intonation control. |
 | OpenCut | `YtAutomation\opencut-classic\` (editor :3000) + `opencut-controller\` (MCP over HTTP :3002) | Started/stopped by the workflow. Use 127.0.0.1, not localhost (IPv6). |
 
 ### Windows quirks found (real, don't re-learn them)
@@ -209,6 +224,13 @@ page (no traffic to Google).
 ---
 
 ## 5. Open items (nothing here is approved unless marked)
+
+- **why-cats-knead (biscuits) — state 2026-10-08.** `why-cats-knead.mp4` (run 444, 11:57) has the opening question
+  (segments 309-311), the intro at 0:08, the outro at the end: placement checked in the frames. Its voice is the
+  sentence version Justin rejected because commas run together. The story breaks the new text rules in 114 of 240
+  sentences (HANDOFF "Rules for the story text"): it needs a rewrite, Justin's approval, then new segments, so new
+  images for changed segments. Not started; ask Justin first. Comma tests: `output/why-cats-knead/voice-tests/`.
+- **opencut-controller is not in git:** `scripts/render-folder.mjs` (intro/outro placement) exists only on this PC.
 
 - **Window-loop rework — AGREED by Justin, half built, NOT deployed.** Justin's expectation: each window runs
   independently, its own timers, never waiting for the others (today the steps are lockstep: every step waits
