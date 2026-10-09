@@ -9,10 +9,10 @@
 ## 1. What this project is
 
 Faceless, narrated YouTube videos about cats (illustrated style, a recurring "Geek" human character and a
-silver tabby cat). One video = a ~12-13 min story read by a Kokoro voice over one AI image per segment.
+silver tabby cat). One video = a ~12-13 min story read by Chatterbox copying the voice "Mark" over one AI image per segment.
 
 **Justin pays for nothing.** No paid APIs, no billing, no "the paid tier would fix this". Images come from the
-free Gemini web app driven through his own Chrome; voice is local Kokoro; editing is a local OpenCut.
+free Gemini web app driven through his own Chrome; voice is local Chatterbox (Kokoro before 2026-10-09); editing is a local OpenCut.
 
 ### Who does what (Justin set this; do not change it)
 1. **Justin** gives a topic.
@@ -34,15 +34,10 @@ free Gemini web app driven through his own Chrome; voice is local Kokoro; editin
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
-### Rules for the story text (step 2) — Justin, 2026-10-08
-Kokoro (am_liam) does not pause at commas: inside a sentence it gives every mark the minimum length (25 ms), only
-the sentence end gets a real pause. Nine fixes were tried and none worked (`output/why-cats-knead/voice-tests/`).
-So the narration is written for the voice:
-- **Avoid commas.** At most **one comma per sentence**, and only in the middle: **at least 4 words on each side**
-  of it. No comma lists ("Left paw, right paw, purring, eyes half shut" is out).
-- **No phrase of 3 words or less.** Every sentence, and each part on either side of a comma, has at least 4 words
-  ("The cat.", "Then twice.", "Making biscuits." are out).
-- Where a pause is wanted, end the sentence: a full stop is the only pause Kokoro makes.
+### Rules for the story text (step 2)
+**No comma rules** (Justin, 2026-10-09: "no more rules for commas"). The voice is Chatterbox copying Mark
+(`voice_cb.py`), which pauses at every comma (240-560 ms, tested 2026-10-09). The old rules (max one comma per
+sentence, no phrase of 3 words or less, 2026-10-08) existed only because Kokoro ignores commas; they are gone.
 
 ### Rules for the setup (step 4)
 - **Segments: 2-4 seconds each, 4 s max** (Justin, 2026-10-05, after watching the first video: 4-6 s per image
@@ -84,10 +79,11 @@ So the narration is written for the voice:
 - **Channel intro + outro in every video** (Justin, 2026-10-07): the video opens with the story's question, then
   the intro clip with the voice line "We'll talk more about that in this video", then the story goes on; the outro
   plays after the last segment. Write `output/<slug>/intro.json` (NOT in script.json, same reason as thumbnails):
-  `{"after_segment": N, "intro": "intro-outro/final/jin-intro.mp4", "intro_voice": "intro-outro/final/intro-voice-am_liam.wav",
+  `{"after_segment": N, "intro": "intro-outro/final/jin-intro.mp4", "intro_voice": "intro-outro/final/intro-voice-mark.wav",
   "intro_voice_text": "We'll talk more about that in this video.", "intro_voice_at": 0.6, "outro": "intro-outro/final/jin-outro.mp4"}`
   where N = the segment that ends the opening question. The voice line is a separate file because other channels
-  may use another voice (this channel: Kokoro am_liam, speed 1.0). `render-folder.mjs` and `make_srt.py` read it
+  may use another voice (this channel: Chatterbox copying Mark, `intro-voice-mark.wav`; videos up to purr used Kokoro
+  am_liam, `intro-voice-am_liam.wav`). `render-folder.mjs` and `make_srt.py` read it
   (n8n's "Make the video" needs nothing else): narration and images after N move later by the intro's length, one
   soundtrack is built with ffmpeg in `output/<slug>/edit/`. The clips are HyperFrames projects in
   `intro-outro/intro` and `intro-outro/outro` (4 s each, Geek + JIN on the channel orange; `cutout_geek.py` cut the
@@ -134,7 +130,7 @@ So the narration is written for the voice:
  n8n (127.0.0.1:5678)  ──HTTP──>  bridge.py (127.0.0.1:8766)  <──long-poll──  Chrome extension "runner" tab
  workflow "YouTube Render"         passes orders, writes img/                  carries out orders in Gemini windows
         │
-        ├─ runs voice.py (Kokoro)          -> audio/NNN.wav, voice.wav, timings.json, voice-settings.json
+        ├─ runs voice_cb.py (Chatterbox)   -> audio/NNN.wav, voice.wav, timings.json, voice-settings.json
         ├─ runs voice.py --images-only     -> img_clean/NNN.jpg (1920x1080)
         ├─ runs make_srt.py                -> <slug>.srt
         └─ runs start_opencut.cmd + opencut-controller/scripts/render-folder.mjs + stop_opencut.cmd -> <slug>.mp4
@@ -170,8 +166,12 @@ Groups as they appear in the editor (top to bottom):
    it started runs by itself, two at once. Never add a timer back). `pending.py` is no longer used.
    Then: Video name ok? -> Start bridge to extension -> Bridge running? -> "Mark video in progress"
    (`/claim`; a second run on the same video stops at "Stop: already in progress").
-2. **Voice** — `voice.py output\<slug> --voice <v> --speed 1.0 --if-needed`. Skips only if voice.wav +
-   timings.json are newer than script.json AND `voice-settings.json` has the same voice and speed.
+2. **Voice** — `chatterbox\.venv\Scripts\python voice_cb.py output\<slug> --if-needed` (since 2026-10-09; was
+   Kokoro `voice.py`). Chatterbox Standard, default settings, copying Mark (`tts/samples/voices/29_mark.mp3`), one
+   take per sentence; Whisper (small.en, CPU) hears each take: the image cuts go in the word gaps, and a take with
+   dropped/repeated words is made again (3 tries, then the step fails naming the segments). Closes the Chatterbox
+   page (:7861) first (one model fits on the 6 GB card). ~30-60 min for a 13 min video. Skips only if
+   `voice-settings.json` has the same narration text and method (a Kokoro voice is redone).
 3. **Images: setup** — Accounts -> "Setup: close leftovers" (closes every other runner tab and every Gemini /
    Gemini image tab) -> "Setup: forget windows and limits" -> 3b -> Images missing -> All images in?
 3b. **Thumbnails** — once per run, only if `thumbnails.json` has thumbnails not yet in `thumbs/`. One separate

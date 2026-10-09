@@ -6,11 +6,14 @@ Justin's instruction: note them, don't apply until he says.
    2026-10-05. Shared lists in bridge.py written + checked offline; runner.js concurrency + closeWindows and the
    two n8n workflows not written yet. Deploy only when no run is going (needs bridge restart + extension reload).
    Full plan: HANDOFF.md section 5.
-2. Voice: Chatterbox instead of Kokoro, copying **Mark** (`tts/samples/voices/29_mark.mp3`, 18 s) — "this is what
+2. **DONE 2026-10-09** (Justin: "modify the workflow to include the chatterbox, just on standard and base settings"):
+   `voice_cb.py`, n8n voice node, `intro-voice-mark.wav`; see HANDOFF step 2.
+   Voice: Chatterbox instead of Kokoro, copying **Mark** (`tts/samples/voices/29_mark.mp3`, 18 s) — "this is what
    we'll be using for the jinthegeek channel" (Justin, 2026-10-09). Chatterbox gives no word timings, so voice.py
    needs Whisper word times for the image cuts inside a sentence; the intro voice line must be redone in Mark too.
    Chatterbox page (`chatterbox/app.py`, :7861) is for trying it out; plan and test before touching n8n.
-3. Story rules: **drop the comma rules** (max one comma, 4+ words each side, no phrase of 3 words or less) once
+3. **DONE 2026-10-09** ("no more rules for commas"; HANDOFF story rules updated).
+   Story rules: **drop the comma rules** (max one comma, 4+ words each side, no phrase of 3 words or less) once
    Chatterbox voices the videos (Justin, 2026-10-09: "in effect of using chatterbox, we will omit the rules on the
    comma usage"). Chatterbox pauses at every comma (240-560 ms, tested 2026-10-09). Until then Kokoro still voices
    the videos and the rules still matter.
