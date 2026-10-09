@@ -349,12 +349,12 @@ function shell() {
   const h = S.health;
   const svc = [['n8n', h.n8n ? 'on' : ['starting', 'restarting'].includes(h.n8nState) ? 'idle' : 'off', h.n8nState || (h.n8n ? 'running' : 'down')], ['Bridge', h.bridge ? 'on' : 'off', h.bridge ? 'running' : 'down'],
     ['OpenCut', h.opencut ? 'on' : 'idle', h.opencut ? 'running' : 'idle']];
-  const vo = h.voiceover || {};
-  svc.push(['Voiceover', vo.on ? 'on' : 'idle', vo.on ? 'running' : vo.starting ? 'starting' : 'down']);
+  for (const [k, n] of APPS) { const a = h.apps?.[k] || {}; svc.push([n, a.on ? 'on' : 'idle', a.on ? 'running' : a.starting ? 'starting' : 'down']); }
   const restarting = h.n8nState === 'restarting';
   $('#svc').innerHTML = `<p class="t">YtAutomation</p>` + svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('')
     + `<button class="btn sm" data-n8n ${S.run || restarting ? 'disabled' : ''} title="${S.run ? 'A run is going; stop it first' : 'Ends n8n, even when it is frozen, and starts it again in its own minimised window. Takes about 3 minutes.'}">${restarting ? 'Restarting n8n…' : 'Restart n8n'}</button>`
-    + `<button class="btn sm primary" data-vo ${vo.starting ? 'disabled' : ''} title="Kokoro text to speech: paste a script, get a WAV (http://127.0.0.1:7860). Runs in its own minimised window; close that window to stop it.">${vo.on ? 'Open Voiceover' : vo.starting ? 'Starting Voiceover…' : 'Start Voiceover'}</button>`;
+    + APPS.map(([k, n, port, tip]) => { const a = h.apps?.[k] || {};
+      return `<button class="btn sm primary" data-app="${k}" ${a.starting ? 'disabled' : ''} title="${tip} (http://127.0.0.1:${port}). ${a.on ? 'Opens it.' : 'Starts it in its own minimised window; close that window to stop it.'}">${a.starting ? `Starting ${n}…` : n}</button>`; }).join('');
   const j = h.jobstash || {};
   $('#jsvc').innerHTML = `<p class="t">TheJobStash</p>` + [['Scorer', j.scorer], ['Tunnel', j.tunnel]].map(([n, on]) =>
     `<div><strong>${n}</strong><span><span class="dot ${on ? 'on' : j.starting ? 'idle' : 'off'}"></span> ${on ? 'running' : j.starting ? 'starting' : 'down'}</span></div>`).join('')
@@ -649,8 +649,8 @@ window.addEventListener('hashchange', () => { scrollTo(0, 0); render(); });
 $('#refresh').onclick = () => refresh(true);
 $('#stopTop').onclick = () => act('stop');
 $('#svc').onclick = async e => {
-  const v = e.target.closest('[data-vo]');
-  if (v && !v.disabled) return voiceover(v);
+  const v = e.target.closest('[data-app]');
+  if (v && !v.disabled) return voiceApp(v);
   const b = e.target.closest('[data-n8n]');
   if (!b || b.disabled) return;
   if (!confirm("Restart n8n? It is down for about 3 minutes. TheJobStash's workflows run on the same n8n and pause too.")) return;
@@ -658,20 +658,24 @@ $('#svc').onclick = async e => {
   try { toast((await api('/api/n8n/restart', {})).message); } catch (err) { toast(err.message, true); }
   refresh(true);
 };
-// The tab is opened inside the click (a later window.open is blocked as a pop-up), then pointed at :7860 once it answers.
-async function voiceover(b) {
-  const URL_VO = 'http://127.0.0.1:7860/';
-  if (S.health.voiceover?.on) return window.open(URL_VO, '_blank');
+// Local voice pages, not part of the video pipeline: key, name, port, what it is.
+const APPS = [['kokoro', 'Kokoro', 7860, 'Kokoro text to speech: 28 voices, paste a script, get a WAV'],
+              ['chatterbox', 'Chatterbox', 7861, 'Chatterbox: copies any voice clip (Liam, your recording...), emotion and pace sliders']];
+// The tab is opened inside the click (a later window.open is blocked as a pop-up), then pointed at the page once it answers.
+async function voiceApp(b) {
+  const [k, n, port] = APPS.find(a => a[0] === b.dataset.app), url = `http://127.0.0.1:${port}/`;
+  if (S.health.apps?.[k]?.on) return window.open(url, '_blank');
   const w = window.open('', '_blank');
-  if (w) w.document.write('<title>Voiceover</title><p style="font:16px system-ui;padding:24px">Starting Voiceover (Kokoro)…</p>');
+  const say = t => { if (w && !w.closed) w.document.body.innerHTML = `<p style="font:16px system-ui;padding:24px">${t}</p>`; };
+  if (w) { w.document.title = n; say(`Starting ${n}…`); }
   b.disabled = true;
-  try { toast((await api('/api/voiceover/start', {})).message); } catch (err) { toast(err.message, true); w?.close(); return refresh(true); }
-  for (let i = 0; i < 40; i++) {                       // up to 60 s for the model to load
+  try { toast((await api('/api/app/start', { app: k })).message); } catch (err) { toast(err.message, true); w?.close(); return refresh(true); }
+  for (let i = 0; i < 60; i++) {                       // up to 90 s (Chatterbox imports torch before the page answers)
     await new Promise(r => setTimeout(r, 1500));
     await refresh(true);
-    if (S.health.voiceover?.on) { if (w && !w.closed) w.location = URL_VO; else window.open(URL_VO, '_blank'); return; }
+    if (S.health.apps?.[k]?.on) { if (w && !w.closed) w.location = url; else window.open(url, '_blank'); return; }
   }
-  if (w && !w.closed) w.document.body.innerHTML = '<p style="font:16px system-ui;padding:24px">Voiceover did not start in 60 s. Check its minimised window "Voiceover :7860".</p>';
+  say(`${n} did not start in 90 s. Check its minimised window "${n} :${port}".`);
 }
 $('#jsvc').onclick = async e => {
   const b = e.target.closest('[data-js]');
