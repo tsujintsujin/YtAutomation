@@ -39,7 +39,7 @@ with gr.Blocks(title="Voiceover") as ui:
     text = gr.Textbox(label="Script", lines=12, placeholder="Paste your narration here...")
     with gr.Row():
         voice = gr.Radio(list(VOICES), value="Liam (US, male)", label="Voice")
-        speed = gr.Slider(0.7, 1.3, value=1.0, step=0.05, label="Speed")
+        speed = gr.Slider(0.7, 2.0, value=1.0, step=0.05, label="Speed")
     go = gr.Button("Generate", variant="primary")
     audio = gr.Audio(label="Result", type="filepath")
     status = gr.Markdown()
