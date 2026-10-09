@@ -108,3 +108,55 @@ Same as video 1. Captions: why-cats-knead.srt. Thumbnails (Justin ticked): thumb
 - Subtitles: English, from why-cats-knead.srt
 - Paid promotion: No. AI use: No.
 - End screen: one video element, "Why Do Cats Follow You Everywhere?" (chosen as a specific video, not "most recent upload"), last 20 s
+
+## Video 3
+
+### Title
+Why Does Your Cat Purr?
+
+### Description
+Sunday morning. You're still in bed, half awake, and the cat climbs up and parks itself right on your chest. Give it a few seconds and the little motor kicks in. Everybody "knows" a purr means a happy cat... except cats purr at the vet too. They purr when they're hurt. Some even purr while giving birth. So what is that rumble actually telling you?
+
+It goes all the way back to a pile of newborn kittens, blind and deaf, who can't hear their mother but can definitely feel her purr (and who, handily, can purr with a mouth full of milk). From there we get into how a cat even makes the sound: an old theory about blood rushing through a vein, the twitching muscles in the voice box, and a 2023 study where a voice box purred with no muscles involved at all. Also why lions and tigers can roar but can't purr, ronron and goro goro, why scared or sick cats purr to calm themselves down, and the idea that purr frequencies might help bones heal. Interesting, but not proven, so take that one with a pinch of salt. Then there's the 2009 Sussex study that found a hidden cry tucked inside the "feed me" purr, one that tugs at us the same way a baby's cry does. Plus Merlin, the loudest purring cat on record, and how to read a purr by watching the whole cat, not just listening.
+
+Chapters
+0:00 Why does your cat purr?
+0:15 The little motor on your chest
+0:48 It starts with blind, deaf kittens
+1:45 Purring with a mouth full of milk
+2:09 To your cat, you're mom
+2:23 How does a cat purr?
+2:43 Twitching muscles in the voice box
+3:12 A sound that runs both ways
+3:28 The 2023 voice box twist
+4:13 Not every cat can purr
+4:57 Purr or roar, rarely both
+5:11 Ronron, schnurren and goro goro
+5:38 Why cats purr when they're hurting
+6:07 Purring to calm down
+6:44 A purring cat isn't always a healthy cat
+7:03 Can purring heal bones?
+7:28 The frequency of a purr
+8:12 What's proven and what isn't
+8:32 Can a purr help you too?
+8:57 The purr your cat saves for you
+9:44 The hidden cry in a hungry purr
+10:03 The solicitation purr
+10:33 Quiet purrs and the loudest purr on record
+11:21 How to read your cat's purr
+12:09 So why does your cat purr?
+
+#cats #catbehavior #pets
+
+### Tags
+cat behavior, why do cats purr, why does my cat purr, cat purring, how do cats purr, cat purr meaning, solicitation purr, purring cat, cats purr when hurt, cat purr healing, can lions purr, kitten purring, why do cats, cat facts, pet behavior, loudest purr
+
+### Settings
+Same as video 1. Captions: why-cats-purr.srt. Thumbnails (Justin ticked): thumb-1, thumb-4, thumb-5.
+
+### Published 2026-10-09
+- https://youtu.be/5W8mcXfHq8w (Public), playlist "Cat Behavior, Explained"
+- Thumbnail Test & Compare: thumb-1, thumb-4, thumb-5 (ticked by Justin)
+- Subtitles: English, from why-cats-purr.srt
+- Paid promotion: No. AI use: No.
+- End screen: one video element, "Why Does Your Cat Knead You?" (specific video), last 20 s
