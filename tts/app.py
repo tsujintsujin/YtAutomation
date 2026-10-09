@@ -14,16 +14,22 @@ HERE = Path(__file__).parent
 OUT = HERE.parent / "output" / "voiceovers"
 OUT.mkdir(parents=True, exist_ok=True)
 
-kokoro = Kokoro(str(HERE / "models" / "kokoro-v1.0.onnx"), str(HERE / "models" / "voices-v1.0.bin"))
-VOICES = {"Liam": "am_liam", "Santa": "am_santa"}
+kokoro = Kokoro(str(HERE / "models" / "kokoro-v1.0.onnx"), str(HERE / "models" / "voices-v1.0-full.bin"))
+# Every voice with a sample in samples/voices (NN_<id>.wav), in that order. a = US, b = British; f/m = female/male.
+KIND = {"af": "US, female", "am": "US, male", "bf": "UK, female", "bm": "UK, male"}
+VOICES = {}
+for f in sorted((HERE / "samples" / "voices").glob("*.wav")):
+    vid = f.stem.split("_", 1)[1]
+    VOICES[f"{vid.split('_', 1)[1].title()} ({KIND[vid[:2]]})"] = vid
 
 
 def speak(text, voice, speed):
     text = text.strip()
     if not text:
         raise gr.Error("Paste a script first.")
-    samples, sr = kokoro.create(text, voice=VOICES[voice], speed=speed, lang="en-us")
-    path = OUT / f"{time.strftime('%Y%m%d-%H%M%S')}_{voice.lower()}.wav"
+    vid = VOICES[voice]
+    samples, sr = kokoro.create(text, voice=vid, speed=speed, lang="en-gb" if vid[0] == "b" else "en-us")
+    path = OUT / f"{time.strftime('%Y%m%d-%H%M%S')}_{vid}.wav"
     sf.write(path, samples, sr)
     return str(path), f"Saved {len(samples) / sr:.1f}s of audio to {path}"
 
@@ -32,7 +38,7 @@ with gr.Blocks(title="Voiceover") as ui:
     gr.Markdown("# Voiceover")
     text = gr.Textbox(label="Script", lines=12, placeholder="Paste your narration here...")
     with gr.Row():
-        voice = gr.Radio(list(VOICES), value="Liam", label="Voice")
+        voice = gr.Radio(list(VOICES), value="Liam (US, male)", label="Voice")
         speed = gr.Slider(0.7, 1.3, value=1.0, step=0.05, label="Speed")
     go = gr.Button("Generate", variant="primary")
     audio = gr.Audio(label="Result", type="filepath")
