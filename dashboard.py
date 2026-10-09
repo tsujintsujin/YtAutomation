@@ -19,6 +19,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import subprocess
 import time
 import urllib.request
@@ -36,7 +37,6 @@ CACHE = HERE / "dashboard-cache"
 PORT = 8770
 N8N = "http://127.0.0.1:5678"
 BRIDGE = "http://127.0.0.1:8766"
-VOICEOVER = "http://127.0.0.1:7860"
 WORKFLOW = "ytrender00000001"
 JOBSTASH = Path(r"D:\AIO Freelance\TheJobStash")
 CLOUDFLARED = Path(os.environ["APPDATA"]) / r"npm\node_modules\cloudflared\bin\cloudflared.exe"
@@ -60,7 +60,20 @@ def n8n(path, method="GET", body=None, timeout=10):
     return http(N8N + "/api/v1" + path, method, body, {"X-N8N-API-KEY": KEY}, timeout)
 
 
+def listening(url):
+    """Is anything accepting connections on this local port? On Windows a refused localhost connection takes ~2 s
+    (it retries), and the state page checks up to 9 ports, so try for 0.25 s first."""
+    u = urlparse(url)
+    try:
+        socket.create_connection((u.hostname, u.port or 80), timeout=0.25).close()
+        return True
+    except OSError:
+        return False
+
+
 def up(url):
+    if not listening(url):
+        return False
     try:
         urllib.request.urlopen(url, timeout=2)
         return True
@@ -109,6 +122,8 @@ def n8n_restart():
 
 
 def ok(url):
+    if not listening(url):
+        return False
     try:
         urllib.request.urlopen(url, timeout=2)
         return True
@@ -335,7 +350,7 @@ def state():
     b = bridge_status()
     n8n_now = n8n_state()
     health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000"),
-              "jobstash": jobstash(), "voiceover": voiceover()}
+              "jobstash": jobstash(), "apps": {k: voice_app(k) for k in VOICE_APPS}}
     try:
         rs = runs() if health["n8n"] else []
     except Exception as e:
@@ -458,30 +473,33 @@ def jobstash_start():
     return {"message": "restarting TheJobStash scorer and tunnel"}
 
 
-_vo_started = 0                          # when the dashboard last started the Voiceover page
+# Local voice pages (not part of the video pipeline): folder, port. Each runs `.venv\Scripts\python app.py`.
+VOICE_APPS = {"kokoro": ("Kokoro", HERE / "tts", 7860), "chatterbox": ("Chatterbox", HERE / "chatterbox", 7861)}
+_app_started = {}                        # when the dashboard last started each page
 
 
-def voiceover():
-    """tts/app.py: the Voiceover page (paste a script, get a Kokoro WAV) on :7860."""
-    on = ok(VOICEOVER + "/")
-    return {"on": on, "starting": not on and time.time() - _vo_started < 30}
+def voice_app(key):
+    on = ok(f"http://127.0.0.1:{VOICE_APPS[key][2]}/")
+    return {"on": on, "starting": not on and time.time() - _app_started.get(key, 0) < 60}
 
 
-def voiceover_start():
-    """Start tts/app.py in its own minimised window "Voiceover :7860" (close it to stop). `pause` keeps a crash
-    readable. The page itself opens the tab once :7860 answers."""
-    global _vo_started
-    s = voiceover()
+def voice_app_start(key):
+    """Start a voice page in its own minimised window "<Name> :<port>" (close it to stop). `pause` keeps a crash
+    readable. The dashboard page opens the tab once the port answers."""
+    if key not in VOICE_APPS:
+        raise ValueError(f"unknown page {key!r}")
+    name, folder, port = VOICE_APPS[key]
+    s = voice_app(key)
     if s["on"]:
-        return {"message": "Voiceover is already running"}
+        return {"message": f"{name} is already running"}
     if s["starting"]:
         raise ValueError("already starting; give it a few seconds")
     si = subprocess.STARTUPINFO()
     si.dwFlags, si.wShowWindow = subprocess.STARTF_USESHOWWINDOW, 7          # SW_SHOWMINNOACTIVE
-    subprocess.Popen(["cmd", "/c", r"title Voiceover :7860 && .venv\Scripts\python app.py & pause"], cwd=HERE / "tts",
+    subprocess.Popen(["cmd", "/c", rf"title {name} :{port} && .venv\Scripts\python app.py & pause"], cwd=folder,
                      creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=si)
-    _vo_started = time.time()
-    return {"message": "starting Voiceover"}
+    _app_started[key] = time.time()
+    return {"message": f"starting {name}"}
 
 
 def thumb_pick(slug, i, on):
@@ -652,8 +670,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send(n8n_restart())
             if act == "/api/jobstash/start":
                 return self.send(jobstash_start())
-            if act == "/api/voiceover/start":
-                return self.send(voiceover_start())
+            if act == "/api/app/start":
+                return self.send(voice_app_start(r["app"]))
             if act == "/api/thumbpick":
                 return self.send(thumb_pick(r["slug"], r["id"], bool(r["on"])))
             if act == "/api/redo":

@@ -43,3 +43,8 @@ intro-outro/*/.thumbnails/
 intro-outro/*/.waveform-cache/
 bridge.log
 tts/voiceover.log
+
+# Chatterbox page: venv, voice recordings (refs/ holds Justin's own voice) and test clips stay local
+chatterbox/.venv/
+chatterbox/refs/
+chatterbox/out*/
