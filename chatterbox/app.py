@@ -6,6 +6,7 @@ A model loads into the GPU the first time it is used (~40 s); only one is kept l
 """
 import copy
 import gc
+import logging
 import random
 import re
 import time
@@ -20,6 +21,8 @@ HERE = Path(__file__).parent
 OUT = HERE.parent / "output" / "voiceovers"
 OUT.mkdir(parents=True, exist_ok=True)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+logging.basicConfig(filename=HERE / "app.log", level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger("chatterbox-page")
 
 BUILTIN, CLIP = "Chatterbox built-in voice", "Clip below (upload or record)"
 CHANNEL = "Mark (Jin the Geek voice)"
@@ -65,8 +68,19 @@ def chunks(text, limit=250):
     return out
 
 
-def speak(text, model_name, voice, clip, exaggeration, cfg, temperature, rep_pen, min_p, top_p, top_k, seed, gap,
-          progress=gr.Progress()):
+def speak(*args, progress=gr.Progress()):
+    """Generate, and put the real reason for a failure in app.log and on the page (Gradio otherwise shows 'Error')."""
+    try:
+        return _speak(*args, progress=progress)
+    except gr.Error:
+        raise
+    except Exception as e:
+        log.exception("generate failed; settings: %s", args[1:])
+        raise gr.Error(f"{type(e).__name__}: {e}"[:500])
+
+
+def _speak(text, model_name, voice, clip, exaggeration, cfg, temperature, rep_pen, min_p, top_p, top_k, seed, gap,
+           progress):
     text = text.strip()
     if not text:
         raise gr.Error("Paste a script first.")
@@ -100,6 +114,7 @@ def speak(text, model_name, voice, clip, exaggeration, cfg, temperature, rep_pen
     tag = f"ex{exaggeration}_cfg{cfg}_" if model_name == "Standard" else ""
     path = OUT / f"{time.strftime('%Y%m%d-%H%M%S')}_cb-{model_name.lower()}_{who}_{tag}t{temperature}_seed{seed}.wav"
     sf.write(path, audio, m.sr)
+    log.info("saved %s", path.name)
     return str(path), (f"Saved {len(audio) / m.sr:.1f}s of audio in {time.time() - t0:.0f}s, "
                        f"{len(parts)} part(s), seed **{seed}** (type it in Seed to get this take again).  \n`{path}`")
 
