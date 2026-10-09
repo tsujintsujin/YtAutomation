@@ -39,4 +39,4 @@ with gr.Blocks(title="Voiceover") as ui:
     status = gr.Markdown()
     go.click(speak, [text, voice, speed], [audio, status])
 
-ui.launch(inbrowser=True, allowed_paths=[str(OUT)])
+ui.launch(server_name="127.0.0.1", server_port=7860, allowed_paths=[str(OUT)])
