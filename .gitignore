@@ -48,3 +48,4 @@ tts/voiceover.log
 chatterbox/.venv/
 chatterbox/refs/
 chatterbox/out*/
+chatterbox/app.log
