@@ -160,3 +160,59 @@ Same as video 1. Captions: why-cats-purr.srt. Thumbnails (Justin ticked): thumb-
 - Subtitles: English, from why-cats-purr.srt
 - Paid promotion: No. AI use: No.
 - End screen: one video element, "Why Does Your Cat Knead You?" (specific video), last 20 s
+
+## Video 4
+
+### Title
+Why Does Your Cat Knock Things Off the Table?
+
+### Description
+You make a cup of tea, set it down and turn away for one second. One. When you look back the cat's sitting right beside it, staring at you, a single paw resting on the mug. And it starts to slide. Slowly. Toward the edge. Eye contact the entire time... and then it's gone. Pens, keys, earrings, the odd houseplant, it all ends up on the floor sooner or later. So is your cat a tiny furry villain? Or is there something else going on in there?
+
+Honestly it goes back to a small desert wildcat that had to hunt a lot of little meals every day, and that learned to give anything that might be playing dead a good poke. From there we get into kittens practicing the swat, why cats see pretty badly up close (so the paws and whiskers do the looking), a 2016 Kyoto University study hinting that cats get the idea that things fall, and the noise, which might be half the fun. Then the stare. That part's really about you, because to a cat any attention counts as attention, even the annoyed kind. Also the breakfast alarm, clearing your desk while you're trying to work, plain boredom, young cats versus old ones, and why cats love being up high in the first place. And what to actually do about it: don't punish, put the breakables away, play every day (ideally right before meals), puzzle feeders, a knocking shelf of its very own, and when a sudden change is worth a word with your vet.
+
+Chapters
+0:00 Why does your cat knock things off the table?
+0:15 The mug, the paw and the stare
+1:04 Tiny villain or something else?
+1:19 A desert hunter's leftovers
+1:42 Poke it to see if it's alive
+2:03 Kittens practicing the swat
+2:24 Could this thing be alive?
+3:02 Cats can't see well up close
+3:19 Paws and whiskers
+3:40 The 2016 Kyoto study
+4:28 Little experiments
+4:50 The noise is half the fun
+5:12 Why the stare?
+5:24 Any attention is attention
+6:07 The breakfast alarm
+6:27 Clearing your desk
+6:45 Plain old boredom
+7:09 Young cats and old cats
+7:25 Just making room
+7:44 Why cats love high places
+8:14 How to stop it
+8:19 Don't punish your cat
+8:34 Put the precious stuff away
+8:54 Give your cat a better hunt
+9:19 Puzzle feeders
+9:36 A knocking shelf of its own
+9:47 Don't make a big scene
+10:09 When it's a sign of something else
+10:31 So why does your cat knock things over?
+
+#cats #catbehavior #pets
+
+### Tags
+cat behavior, why do cats knock things over, why does my cat knock things off the table, cat knocking things off table, cat pushing things off table, cat hunting instinct, cat attention seeking, bored cat, cat cause and effect, cat staring at me, indoor cat enrichment, puzzle feeder, why do cats, cat facts, pet behavior, funny cat behavior
+
+### Settings
+Same as video 1. Captions: why-cats-knock-things-over.srt. Thumbnails (Justin ticked): thumb-1, thumb-3, thumb-4.
+
+### Published 2026-10-10
+- https://youtu.be/3Y7WTvBMwSs (Public), playlist "Cat Behavior, Explained"
+- Thumbnail Test & Compare: thumb-1, thumb-3, thumb-4 (ticked by Justin)
+- Subtitles: English, from why-cats-knock-things-over.srt
+- Paid promotion: No. AI use: No.
+- End screen: one video element, "Why Does Your Cat Purr?" (specific video), last 20 s
