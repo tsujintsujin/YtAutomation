@@ -1,12 +1,12 @@
 {
-  "name": "Illegal Ways to Get Rich (US)",
+  "name": "Legal but Questionable Ways to Get Rich (US)",
   "order": 1,
   "platforms": [
     "YouTube Shorts",
     "TikTok",
     "Instagram Reels"
   ],
-  "videos": "channels/illegal-rich/videos",
+  "videos": "channels/questionable-rich/videos",
   "format": {
     "width": 1080,
     "height": 1920,
