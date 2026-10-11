@@ -36,7 +36,7 @@ free Gemini web app driven through his own Chrome; voice is local Chatterbox (Ko
 Each channel is a folder `channels/<key>/` with `RULES.md` and `settings.json`; the dashboard shows one tab per
 channel (rules, settings, its videos). `jin` = this cat channel (videos stay in `output/`, rules stay in this file).
 Four 1-2 min vertical short channels (YouTube Shorts / TikTok / Reels), stick-figure images on a paper background
-(`channels/stickman-style.png`), very simple English, **no intro/outro**: `illegal-rich`, `movie-explainer`, `us-laws`,
+(`channels/stickman-style.png`), very simple English, **no intro/outro**: `questionable-rich`, `movie-explainer`, `us-laws`,
 `law-yes-no` (2-part: part 1 asks yes/no, part 2 answers). Their videos go in `channels/<key>/videos/<slug>/`. Same
 flow as Jin, but **n8n is not wired for them yet** (`"pipeline": false`; the dashboard's Start refuses): it still
 renders 16:9 with the intro from `output/`. Voice is a placeholder (Mark) until Justin picks one per channel.

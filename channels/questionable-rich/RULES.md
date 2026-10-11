@@ -1,16 +1,17 @@
-# Illegal Ways to Get Rich (US) — rules
+# Legal but Questionable Ways to Get Rich (US) — rules
 
-Real people in the US who got rich by breaking the law, and how it ended for them.
+Ways people get rich in the US that are completely legal, but that many people think are wrong.
 
 ## What a video is
-- One real, documented US case per video (a scheme, a scam, a fraud). Named person, real years, real amounts.
-- Shape: hook (how much they made, or how wild it was) -> what they did, in plain words -> how it fell apart /
-  how they got caught -> what happened to them (prison time, fines, money taken back).
-- **Explain what they did, never how to do it.** No step-by-step, no tips, no "how to avoid getting caught".
-  One plain sentence on how the scheme worked is enough. YouTube, TikTok and Instagram all remove videos that teach
-  people to commit crimes, and strikes can end the channel.
-- Always end with the consequence. The story is "it looked like a shortcut, here is the price".
-- Don't present an accusation as fact: if they were never convicted, say so.
+- One way to get rich per video (not one person's life story). A real person or company can be the example.
+- Shape: hook (the money, or the "wait, that's legal?") -> what the way is, in plain words -> why it makes so much
+  money -> why it is legal -> who pays the price, or why people think it's wrong.
+- **It must really be legal**, and the video says where: "legal in the US", or which states, when it differs. If it is
+  illegal somewhere or only in some situations, say so. Never call something legal that isn't.
+- **Show both sides fairly.** Say why people think it's wrong, and why the people doing it say it's fine. The viewer
+  decides; the video doesn't call anyone a criminal.
+- **Real names only with checked facts.** Anything said about a real person or company must come from a reliable
+  source listed in sources.md. Never accuse anyone of a crime they weren't convicted of.
 
 ## Same for every short channel
 
