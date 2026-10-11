@@ -33,6 +33,7 @@ from PIL import Image
 
 HERE = Path(__file__).parent
 OUT = HERE / "output"
+CHANNELS = HERE / "channels"
 CACHE = HERE / "dashboard-cache"
 PORT = 8770
 N8N = "http://127.0.0.1:5678"
@@ -204,13 +205,31 @@ def approved(d):
         return []
 
 
+def channels():
+    """Every channels/<key>/ with settings.json, in its "order": {key, name, settings, rules (RULES.md text), dir}.
+    Read on every call so an edited rule or setting shows on the next refresh."""
+    out = []
+    for f in CHANNELS.glob("*/settings.json"):
+        s = json.loads(f.read_text(encoding="utf-8"))
+        rules = f.parent / "RULES.md"
+        out.append({"key": f.parent.name, "name": s["name"], "settings": s, "dir": HERE / s["videos"],
+                    "rules": rules.read_text(encoding="utf-8") if rules.exists() else ""})
+    return sorted(out, key=lambda c: c["settings"].get("order", 99))
+
+
+def channel_of(d):
+    return next(c for c in channels() if c["dir"].resolve() == d.parent)
+
+
 def folder(slug):
+    """A video's folder, whichever channel it is in (slugs are unique across channels)."""
     if not SLUG.match(slug or ""):
         raise ValueError("bad video name")
-    d = (OUT / slug).resolve()
-    if d.parent != OUT.resolve() or not d.is_dir():
-        raise ValueError("no such video")
-    return d
+    for c in channels():
+        d = (c["dir"] / slug).resolve()
+        if d.parent == c["dir"].resolve() and d.is_dir():
+            return d
+    raise ValueError("no such video")
 
 
 def story_title(d):
@@ -246,9 +265,9 @@ def video_summary(d):
 
 
 def videos():
-    """Every output/<slug>/ that is a video (has script.json, its MP4, or a story to approve in script.md);
+    """Every <channel videos>/<slug>/ that is a video (has script.json, its MP4, or a story to approve in script.md);
     "_" folders are tests."""
-    return [video_summary(d) for d in OUT.iterdir()
+    return [dict(video_summary(d), channel=c["key"]) for c in channels() if c["dir"].is_dir() for d in c["dir"].iterdir()
             if d.is_dir() and not d.name.startswith("_")
             and any((d / f).exists() for f in ("script.json", f"{d.name}.mp4", "script.md"))]
 
@@ -389,7 +408,8 @@ def state():
     return {"health": health, "videos": vids, "run": run, "runs": [r for r in rs if r["outcome"] != "idle"],
             "idleRuns": sum(1 for r in rs if r["outcome"] == "idle"), "robot": robot,
             "wins": (b or {}).get("wins", {}), "recent": (b or {}).get("recent", [])[::-1],
-            "accounts": accounts((b or {}).get("wins", {})), "now": time.time()}
+            "accounts": accounts((b or {}).get("wins", {})), "now": time.time(),
+            "channels": [{k: c[k] for k in ("key", "name", "settings", "rules")} for c in channels()]}
 
 
 def video_detail(slug):
@@ -400,13 +420,16 @@ def video_detail(slug):
              "v": int(imgs[x["id"]].stat().st_mtime) if x["id"] in imgs else None} for x in s["segments"]]
     if not s["segments"]:                                    # old folder without script.json: just its images
         segs = [{"id": i, "text": "", "prompt": "", "scene": "", "v": int(p.stat().st_mtime)} for i, p in sorted(imgs.items())]
-    return dict(video_summary(d), segments=segs)
+    return dict(video_summary(d), segments=segs, channel=channel_of(d)["key"])
 
 
 # ---------- actions ----------
 
 def start(slug):
-    v = video_summary(folder(slug))
+    d = folder(slug)
+    if not channel_of(d)["settings"].get("pipeline"):
+        raise ValueError("the n8n pipeline is not set up for this channel yet")
+    v = video_summary(d)
     if not v["script"]:
         raise ValueError("this video has no script.json yet")
     if v["mp4"]:
