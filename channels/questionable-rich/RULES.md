@@ -2,12 +2,18 @@
 
 Ways people get rich in the US that are completely legal, but that many people think are wrong.
 
+## What every way must be (Justin, 2026-10-11)
+1. **It works today.** Something a person can still do now, not a story from years ago.
+2. **It is completely legal.** Legal in the US, nothing illegal anywhere in it.
+3. **It starts with no money, or very little.** A normal viewer could do it, not only a company with millions.
+4. **It is very morally questionable, but no one is going to die from it.** (So no medicine price hikes.)
+
 ## What a video is
 - One way to get rich per video (not one person's life story). A real person or company can be the example.
 - Shape: hook (the money, or the "wait, that's legal?") -> what the way is, in plain words -> why it makes so much
   money -> why it is legal -> who pays the price, or why people think it's wrong.
-- **It must really be legal**, and the video says where: "legal in the US", or which states, when it differs. If it is
-  illegal somewhere or only in some situations, say so. Never call something legal that isn't.
+- **Check that it really is legal** before writing, and say so in the video. A way that is illegal anywhere in the
+  US, or only legal in some situations, is not a topic for this channel.
 - **Show both sides fairly.** Say why people think it's wrong, and why the people doing it say it's fine. The viewer
   decides; the video doesn't call anyone a criminal.
 - **Real names only with checked facts.** Anything said about a real person or company must come from a reliable
