@@ -216,3 +216,56 @@ Same as video 1. Captions: why-cats-knock-things-over.srt. Thumbnails (Justin ti
 - Subtitles: English, from why-cats-knock-things-over.srt
 - Paid promotion: No. AI use: No.
 - End screen: one video element, "Why Does Your Cat Purr?" (specific video), last 20 s
+
+## Video 5
+
+### Title
+Why Do Cats Love Boxes So Much?
+
+### Description
+A parcel turns up. You pull out the fancy new cat bed you ordered, set it down all nice... and the cat walks right past it and climbs into the box. And the size of the box? Doesn't matter in the slightest. A big chunky cat will happily cram itself into a shoe box with half of it hanging over the sides. So what is it about cardboard, exactly?
+
+It starts with a small desert wildcat that was a hunter and, at the same time, somebody else's dinner. For an animal like that a tight hiding spot meant two things: safety, and a good place to ambush from. From there we get into a 2014 Utrecht University study where shelter cats that were given boxes settled in faster and were less stressed, why your cat ends up in drawers, sinks and shopping bags, mother cats hunting for a dark nest, and why the open, fancy bed loses every time. Then warmth (cats like it a lot warmer than we do, and cardboard holds the heat), boxes as something new to explore and claim with the scent glands on their cheeks, and honestly the strangest part: the square of tape on the floor, plus a 2021 study by Gabriella Smith where cats sat in a Kanizsa illusion square about as often as a real one. Also lions and tigers going wild over giant boxes, how to give your cat a box safely, and when a sudden change in hiding is worth a trip to the vet.
+
+Chapters
+0:00 Why do cats love boxes so much?
+0:18 The fancy bed and the box
+0:53 There are real reasons
+1:09 A small wildcat that needed to hide
+1:52 Ambush hunters
+2:13 A box through your cat's eyes
+2:38 Boxes and stress
+3:00 The 2014 Utrecht shelter study
+3:35 A safe room
+3:53 Drawers, sinks and shopping bags
+4:21 Built for long naps
+4:40 It starts in the nest
+5:14 Why the fancy bed loses
+5:44 Cats like it warm
+6:28 Cardboard keeps the heat in
+6:47 Something new to explore
+7:10 Claiming the box
+7:40 Cats don't even need a real box
+7:59 The 2021 tape square study
+8:18 The Kanizsa illusion
+8:53 Big cats love boxes too
+9:11 Giving your cat a box safely
+9:31 Hiding spots for a stressed cat
+9:53 When hiding means something's wrong
+10:14 So why do cats love boxes?
+
+#cats #catbehavior #pets
+
+### Tags
+cat behavior, why do cats love boxes, why does my cat sit in boxes, cats and boxes, cat in a box, cat box obsession, cat tape square, kanizsa square cats, if i fits i sits, cat hiding, cat stress, cats like warmth, why do cats, cat facts, pet behavior, funny cat behavior
+
+### Settings
+Same as video 1. Captions: why-cats-love-boxes.srt. Thumbnails: none ticked, so 3 at random (Justin's rule): thumb-1, thumb-3, thumb-5.
+Scheduled (Justin, 2026-10-11): goes public 2026-10-11 10:30 (Philippines time).
+
+### Scheduled 2026-10-11 (public at 10:30, GMT+08:00)
+- https://youtu.be/pnvH-zbdYYg (Scheduled), playlist "Cat Behavior, Explained"
+- Thumbnail Test & Compare: thumb-1, thumb-3, thumb-5 (random; none ticked); starts when the video goes public
+- Subtitles: English, from why-cats-love-boxes.srt
+- Paid promotion: No. AI use: No.
+- End screen: one video element, "Why Does Your Cat Knock Things Off the Table?" (specific video), last 20 s
