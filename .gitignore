@@ -49,3 +49,13 @@ chatterbox/.venv/
 chatterbox/refs/
 chatterbox/out*/
 chatterbox/app.log
+
+# short channels: same as output/ (each video's story, prompts, timings and refs in git; media stays local)
+channels/*/videos/*/*
+!channels/*/videos/*/*.py
+!channels/*/videos/*/*.md
+!channels/*/videos/*/script.json
+!channels/*/videos/*/timings.json
+!channels/*/videos/*/voice-settings.json
+!channels/*/videos/*/*.srt
+!channels/*/videos/*/refs/

@@ -1,0 +1,29 @@
+{
+  "name": "Jin the Geek (cats)",
+  "order": 0,
+  "platforms": [
+    "YouTube"
+  ],
+  "videos": "output",
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "length_seconds": [
+    720,
+    780
+  ],
+  "segment_seconds": [
+    2,
+    4
+  ],
+  "voice": {
+    "engine": "chatterbox",
+    "copy": "tts/samples/voices/29_mark.mp3"
+  },
+  "intro_outro": true,
+  "image_style": "Illustrated Geek + silver tabby cat; built by prompt_kit.py (see HANDOFF.md section 1)",
+  "style_ref": "output/<slug>/refs/style-ref.jpg",
+  "pipeline": true
+}
