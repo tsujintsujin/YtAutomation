@@ -32,6 +32,12 @@ Justin's instruction: note them, don't apply until he says.
    - Build order, each checked by looking: 1 find_shorts.py, Justin reviews the list; 2 Workflow A limited to 2
      Shorts, check sheet + transcripts; 3 one full week (28); 4 first scripts for approval; 5 Workflow B, render ONE
      Short and watch it before the rest.
+   - **Step 1 done 2026-10-18** (PR #36): `find_sources.py`, settings in `channels/found-rich/sources.json`.
+   - **Step 2 done 2026-10-18**: `weekly_sources.py` (finder + yt-dlp + Whisper via ffmpeg samples; 3 failures in a
+     row stop it) and n8n "Shorts: weekly sources" (id cCAzjZb6dVHPG6PF, built by `n8n/build_shorts_sources.py`,
+     active: Monday 06:00 + POST /webhook/shorts-sources {"channel","want","test"}). Sheet "YtAutomation -
+     found-rich sources" (id in sources.json, tab Sources). Tested by hand with want 2 / test: 2 rows in the sheet,
+     music-only clips skipped as "no narration". Progress log: `channels/found-rich/weeks/run.log`.
    Story rules: **drop the comma rules** (max one comma, 4+ words each side, no phrase of 3 words or less) once
    Chatterbox voices the videos (Justin, 2026-10-09: "in effect of using chatterbox, we will omit the rules on the
    comma usage"). Chatterbox pauses at every comma (240-560 ms, tested 2026-10-09). Until then Kokoro still voices
