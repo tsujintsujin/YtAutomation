@@ -13,6 +13,25 @@ Justin's instruction: note them, don't apply until he says.
    needs Whisper word times for the image cuts inside a sentence; the intro voice line must be redone in Mark too.
    Chatterbox page (`chatterbox/app.py`, :7861) is for trying it out; plan and test before touching n8n.
 3. **DONE 2026-10-09** ("no more rules for commas"; HANDOFF story rules updated).
+4. **Shorts pipeline for `found-rich`** (agreed 2026-10-18; Justin says "go" before each build step).
+   Who does what: **n8n** finds sources, transcribes, renders. **Justin** says when the week's sources are in and
+   approves the scripts. **Claude** only writes the scripts (with segments + one stickman image prompt per segment)
+   and uploads the finished videos (YouTube Shorts, TikTok, Reels; one batch a week, confirmed with Justin before posting).
+   - Workflow A "Shorts: weekly sources" (new): Monday 06:00 timer + manual start; stops if this week's batch exists.
+     `find_shorts.py found-rich` (yt-dlp): Shorts from known format channels (Law By Mike first) + topic searches;
+     keep <= 3 min, >= 1M views, on topic, never used before; top 28 by views (fewer = note "only N found", no retry).
+     Rows to a Google Sheet (existing n8n Google Sheets login): week, link, title, channel, views, status. Then per
+     row: download audio, Whisper, transcript into the row (a failure is marked and skipped). Also writes
+     `channels/found-rich/weeks/<date>/sources.json` for Claude. ~30-45 min a week.
+   - Claude: pull the finds from the 28 transcripts, check each against a real source (drop unconfirmed), write 14
+     scripts, each mixing 3-5 finds from different source videos, in our own words (never the sources' wording),
+     /humanize, keep a used-finds list so weeks don't repeat. Saved as `videos/<slug>/script.md` for approval.
+   - Workflow B "Shorts Render": copy of YouTube Render; reads `channels/found-rich/videos/`, 1080x1920, no
+     intro/outro, stickman style ref instead of the character refs, no thumbnails. ~30-40 images per Short = ~500
+     Gemini images a week; measure on the first video.
+   - Build order, each checked by looking: 1 find_shorts.py, Justin reviews the list; 2 Workflow A limited to 2
+     Shorts, check sheet + transcripts; 3 one full week (28); 4 first scripts for approval; 5 Workflow B, render ONE
+     Short and watch it before the rest.
    Story rules: **drop the comma rules** (max one comma, 4+ words each side, no phrase of 3 words or less) once
    Chatterbox voices the videos (Justin, 2026-10-09: "in effect of using chatterbox, we will omit the rules on the
    comma usage"). Chatterbox pauses at every comma (240-560 ms, tested 2026-10-09). Until then Kokoro still voices
