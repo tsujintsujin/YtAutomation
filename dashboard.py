@@ -221,6 +221,78 @@ def channel_of(d):
     return next(c for c in channels() if c["dir"].resolve() == d.parent)
 
 
+# ---------- short channels: weekly sources ----------
+# n8n "Shorts: weekly sources" (built by n8n/build_shorts_sources.py) runs weekly_sources.py; it writes
+# channels/<key>/weeks/<week>/candidates.json, then sources.json when done, and progress to weeks/run.log.
+SOURCES_FLOW = "Shorts: weekly sources"
+_sources_flow_id = None
+
+
+def sources_flow_id():
+    global _sources_flow_id
+    if not _sources_flow_id:
+        _sources_flow_id = next((w["id"] for w in n8n("/workflows?limit=250")["data"] if w["name"] == SOURCES_FLOW), None)
+    return _sources_flow_id
+
+
+def sources_running():
+    try:
+        wid = sources_flow_id()
+        return bool(wid and n8n(f"/executions?workflowId={wid}&status=running&limit=1")["data"])
+    except Exception:
+        return False
+
+
+def sources_state(c, n8n_up):
+    """None for a channel without sources.json. Weeks newest first; videos without their transcripts (sent on demand)."""
+    cfg_file = CHANNELS / c["key"] / "sources.json"
+    if not cfg_file.exists():
+        return None
+    cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
+    wdir = CHANNELS / c["key"] / "weeks"
+    weeks = []
+    for d in sorted((x for x in wdir.glob("*") if x.is_dir()), key=lambda x: x.stat().st_mtime, reverse=True):
+        f = d / "sources.json"
+        if f.exists():
+            j = json.loads(f.read_text(encoding="utf-8"))
+            vids = [{k: v.get(k) for k in ("id", "title", "channel", "views", "kind", "url", "status", "words", "error")}
+                    for v in j["videos"]]
+            weeks.append({"week": d.name, "test": d.name.startswith("test-"), "done": True, "note": j.get("note", ""),
+                          "at": f.stat().st_mtime, "videos": vids})
+        elif (d / "candidates.json").exists():
+            weeks.append({"week": d.name, "test": d.name.startswith("test-"), "done": False, "note": "",
+                          "at": (d / "candidates.json").stat().st_mtime, "videos": []})
+    log = wdir / "run.log"
+    tail = log.read_text(encoding="utf-8", errors="replace").strip().splitlines()[-1:] if log.exists() else []
+    return {"weeks": weeks, "running": sources_running() if n8n_up else False, "log": tail[0] if tail else "",
+            "sheet": f"https://docs.google.com/spreadsheets/d/{cfg['sheet_id']}/edit" if cfg.get("sheet_id") else "",
+            "count": cfg.get("count", 28)}
+
+
+def transcript(key, week, vid):
+    if not SLUG.match(key) or not re.match(r"^[\w-]+$", week) or not re.match(r"^[\w-]+$", vid):
+        raise ValueError("bad name")
+    j = json.loads((CHANNELS / key / "weeks" / week / "sources.json").read_text(encoding="utf-8"))
+    v = next((v for v in j["videos"] if v["id"] == vid), None)
+    if not v:
+        raise ValueError("no such video in that week")
+    return {"title": v["title"], "url": v["url"], "words": v.get("words"), "transcript": v.get("transcript", "")}
+
+
+def sources_start(key, mode):
+    """Same as starting the n8n workflow by hand: test = 2 videos, nothing marked used; full = the week's count."""
+    if not SLUG.match(key) or not (CHANNELS / key / "sources.json").exists():
+        raise ValueError("this channel has no sources setup")
+    if mode not in ("test", "full"):
+        raise ValueError("mode is test or full")
+    if sources_running():
+        raise ValueError("a sources run is already going")
+    want = 2 if mode == "test" else json.loads((CHANNELS / key / "sources.json").read_text(encoding="utf-8")).get("count", 28)
+    http(N8N + "/webhook/shorts-sources", "POST", {"channel": key, "want": want, "test": mode == "test"}, timeout=10)
+    return {"message": f"Finding {want} sources{' (test, nothing marked used)' if mode == 'test' else ''}. "
+                       "The search takes about 6 minutes, then each video is transcribed."}
+
+
 def folder(slug):
     """A video's folder, whichever channel it is in (slugs are unique across channels)."""
     if not SLUG.match(slug or ""):
@@ -409,7 +481,8 @@ def state():
             "idleRuns": sum(1 for r in rs if r["outcome"] == "idle"), "robot": robot,
             "wins": (b or {}).get("wins", {}), "recent": (b or {}).get("recent", [])[::-1],
             "accounts": accounts((b or {}).get("wins", {})), "now": time.time(),
-            "channels": [{k: c[k] for k in ("key", "name", "settings", "rules")} for c in channels()]}
+            "channels": [dict({k: c[k] for k in ("key", "name", "settings", "rules")}, sources=sources_state(c, health["n8n"]))
+                         for c in channels()]}
 
 
 def video_detail(slug):
@@ -653,6 +726,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send(state())
             if u.path == "/api/video":
                 return self.send(video_detail(q["slug"]))
+            if u.path == "/api/transcript":
+                return self.send(transcript(q["channel"], q["week"], q["id"]))
             if parts[0] in ("thumb", "img") and len(parts) == 3:
                 p = images(folder(parts[1])).get(int(parts[2]))
                 if not p:
@@ -699,6 +774,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send(thumb_pick(r["slug"], r["id"], bool(r["on"])))
             if act == "/api/redo":
                 return self.send(redo(r["slug"], r["id"]))
+            if act == "/api/sources/start":
+                return self.send(sources_start(r["channel"], r["mode"]))
             if act == "/api/delete":
                 return self.send(delete(r["slug"], r.get("typed")))
         except (ValueError, KeyError) as e:
