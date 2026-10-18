@@ -1,0 +1,41 @@
+{
+  "note": "Where find_sources.py looks for this channel's weekly source videos. Edit freely; the script reads it each run.",
+  "shorts_channels": [
+    "@LawByMike",
+    "@XFindings",
+    "@lukedavidsonfacts",
+    "@abdoulupnext"
+  ],
+  "searches": [
+    "items people found that made them rich",
+    "things people found that made them rich",
+    "things found in garbage made people rich",
+    "items people threw away worth millions",
+    "lucky finds that made people rich",
+    "lucky discoveries that made people millionaires",
+    "accidental discoveries worth a fortune",
+    "thrift store finds that made people rich",
+    "garage sale finds worth millions",
+    "flea market find worth millions",
+    "found in attic worth millions",
+    "found in basement worth millions",
+    "storage unit finds worth millions",
+    "dumpster diving finds worth money",
+    "metal detector finds worth millions",
+    "buried treasure found in backyard",
+    "money found hidden in walls",
+    "rare coins found in pocket change worth",
+    "old toys in your house worth a fortune",
+    "pawn shop items worth millions",
+    "things in your house that could make you rich",
+    "found treasure became millionaire"
+  ],
+  "search_results_per_query": 100,
+  "topic": "\\b(found|finds?|finding|discover\\w*|unearth\\w*|treasures?|thrift|attic|basement|garage sale|yard sale|flea market|dumpster|trash|garbage|junk|landfill|storage units?|metal detect\\w*|buried|hidden|pawn|antiques?|lucky|rarest|threw away|thrown away|items people|stuff people|things people|in your house)\\b",
+  "money": "\\b(rich|million\\w*|billion\\w*|worth|fortune|sold|valuable|expensive|salary|cash|money|gold|jackpot)\\b|\\$[0-9]",
+  "exclude": "\\b(drama|finds? out|ceo|husband|wife|habits?|motivation\\w*|mindset|do differently|before becoming|how to (be|get) rich|avoid buying|subliminal|manifest\\w*|mantra|meth|cocaine|marijuana|drug)\\b|^finding\\b|\\billegal\\w*|\\blegally\\b|\\bsmells?\\b|^i\\b|divers shocked",
+  "min_views": 1000000,
+  "max_seconds": 1800,
+  "count": 28,
+  "long_people": "\\b(people|person|man|men|woman|women|family|families|couple|someone|kids?|boy|girl|farmer|fisherman|ordinary|normal)\\b"
+}
