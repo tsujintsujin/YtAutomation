@@ -32,13 +32,20 @@ free Gemini web app driven through his own Chrome; voice is local Chatterbox (Ko
    `output/<slug>/thumbs-approved.json` (list of ids, max 3; the dashboard refuses a 4th). None ticked (or no file) =
    pick 3 of the made `thumbs/thumb-N.jpg` at random. 1 or 2 ticked: ask him, he didn't say.
 
-### Channels (Justin, 2026-10-11)
+### Channels (Justin, 2026-10-11; niches replaced 2026-10-18)
 Each channel is a folder `channels/<key>/` with `RULES.md` and `settings.json`; the dashboard shows one tab per
 channel (rules, settings, its videos). `jin` = this cat channel (videos stay in `output/`, rules stay in this file).
-Four 1-2 min vertical short channels (YouTube Shorts / TikTok / Reels), stick-figure images on a paper background
-(`channels/stickman-style.png`), very simple English, **no intro/outro**: `questionable-rich`, `movie-explainer`, `us-laws`,
-`law-yes-no` (2-part: part 1 asks yes/no, part 2 answers). Their videos go in `channels/<key>/videos/<slug>/`. Same
-flow as Jin, but **n8n is not wired for them yet** (`"pipeline": false`; the dashboard's Start refuses): it still
+
+**How short niches are picked now (Justin, 2026-10-18):** take Shorts that already have huge views (20M+), get their
+transcripts, copy the *structure* (hook, list shape, pacing, ending) but write a completely new script with our own
+facts and wording, and make a stick-figure version. The four earlier short channels (questionable-rich,
+movie-explainer, us-laws, law-yes-no) were dropped before any video was made. Find hits by listing a channel that
+already does the format by views (`research.md` has the yt-dlp command); keyword search is too noisy.
+
+Short channels: 1-2 min vertical (YouTube Shorts / TikTok / Reels), stick-figure images on a paper background
+(`channels/stickman-style.png`), very simple English, **no intro/outro**. Right now just one, being made and
+polished first: `found-rich` (Items People Found That Made Them Rich). Videos go in `channels/<key>/videos/<slug>/`.
+Same flow as Jin, but **n8n is not wired for them yet** (`"pipeline": false`; the dashboard's Start refuses): it still
 renders 16:9 with the intro from `output/`. Voice is a placeholder (Mark) until Justin picks one per channel.
 
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.

@@ -1,12 +1,12 @@
 {
-  "name": "Legal but Questionable Ways to Get Rich (US)",
+  "name": "Items People Found That Made Them Rich",
   "order": 1,
   "platforms": [
     "YouTube Shorts",
     "TikTok",
     "Instagram Reels"
   ],
-  "videos": "channels/questionable-rich/videos",
+  "videos": "channels/found-rich/videos",
   "format": {
     "width": 1080,
     "height": 1920,
