@@ -279,18 +279,15 @@ def transcript(key, week, vid):
     return {"title": v["title"], "url": v["url"], "words": v.get("words"), "transcript": v.get("transcript", "")}
 
 
-def sources_start(key, mode):
-    """Same as starting the n8n workflow by hand: test = 2 videos, nothing marked used; full = the week's count."""
+def sources_start(key):
+    """Same as the Monday timer, started now: finds and transcribes the week's sources, marks them used."""
     if not SLUG.match(key) or not (CHANNELS / key / "sources.json").exists():
         raise ValueError("this channel has no sources setup")
-    if mode not in ("test", "full"):
-        raise ValueError("mode is test or full")
     if sources_running():
         raise ValueError("a sources run is already going")
-    want = 2 if mode == "test" else json.loads((CHANNELS / key / "sources.json").read_text(encoding="utf-8")).get("count", 28)
-    http(N8N + "/webhook/shorts-sources", "POST", {"channel": key, "want": want, "test": mode == "test"}, timeout=10)
-    return {"message": f"Finding {want} sources{' (test, nothing marked used)' if mode == 'test' else ''}. "
-                       "The search takes about 6 minutes, then each video is transcribed."}
+    want = json.loads((CHANNELS / key / "sources.json").read_text(encoding="utf-8")).get("count", 28)
+    http(N8N + "/webhook/shorts-sources", "POST", {"channel": key, "want": want}, timeout=10)
+    return {"message": f"Finding {want} sources. The search takes about 6 minutes, then each video is transcribed."}
 
 
 def folder(slug):
@@ -775,7 +772,7 @@ class H(BaseHTTPRequestHandler):
             if act == "/api/redo":
                 return self.send(redo(r["slug"], r["id"]))
             if act == "/api/sources/start":
-                return self.send(sources_start(r["channel"], r["mode"]))
+                return self.send(sources_start(r["channel"]))
             if act == "/api/delete":
                 return self.send(delete(r["slug"], r.get("typed")))
         except (ValueError, KeyError) as e:
