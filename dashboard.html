@@ -200,6 +200,32 @@ details.rules summary { padding: 12px 20px; font-size: 13px; font-weight: 700; c
 .md p { margin: 4px 0; }
 code { font-size: 12px; background: var(--input); border-radius: 5px; padding: 0 4px; overflow-wrap: anywhere; }
 
+/* ---- short channels: weekly pipeline + sources ---- */
+.pipe { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); counter-reset: step; }
+.pipe li { background: var(--surface); padding: 14px 20px 16px; min-width: 0; display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 10px; row-gap: 4px; align-content: start; }
+.pipe li::before { counter-increment: step; content: counter(step); grid-row: span 3; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 13px; font-weight: 800; background: var(--input); border: 1px solid var(--line); color: var(--soft); }
+.pipe li.now::before { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pipe li.ok::before { background: color-mix(in srgb, var(--green) 16%, var(--surface)); border-color: color-mix(in srgb, var(--green) 45%, transparent); color: var(--green); }
+.pipe h4 { margin: 0; font-size: 14px; font-weight: 800; letter-spacing: -.015em; line-height: 1.3; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.pipe h4 small { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.pipe .st { justify-self: start; }
+.pipe p { margin: 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.srcbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+.srcbar .sp { flex: 1; }
+.srcbar select { height: 30px; border-radius: 99px; border: 1px solid var(--line); background: var(--input); color: var(--text); font: 600 12px Poppins, sans-serif; padding: 0 10px; max-width: 100%; }
+.srclive { display: flex; gap: 10px; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--soft); background: var(--accent-soft); }
+.srclive span:last-child { overflow-wrap: anywhere; min-width: 0; }
+.srcs { list-style: none; margin: 0; padding: 0; }
+.srcs li { display: grid; grid-template-columns: 124px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 11px 20px; border-bottom: 1px solid var(--line); }
+.srcs li:last-child { border-bottom: 0; }
+.srcs a.t { font-size: 14px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.srcs a.t:hover { color: var(--accent); }
+.srcs p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.st.skip { color: var(--muted); }
+dialog .tx { font-size: 14px; line-height: 1.65; color: var(--soft); background: var(--input); border-radius: 12px; padding: 12px 14px; max-height: 55vh; overflow: auto; white-space: pre-wrap; margin: 0 0 14px; }
+.btn:focus-visible, .srcbar select:focus-visible, .srcs a.t:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* ---- tables ---- */
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .tbl th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
@@ -268,6 +294,11 @@ dialog .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
   .tbl.stack td { display: block; padding: 2px 0; border: 0; }
   .tbl.stack td.num { text-align: left; }
   .tbl.stack td[data-l]::before { content: attr(data-l) ": "; color: var(--muted); font-size: 12px; }
+  .pipe { grid-template-columns: minmax(0, 1fr); }
+  .pipe li { padding: 12px 16px; }
+  .srcbar, .srclive { padding-left: 16px; padding-right: 16px; }
+  .srcs li { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 12px 16px; }
+  .srcs li .st { grid-column: 1 / -1; justify-self: start; }
   .feed time { width: 54px; }
   .wl { width: auto; white-space: normal; }
 }
@@ -333,7 +364,7 @@ const SUB = { running: 'Being made right now.', waiting: 'Script ready; the next
   failed: 'The last run stopped with an error.',
   done: 'MP4 made. Watch, then upload by hand.', draft: 'Story written (script.md). Approve it, then Claude builds script.json.' };
 
-let S = null, filter = 'all', query = '', V = null, vFilter = 'all', chan = 'jin', rulesOpen = false;
+let S = null, filter = 'all', query = '', V = null, vFilter = 'all', chan = 'jin', rulesOpen = false, srcWeek = {};
 
 // ---------- helpers ----------
 async function api(path, body) {
@@ -477,6 +508,65 @@ function channelCard(c) {
     <div class="stat wide"><small>Image style</small><b>${esc(s.image_style)}</b></div></div>
     <details class="rules" id="rules"${rulesOpen ? ' open' : ''}><summary>Rules (RULES.md)</summary><div class="md">${md(c.rules)}</div></details></section>`;
 }
+// ---------- short channels: the weekly pipeline and its sources ----------
+const fmtViews = n => n >= 1e6 ? (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'K' : String(n);
+const weekLabel = w => { const d = new Date((w.test ? w.week.slice(5) : w.week) + 'T00:00:00');
+  const day = d.toLocaleDateString([], { month: 'short', day: 'numeric' }); return w.test ? `Test run, ${day}` : `Week of ${day}`; };
+const SRC_ST = { ok: ['done', 'Transcribed'], 'no narration': ['skip', 'No narration'], failed: ['failed', 'Failed'] };
+const shownWeek = c => { const ws = c.sources.weeks; return ws.find(w => w.week === srcWeek[c.key]) || ws[0]; };
+function pipelineCard(c) {
+  const src = c.sources, w = src.weeks[0], vs = inChan(), drafts = vs.filter(v => v.status === 'draft').length;
+  const ok = w && w.done ? w.videos.filter(v => v.status === 'ok').length : 0, skipped = w && w.done ? w.videos.length - ok : 0;
+  const steps = [
+    ['Find sources', 'n8n', src.running ? 'now' : w ? 'ok' : '', src.running ? st('running', 'Running') : w ? st('done', 'Done') : st('', 'Not run yet'),
+      src.running ? "Searching YouTube for this week's most-viewed videos on the topic." : w ? `${weekLabel(w)}. Every Monday at 6:00, or press Find sources below.` : 'Every Monday at 6:00, or press Find sources below.'],
+    ['Transcribe', 'n8n', src.running ? 'now' : w && w.done ? 'ok' : '', src.running ? st('running', 'Running') : w && w.done ? st('done', `${ok} transcribed`) : st('', 'Waiting'),
+      !src.running && w && w.done ? `${skipped} skipped (no narration or failed). Each one is in the list below and in the Google Sheet.` : 'Whisper writes down what each video says.'],
+    ['Write scripts', 'Claude', vs.length ? 'ok' : '', vs.length ? st('done', `${vs.length} written`) : st('waiting', 'Waiting for you'),
+      vs.length ? 'New scripts with image prompts, in our own words.' : 'Tell Claude the sources are in. Each script mixes finds from 3-5 sources.'],
+    ['Approve', 'You', drafts ? 'now' : '', drafts ? st('waiting', `${drafts} to approve`) : st('', 'Nothing to approve'),
+      'Read each script in the list below and approve it.'],
+    ['Make the Shorts', 'n8n', '', c.settings.pipeline ? st('', 'Ready') : st('', 'Not built yet'),
+      'Voice, stickman images, subtitles, vertical MP4.'],
+    ['Upload', 'Claude', '', st('', 'Not built yet'), 'YouTube Shorts, TikTok and Reels, after you confirm.'],
+  ];
+  return `<section class="card"><div class="card-h"><span class="tile">${ic.list}</span><div><h3>Weekly pipeline</h3>
+    <p>What happens each week, who does it, and where it stands now.</p></div></div>
+    <ol class="pipe">${steps.map(([t, who, cls, chip, note]) => `<li class="${cls}"><h4>${t} <small>${who}</small></h4>${chip}<p>${esc(note)}</p></li>`).join('')}</ol></section>`;
+}
+function sourcesCard(c) {
+  const src = c.sources, w = shownWeek(c);
+  const pick = src.weeks.length > 1 ? `<select id="srcWeek" aria-label="Which week">${src.weeks.map(x => `<option value="${esc(x.week)}" ${x === w ? 'selected' : ''}>${esc(weekLabel(x))}</option>`).join('')}</select>` : '';
+  const head = w ? `${weekLabel(w)}: ${w.done ? `${w.videos.filter(v => v.status === 'ok').length} transcribed of ${w.videos.length} checked${w.note ? ', ' + w.note : ''}` : 'not finished'}` : 'No sources yet.';
+  const rows = w && w.done ? w.videos.map(v => { const [k, l] = SRC_ST[v.status] || ['', v.status];
+    return `<li>${st(k, l)}<div style="min-width:0"><a class="t" href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title)}</a>
+      <p>${esc(v.channel)} · ${fmtViews(v.views)} views · ${v.kind === 'long' ? 'long video' : 'Short'}${v.words ? ` · ${v.words} words` : ''}</p></div>
+      ${v.status === 'ok' ? `<button class="btn sm" data-tx="${esc(v.id)}">Read transcript</button>` : '<span></span>'}</li>`; }).join('') : '';
+  return `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>This week's sources</h3><p>${esc(head)}</p></div>
+    ${w && w.done ? `<span class="badge">${w.videos.length}</span>` : ''}</div>
+    <div class="srcbar">${pick}${src.sheet ? `<a class="btn sm" href="${esc(src.sheet)}" target="_blank" rel="noopener">Open Google Sheet</a>` : ''}<span class="sp"></span>
+      <button class="btn sm" data-src="test" ${src.running || !S.health.n8n ? 'disabled' : ''} title="Finds and transcribes 2 videos. Nothing is marked used.">Test with 2</button>
+      <button class="btn sm primary" data-src="full" ${src.running || !S.health.n8n ? 'disabled' : ''} title="Finds and transcribes this week's ${src.count}. They are marked used, so later weeks skip them.">Find ${src.count} sources</button></div>
+    ${src.running ? `<div class="srclive" role="status">${st('running', 'Running')}<span>${esc(src.log || 'Starting…')}</span></div>` : ''}
+    ${rows ? `<ul class="srcs">${rows}</ul>` : `<div class="empty">${w ? 'This run did not finish. Press Find sources to run it again.' : `No sources yet. Press Find ${src.count} sources, or wait for Monday 6:00.`}</div>`}</section>`;
+}
+async function openTranscript(c, id) {
+  const w = shownWeek(c), d = $('#dlg');
+  d.innerHTML = `<div class="mb"><p class="scene">Loading…</p></div>`; d.showModal();
+  try {
+    const t = await api(`/api/transcript?channel=${encodeURIComponent(c.key)}&week=${encodeURIComponent(w.week)}&id=${encodeURIComponent(id)}`);
+    d.innerHTML = `<div class="mb"><div class="mh"><h3>${esc(t.title)}</h3><button class="btn sm" data-close>Close</button></div>
+      <p class="scene">${t.words} words. Source only: our scripts take the facts, never these words.</p>
+      <div class="tx">${esc(t.transcript)}</div><div class="row"><a class="btn sm" href="${esc(t.url)}" target="_blank" rel="noopener">Watch on YouTube</a></div></div>`;
+  } catch (e) { d.innerHTML = `<div class="mb"><p class="scene">${esc(e.message)}</p><div class="row"><button class="btn sm" data-close>Close</button></div></div>`; }
+  d.querySelectorAll('[data-close]').forEach(b => b.onclick = () => d.close());
+}
+async function startSources(c, mode) {
+  if (mode === 'full' && !confirm(`Find and transcribe this week's ${c.sources.count} sources now? They are marked used, so later weeks skip them. It takes about an hour.`)) return;
+  document.querySelectorAll('[data-src]').forEach(b => b.disabled = true);
+  try { toast((await api('/api/sources/start', { channel: c.key, mode })).message); } catch (e) { toast(e.message, true); }
+  refresh(true);
+}
 function videosPage() {
   const vs = inChan(), c = C();
   const counts = { all: vs.length };
@@ -486,6 +576,7 @@ function videosPage() {
   return `<div class="tabs chans" id="chans">${S.channels.map(x => `<button data-c="${esc(x.key)}" class="${x.key === c.key ? 'on' : ''}">${esc(x.name)} <span class="c">${S.videos.filter(v => v.channel === x.key).length}</span></button>`).join('')}</div>
     <p class="eyebrow">YT Automation</p><h1>${esc(c.name)}</h1>
     ${channelCard(c)}
+    ${c.sources ? pipelineCard(c) + sourcesCard(c) : ''}
     <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
     <input id="q" placeholder="Search videos" value="${esc(query)}" aria-label="Search videos"><span class="count" id="qc"></span></label>
     <div class="tabs" id="tabs">${tabs.map(([k, l]) => `<button data-k="${k}" class="${filter === k ? 'on' : ''}">${l} <span class="c">${counts[k]}</span></button>`).join('')}</div>
@@ -516,6 +607,12 @@ function bindVideos() {
   groups();
   $('#q').oninput = e => { query = e.target.value; $('#qs').value = query; groups(); };
   $('#rules').ontoggle = e => { rulesOpen = e.target.open; };
+  const c = C();
+  if (c.sources) {
+    const wk = $('#srcWeek'); if (wk) wk.onchange = e => { srcWeek[c.key] = e.target.value; refresh(true); };
+    document.querySelectorAll('[data-tx]').forEach(b => b.onclick = () => openTranscript(c, b.dataset.tx));
+    document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => startSources(c, b.dataset.src));
+  }
   const on = $('#chans .on'); if (on) $('#chans').scrollLeft = on.offsetLeft - $('#chans').offsetLeft - 6;   // the picked channel stays in view on a phone
   $('#chans').onclick = e => { const b = e.target.closest('button'); if (b) location.hash = '#/videos/' + encodeURIComponent(b.dataset.c); };
   $('#tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; filter = b.dataset.k;
