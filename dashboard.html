@@ -197,6 +197,8 @@ details.rules summary { padding: 12px 20px; font-size: 13px; font-weight: 700; c
 .md h4 { margin: 14px 0 4px; font-size: 14px; font-weight: 800; color: var(--text); }
 .md ul { margin: 4px 0; padding-left: 18px; }
 .md li { margin: 3px 0; }
+.md.story { padding-top: 14px; font-size: 14px; line-height: 1.65; }
+.md.story p { margin: 0 0 10px; color: var(--text); max-width: 72ch; }
 .md p { margin: 4px 0; }
 code { font-size: 12px; background: var(--input); border-radius: 5px; padding: 0 4px; overflow-wrap: anywhere; }
 
@@ -482,11 +484,13 @@ const C = () => S.channels.find(c => c.key === chan) || S.channels[0];
 const inChan = () => S.videos.filter(v => v.channel === C().key);
 // RULES.md -> HTML: headings, bullets, paragraphs, **bold**, `code`; everything escaped first
 function md(t) {
-  const inl = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
+  const inl = x => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--accent)">$1</a>');
   const out = [], flush = () => { if (li) out.push('<ul>' + li.map(x => `<li>${inl(x)}</li>`).join('') + '</ul>'); li = null; };
   let li = null;
   for (const line of t.split('\n')) {
     if (/^- /.test(line)) { li = li || []; li.push(line.slice(2)); continue; }
+    if (/^\d+\. /.test(line)) { li = li || []; li.push(line.replace(/^(\d+)\. /, '$1. ')); continue; }
     if (li && /^\s+\S/.test(line)) { li[li.length - 1] += ' ' + line.trim(); continue; }
     flush();
     if (/^#{2,6} /.test(line)) out.push(`<h4>${inl(line.replace(/^#+ /, ''))}</h4>`);
@@ -519,7 +523,7 @@ function pipelineCard(c) {
   const ok = w && w.done ? w.videos.filter(v => v.status === 'ok').length : 0, skipped = w && w.done ? w.videos.length - ok : 0;
   const steps = [
     ['Find sources', 'n8n', src.running ? 'now' : w ? 'ok' : '', src.running ? st('running', 'Running') : w ? st('done', 'Done') : st('', 'Not run yet'),
-      src.running ? "Searching YouTube for this week's most-viewed videos on the topic." : w ? `${weekLabel(w)}. Every Monday at 6:00, or press Find sources below.` : 'Every Monday at 6:00, or press Find sources below.'],
+      src.running ? "Searching YouTube for this week's most-viewed videos on the topic." : (w ? weekLabel(w) + '. ' : '') + (src.timer ? 'Every Monday at 6:00, or press Find sources below.' : 'The Monday timer is off until one Short is proven. Press Find sources below to run it.')],
     ['Transcribe', 'n8n', src.running ? 'now' : w && w.done ? 'ok' : '', src.running ? st('running', 'Running') : w && w.done ? st('done', `${ok} transcribed`) : st('', 'Waiting'),
       !src.running && w && w.done ? `${skipped} skipped (no narration or failed). Each one is in the list below and in the Google Sheet.` : 'Whisper writes down what each video says.'],
     ['Write scripts', 'Claude', vs.length ? 'ok' : '', vs.length ? st('done', `${vs.length} written`) : st('waiting', 'Waiting for you'),
@@ -547,7 +551,7 @@ function sourcesCard(c) {
     <div class="srcbar">${pick}${src.sheet ? `<a class="btn sm" href="${esc(src.sheet)}" target="_blank" rel="noopener">Open Google Sheet</a>` : ''}<span class="sp"></span>
       <button class="btn sm primary" data-src="full" ${src.running || !S.health.n8n ? 'disabled' : ''} title="Finds and transcribes this week's ${src.count}. They are marked used, so later weeks skip them.">Find ${src.count} sources</button></div>
     ${src.running ? `<div class="srclive" role="status">${st('running', 'Running')}<span>${esc(src.log || 'Starting…')}</span></div>` : ''}
-    ${rows ? `<ul class="srcs">${rows}</ul>` : `<div class="empty">${w ? 'This run did not finish. Press Find sources to run it again.' : `No sources yet. Press Find ${src.count} sources, or wait for Monday 6:00.`}</div>`}</section>`;
+    ${rows ? `<ul class="srcs">${rows}</ul>` : `<div class="empty">${w ? 'This run did not finish. Press Find sources to run it again.' : `No sources yet. Press Find ${src.count} sources${src.timer ? ', or wait for Monday 6:00' : ''}.`}</div>`}</section>`;
 }
 async function openTranscript(c, id) {
   const w = shownWeek(c), d = $('#dlg');
@@ -640,6 +644,8 @@ async function renderVideo(slug, keepScroll) {
         <button class="btn danger icon end" data-a="delete" aria-label="Delete video" ${anyRun ? 'disabled title="Stop the run first"' : 'title="Delete this video"'}>${ic.trash}</button>
       </div></div>
     <div style="margin:16px 0 22px">${bar(V)}</div>
+    ${V.story ? `<section class="card"><div class="card-h"><span class="tile">${ic.doc}</span><div><h3>Script</h3>
+      <p>${V.script ? 'The approved script.' : 'Read it, then tell Claude to approve it or what to change.'}</p></div></div><div class="md story">${md(V.story)}</div></section>` : ''}
     ${V.scriptError && !isGone('script:' + V.slug + ':' + V.scriptError) ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>script.json problem</h4><p>${esc(V.scriptError)}</p></div>${trashBtn('script:' + V.slug + ':' + V.scriptError)}</div>` : ''}
     ${sv.lastRun && sv.lastRun.outcome === 'failed' && !running && !isGone('run:' + sv.lastRun.id) ? `<div class="banner"><span class="tile">${ic.alert}</span><div><h4>Last run failed</h4><p>Run ${esc(sv.lastRun.id)}, ${when(sv.lastRun.stoppedAt)}: ${esc(sv.lastRun.reason)}</p></div>${trashBtn('run:' + sv.lastRun.id)}</div>` : ''}
     ${V.mp4 ? `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>The video</h3><p>${(V.mp4Size / 1048576).toFixed(0)} MB MP4${V.srt ? ' · subtitles ready for upload' : ''}</p></div>

@@ -39,5 +39,7 @@
   "count": 28,
   "long_people": "\\b(people|person|man|men|woman|women|family|families|couple|someone|kids?|boy|girl|farmer|fisherman|ordinary|normal)\\b",
   "sheet_id": "1gzgpo7n1pngvFOy9gL02wAdzr6VGSG7TyYH5lWiSOXs",
-  "sheet_tab": "Sources"
+  "sheet_tab": "Sources",
+  "monday_timer": false,
+  "monday_timer_note": "Off until one Short is proven end to end (Justin, 2026-10-18). Find 28 sources on the dashboard still works."
 }
