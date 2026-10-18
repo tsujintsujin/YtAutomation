@@ -545,7 +545,6 @@ function sourcesCard(c) {
   return `<section class="card"><div class="card-h"><span class="tile">${ic.film}</span><div><h3>This week's sources</h3><p>${esc(head)}</p></div>
     ${w && w.done ? `<span class="badge">${w.videos.length}</span>` : ''}</div>
     <div class="srcbar">${pick}${src.sheet ? `<a class="btn sm" href="${esc(src.sheet)}" target="_blank" rel="noopener">Open Google Sheet</a>` : ''}<span class="sp"></span>
-      <button class="btn sm" data-src="test" ${src.running || !S.health.n8n ? 'disabled' : ''} title="Finds and transcribes 2 videos. Nothing is marked used.">Test with 2</button>
       <button class="btn sm primary" data-src="full" ${src.running || !S.health.n8n ? 'disabled' : ''} title="Finds and transcribes this week's ${src.count}. They are marked used, so later weeks skip them.">Find ${src.count} sources</button></div>
     ${src.running ? `<div class="srclive" role="status">${st('running', 'Running')}<span>${esc(src.log || 'Starting…')}</span></div>` : ''}
     ${rows ? `<ul class="srcs">${rows}</ul>` : `<div class="empty">${w ? 'This run did not finish. Press Find sources to run it again.' : `No sources yet. Press Find ${src.count} sources, or wait for Monday 6:00.`}</div>`}</section>`;
@@ -561,10 +560,10 @@ async function openTranscript(c, id) {
   } catch (e) { d.innerHTML = `<div class="mb"><p class="scene">${esc(e.message)}</p><div class="row"><button class="btn sm" data-close>Close</button></div></div>`; }
   d.querySelectorAll('[data-close]').forEach(b => b.onclick = () => d.close());
 }
-async function startSources(c, mode) {
-  if (mode === 'full' && !confirm(`Find and transcribe this week's ${c.sources.count} sources now? They are marked used, so later weeks skip them. It takes about an hour.`)) return;
+async function startSources(c) {
+  if (!confirm(`Find and transcribe this week's ${c.sources.count} sources now? They are marked used, so later weeks skip them. It takes about an hour.`)) return;
   document.querySelectorAll('[data-src]').forEach(b => b.disabled = true);
-  try { toast((await api('/api/sources/start', { channel: c.key, mode })).message); } catch (e) { toast(e.message, true); }
+  try { toast((await api('/api/sources/start', { channel: c.key })).message); } catch (e) { toast(e.message, true); }
   refresh(true);
 }
 function videosPage() {
@@ -611,7 +610,7 @@ function bindVideos() {
   if (c.sources) {
     const wk = $('#srcWeek'); if (wk) wk.onchange = e => { srcWeek[c.key] = e.target.value; refresh(true); };
     document.querySelectorAll('[data-tx]').forEach(b => b.onclick = () => openTranscript(c, b.dataset.tx));
-    document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => startSources(c, b.dataset.src));
+    document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => startSources(c));
   }
   const on = $('#chans .on'); if (on) $('#chans').scrollLeft = on.offsetLeft - $('#chans').offsetLeft - 6;   // the picked channel stays in view on a phone
   $('#chans').onclick = e => { const b = e.target.closest('button'); if (b) location.hash = '#/videos/' + encodeURIComponent(b.dataset.c); };
