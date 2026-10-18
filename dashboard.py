@@ -266,7 +266,7 @@ def sources_state(c, n8n_up):
     tail = log.read_text(encoding="utf-8", errors="replace").strip().splitlines()[-1:] if log.exists() else []
     return {"weeks": weeks, "running": sources_running() if n8n_up else False, "log": tail[0] if tail else "",
             "sheet": f"https://docs.google.com/spreadsheets/d/{cfg['sheet_id']}/edit" if cfg.get("sheet_id") else "",
-            "count": cfg.get("count", 28)}
+            "count": cfg.get("count", 28), "timer": cfg.get("monday_timer", True)}
 
 
 def transcript(key, week, vid):
@@ -490,7 +490,9 @@ def video_detail(slug):
              "v": int(imgs[x["id"]].stat().st_mtime) if x["id"] in imgs else None} for x in s["segments"]]
     if not s["segments"]:                                    # old folder without script.json: just its images
         segs = [{"id": i, "text": "", "prompt": "", "scene": "", "v": int(p.stat().st_mtime)} for i, p in sorted(imgs.items())]
-    return dict(video_summary(d), segments=segs, channel=channel_of(d)["key"])
+    story = d / "script.md"                                   # the written script, shown on the page to read and approve
+    return dict(video_summary(d), segments=segs, channel=channel_of(d)["key"],
+                story=story.read_text(encoding="utf-8") if story.exists() else "")
 
 
 # ---------- actions ----------
