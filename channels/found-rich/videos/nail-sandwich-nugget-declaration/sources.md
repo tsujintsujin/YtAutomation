@@ -1,0 +1,8 @@
+# Sources
+
+- Lady Gaga fake nail, found by a crew member after her Dublin show, about $12,000: [CTV News](https://www.ctvnews.ca/entertainment/lady-gaga-s-fake-fingernail-fetches-12-000-at-online-auction-1.1311979), [Gigwise](https://www.gigwise.com/news/81979/lady-gagas-false-nail-sold-for-12000-in-internet-auction/)
+- Virgin Mary grilled cheese, kept 10 years, $28,000 to GoldenPalace.com in 2004: [NBC News](https://www.nbcnews.com/id/wbna6511148), [Guinness World Records](https://www.guinnessworldrecords.com/world-records/most-expensive-sandwich-sold-at-auction-online)
+- Among Us-shaped McNugget, listed at $0.99, 184 bids, $99,997 in June 2021: [UPI](https://www.upi.com/Odd_News/2021/06/04/Among-Us-Chicken-McNugget-ebay/1801622826593/), [Guinness World Records](https://www.guinnessworldrecords.com/world-records/663245-most-expensive-chicken-nugget-sold-at-online-auction)
+- Declaration of Independence (1776 Dunlap broadside) behind a $4 flea-market painting in Adamstown, PA; $2.42M at Sotheby's 1991; $8.14M in 2000: [Snopes](https://www.snopes.com/luck/declare.asp), [Philadelphia Inquirer](https://www.inquirer.com/philly/news/local/20090831_A_million-dollar_flea_market_find.html)
+- Hook research: [Paddy Galloway's Shorts study](https://threadreaderapp.com/thread/1646898356419981315.html), [hook types](https://kompozy.io/guides/short-form-video-hooks), [Hook-Retain-Reward](https://www.selfstorming.com/tools/libraries/frameworks/hook-retain-reward)
+- Taken from: "Free Items People Sold For Millions!" (nail, sandwich, Declaration) and "Items People Found That Made Them Rich" (nugget), both Law By Mike. Facts only; every line is new wording.

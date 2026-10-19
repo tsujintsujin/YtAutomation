@@ -18,6 +18,7 @@ includes any trailing pause, so the images tile the whole voice track with no ga
 import argparse
 import hashlib
 import json
+import random
 import re
 import sys
 import time
@@ -80,11 +81,35 @@ def speak(kokoro, model, group, voice, speed):
     return wav[lo:hi], starts
 
 
-def trim_border(src, dst, size=(1920, 1080)):
+def paper_piece(paper, size, seed):
+    """A different piece of the paper for every picture (Justin, 2026-10-19): turned a random quarter turn, maybe
+    mirrored, zoomed in 1.3-1.8x and cut from a random spot. Same seed = same piece, so making a video again
+    gives the same backgrounds."""
+    rng = random.Random(seed)
+    im = Image.open(paper).convert("RGB").rotate(rng.choice((0, 90, 180, 270)), expand=True)
+    if rng.random() < 0.5:
+        im = ImageOps.mirror(im)
+    aspect = size[0] / size[1]
+    w, h = (im.height * aspect, im.height) if im.width / im.height > aspect else (im.width, im.width / aspect)
+    zoom = rng.uniform(1.3, 1.8)
+    w, h = w / zoom, h / zoom
+    x, y = rng.uniform(0, im.width - w), rng.uniform(0, im.height - h)
+    return im.resize(size, Image.LANCZOS, box=(x, y, x + w, y + h))
+
+
+def trim_border(src, dst, size=(1920, 1080), paper=None, seed=0):
     """Cut off any flat margin/frame an image model added (compares against the corner colour),
-    then cover-crop to exactly 1920x1080 so OpenCut never letterboxes and its canvas (which takes
+    then cover-crop to exactly `size` (1920x1080, or 1080x1920 for Shorts) so OpenCut never letterboxes and its canvas (which takes
     the first imported image's size) is always 1080p with even dimensions."""
     im = Image.open(src).convert("RGB")
+    if size[1] > size[0]:
+        # Shorts: the drawing sits on plain paper, so the "border" test would crop to the ink and cut the sides off.
+        # Gemini's picture is already 9:16, so it is only resized.
+        im = ImageOps.fit(im, size, Image.LANCZOS)
+        if paper:   # drawn on pure white: multiply lays it on the paper (white -> paper, ink and colour stay)
+            im = ImageChops.multiply(im, paper_piece(paper, size, seed))
+        im.save(dst, quality=95)
+        return
     bg = Image.new("RGB", im.size, im.getpixel((0, 0)))
     box = ImageChops.difference(im, bg).convert("L").point(lambda v: 255 if v > 24 else 0).getbbox()
     if box and box != (0, 0, *im.size) and (box[2] - box[0]) * (box[3] - box[1]) > 0.6 * im.width * im.height:
@@ -100,6 +125,7 @@ def main():
     p.add_argument("--speed", type=float, default=1.0)
     p.add_argument("--images-only", action="store_true", help="only prepare img_clean/ for the edit")
     p.add_argument("--if-needed", action="store_true", help="skip the voice if it is already up to date")
+    p.add_argument("--size", default="1920x1080", help="img_clean/ size, WxH (Shorts: 1080x1920)")
     a = p.parse_args()
 
     t0 = time.time()
@@ -113,8 +139,10 @@ def main():
         missing = [i for i, f in imgs.items() if f is None]
         if not missing:
             (out / "img_clean").mkdir(exist_ok=True)
+            paper = out / "refs" / "paper.jpg"                 # a short channel with a "paper_ref"
             for i, f in imgs.items():
-                trim_border(f, out / "img_clean" / f"{i:03d}.jpg")
+                trim_border(f, out / "img_clean" / f"{i:03d}.jpg", tuple(map(int, a.size.split("x"))),
+                            paper if paper.exists() else None, f"{out.name}-{i}")
         print(json.dumps({"ok": not missing, "images": len(imgs) - len(missing), "images_missing": missing}))
         return
 

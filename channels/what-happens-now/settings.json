@@ -1,0 +1,36 @@
+{
+  "name": "What Happens Now",
+  "order": 2,
+  "platforms": [
+    "YouTube Shorts",
+    "TikTok",
+    "Instagram Reels"
+  ],
+  "videos": "channels/what-happens-now/videos",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "length_seconds": [
+    60,
+    120
+  ],
+  "segment_seconds": [
+    1,
+    3
+  ],
+  "voice": {
+    "engine": "chatterbox",
+    "copy": "tts/samples/voices/29_mark.mp3",
+    "exaggeration": 1.0,
+    "cfg": 0.3,
+    "note": "placeholder: same Mark voice as Jin until Justin picks one per channel"
+  },
+  "intro_outro": false,
+  "image_style": "Simple hand-drawn stick figure cartoon, like the attached sample (stickman-style.png). Black ink lines, one even line weight. Round head with a simple face (dot eyes, a big readable expression), single-line arms and legs; a plain shirt or tie shape only when the story needs it. Props are simple black outline doodles. Colour: only the one main thing this picture is about (the scene names it as the coloured thing) is filled with flat, bright, natural colour inside its black outline, like a colouring book page; every other person, object and the whole place stay black ink lines only, with no colour at all. Plain flat pure white background with no texture; every scene's place is drawn with simple outline lines. No shading, no gradients, no realistic detail, no words or letters (simple symbols like $ are fine), no watermark, no frame. Vertical 9:16, subject centred with room above and below for captions.",
+  "style_ref": "channels/stickman-style.png",
+  "pipeline": "shorts",
+  "colour_subject": true,
+  "paper_ref": "channels/what-happens-now/paper.jpg"
+}

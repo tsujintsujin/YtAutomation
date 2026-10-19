@@ -2,7 +2,7 @@
 its buttons do only what Justin would do by hand:
 
   Start   POST n8n /webhook/yt-render {slug, voice}       (same as HANDOFF section 7)
-  Stop    n8n: stop every running "YouTube Render" execution; bridge: release the claim, then the runner's `setup`
+  Stop    n8n: stop every running "YouTube Render" and "Shorts Render" execution; bridge: release the claim, then the runner's `setup`
           order closes every Gemini window and tab
   Redo    move img/NNN.* and img_clean/NNN.jpg into img/redo/ (the next run makes that image again; only for videos
           without an MP4)
@@ -39,6 +39,7 @@ PORT = 8770
 N8N = "http://127.0.0.1:5678"
 BRIDGE = "http://127.0.0.1:8766"
 WORKFLOW = "ytrender00000001"
+SHORTS_FLOW = "Shorts Render"                # same steps for short channels (build_yt_workflow.py --shorts)
 JOBSTASH = Path(r"D:\AIO Freelance\TheJobStash")
 CLOUDFLARED = Path(os.environ["APPDATA"]) / r"npm\node_modules\cloudflared\bin\cloudflared.exe"
 KEY = Path(r"D:\AIO Freelance\Credentials\n8n\api-key.txt").read_text(encoding="utf-8").strip()
@@ -206,14 +207,15 @@ def approved(d):
 
 
 def channels():
-    """Every channels/<key>/ with settings.json, in its "order": {key, name, settings, rules (RULES.md text), dir}.
+    """Every channels/<key>/ with settings.json, in its "order": {key, name, settings, rules (RULES.md text, then
+    channels/SHORTS_RULES.md for "pipeline": "shorts"), dir}.
     Read on every call so an edited rule or setting shows on the next refresh."""
     out = []
     for f in CHANNELS.glob("*/settings.json"):
         s = json.loads(f.read_text(encoding="utf-8"))
-        rules = f.parent / "RULES.md"
+        rules = [f.parent / "RULES.md"] + ([CHANNELS / "SHORTS_RULES.md"] if s.get("pipeline") == "shorts" else [])
         out.append({"key": f.parent.name, "name": s["name"], "settings": s, "dir": HERE / s["videos"],
-                    "rules": rules.read_text(encoding="utf-8") if rules.exists() else ""})
+                    "rules": "\n\n".join(r.read_text(encoding="utf-8") for r in rules if r.exists())})
     return sorted(out, key=lambda c: c["settings"].get("order", 99))
 
 
@@ -226,6 +228,19 @@ def channel_of(d):
 # channels/<key>/weeks/<week>/candidates.json, then sources.json when done, and progress to weeks/run.log.
 SOURCES_FLOW = "Shorts: weekly sources"
 _sources_flow_id = None
+
+
+def flow_ids(name):
+    """[id] of the n8n workflow with this name ([] if it isn't there); looked up once (the API gives new ids)."""
+    if name not in _flow_ids:
+        found = [w["id"] for w in n8n("/workflows?limit=250")["data"] if w["name"] == name]
+        if not found:
+            return []
+        _flow_ids[name] = found
+    return _flow_ids[name]
+
+
+_flow_ids = {}
 
 
 def sources_flow_id():
@@ -306,8 +321,32 @@ def story_title(d):
     f = d / "script.md"
     if not f.exists():
         return None
-    first = f.read_text(encoding="utf-8").strip().split("?")[0]
+    text = f.read_text(encoding="utf-8").strip()
+    if text.startswith("# "):                                # a title line wins (short channels)
+        return text.splitlines()[0][2:].strip()
+    first = text.split("?")[0]
     return first + "?" if first and len(first) < 120 else None
+
+
+_lengths = {}
+
+
+def length(d, mp4):
+    """Seconds the video runs: the MP4's own length once it exists (Jin's include the intro), else the voice's.
+    Cached per file change, since the state page asks every few seconds."""
+    f = mp4 if mp4.exists() else d / "timings.json"
+    if not f.exists():
+        return None
+    key = (str(f), f.stat().st_mtime)
+    if key not in _lengths:
+        if f is mp4:
+            r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", str(f)],
+                               capture_output=True, text=True)
+            _lengths[key] = float(r.stdout.strip() or 0) or None
+        else:
+            t = json.loads(f.read_text(encoding="utf-8"))
+            _lengths[key] = t[-1]["end"] if t else None
+    return _lengths[key]
 
 
 def video_summary(d):
@@ -323,7 +362,10 @@ def video_summary(d):
         "total": len(s["segments"]) if s else len(imgs),
         "made": len(imgs) if not s else sum(1 for x in s["segments"] if x["id"] in imgs),
         "voiceDone": (d / "voice.wav").exists() and (d / "timings.json").exists(),
+        # lines voiced so far: voice_cb.py writes voice-parts/<id>-<part>.wav while it works
+        "voiceLines": len({f.name.split("-")[0] for f in (d / "voice-parts").glob("*.wav")}) if (d / "voice-parts").is_dir() else 0,
         "srt": (d / f"{d.name}.srt").exists(),
+        "length": length(d, mp4),
         "mp4": mp4.exists(),
         "mp4Size": mp4.stat().st_size if mp4.exists() else 0,
         "changed": max([d.stat().st_mtime] + [p.stat().st_mtime for p in imgs.values()]),
@@ -383,16 +425,17 @@ def run_details(eid):
 def runs(limit=40):
     # n8n's plain list leaves out running executions: ask for those by status too
     got = {}
-    for q in ("", "&status=running", "&status=waiting"):
-        for e in n8n(f"/executions?workflowId={WORKFLOW}&limit={limit}{q}")["data"]:
-            got[e["id"]] = e
+    for wid in (WORKFLOW, *flow_ids(SHORTS_FLOW)):
+        for q in ("", "&status=running", "&status=waiting"):
+            for e in n8n(f"/executions?workflowId={wid}&limit={limit}{q}")["data"]:
+                got[e["id"]] = e
     out = []
     for e in sorted(got.values(), key=lambda e: int(e["id"]), reverse=True)[:limit]:
         live = e["status"] in ("running", "waiting", "new")
         d = {"slug": None, "outcome": "running", "reason": ""} if live else run_details(e["id"])
         if not live and e["status"] == "canceled" and not d["outcome"]:
             d = dict(d, outcome="stopped", reason="stopped by hand")
-        out.append({"id": e["id"], "status": e["status"], "mode": e["mode"], "startedAt": e["startedAt"],
+        out.append({"id": e["id"], "workflowId": e.get("workflowId"), "status": e["status"], "mode": e["mode"], "startedAt": e["startedAt"],
                     "stoppedAt": e["stoppedAt"], "live": live, **d})
     return out
 
@@ -447,7 +490,11 @@ def state():
     claims = (b or {}).get("claims", {})
     live = [r for r in rs if r["live"]]
     for v in vids:
-        last = next((r for r in rs if r["slug"] == v["slug"] and not r["live"]), None)
+        # a run that ended before this script.json was written belongs to an earlier version of the video (restarted)
+        sj = folder(v["slug"]) / "script.json"
+        since = sj.stat().st_mtime if sj.exists() else float("inf")
+        last = next((r for r in rs if r["slug"] == v["slug"] and not r["live"] and r.get("stoppedAt")
+                     and datetime.fromisoformat(r["stoppedAt"].replace("Z", "+00:00")).timestamp() >= since), None)
         v["lastRun"] = last
         if live and v["slug"] in claims:
             v["status"] = "running"
@@ -492,7 +539,8 @@ def video_detail(slug):
         segs = [{"id": i, "text": "", "prompt": "", "scene": "", "v": int(p.stat().st_mtime)} for i, p in sorted(imgs.items())]
     story = d / "script.md"                                   # the written script, shown on the page to read and approve
     return dict(video_summary(d), segments=segs, channel=channel_of(d)["key"],
-                story=story.read_text(encoding="utf-8") if story.exists() else "")
+                story=story.read_text(encoding="utf-8") if story.exists() else "",
+                approvable=story.exists() and not (d / "script.json").exists() and bool(short_lines(story.read_text(encoding="utf-8"))))
 
 
 # ---------- actions ----------
@@ -510,16 +558,110 @@ def start(slug):
         raise ValueError("n8n is not ready: open the dashboard shortcut (it starts n8n), wait for its dot to turn green, then press Start")
     if any(r["live"] for r in runs(10)):
         raise ValueError("a run is already going; stop it first")
-    http(N8N + "/webhook/yt-render", "POST", {"slug": slug, "voice": v["voice"]}, timeout=15)
+    if channel_of(d)["settings"].get("pipeline") == "shorts":
+        http(N8N + "/webhook/shorts-render", "POST", {"slug": slug, "channel": channel_of(d)["key"]}, timeout=15)
+    else:
+        http(N8N + "/webhook/yt-render", "POST", {"slug": slug, "voice": v["voice"]}, timeout=15)
     return {"message": f"started {slug}"}
+
+
+# ---------- short channels: Approve builds the video's setup from its script ----------
+# "3. [#1] **spoken line** — picture": [#n] / [#-] marks are still read into script.json "count", but no number is
+# shown any more (Justin removed the on-screen numbers, 2026-10-18)
+LINE = re.compile(r"^(\d+)\. (?:\[#(\d+|-)\] )?\*\*(.+?)\*\* — (.+)$")
+
+
+def short_lines(story):
+    """script.md "## Lines and pictures": [(id, spoken line, picture)]. Empty for a script without that section."""
+    if "## Lines and pictures" not in story:
+        return []
+    part = story.split("## Lines and pictures", 1)[1].split("\n## ", 1)[0]
+    return [(int(m[1]), m[3].strip(), m[4].strip(), m[2]) for m in map(LINE.match, part.splitlines()) if m]
+
+
+def short_prompt(scene, style, colour=False, paper=False):
+    """One complete prompt per picture: Gemini sees each in a fresh chat with only the style picture attached.
+    colour = the channel's settings.json "colour_subject": the scene names one coloured thing, the rest is black ink.
+    paper = the channel has a "paper_ref": Gemini draws on pure white and voice.py --images-only lays the picture
+    on that paper (refs/paper.jpg) afterwards."""
+    return ("Generate one image. 9:16 vertical portrait, 1080x1920, full-bleed: the drawing fills the whole tall canvas edge "
+            "to edge, like one full-screen frame of a YouTube Short. Match the drawing style of the attached image exactly: "
+            "the same simple stick figures, the same even black ink line"
+            + ("" if paper else ", the same plain warm off-white paper")
+            + (" (that image has no colour at all; in this picture the one coloured thing the scene names is "
+               "filled with flat colour, everything else stays black ink like that image). " if colour else ". ") +
+            ("Draw on a plain flat pure white background, not on the attached image's paper: no paper texture, no "
+             "off-white, no stains. " if paper else "") +
+            f"Scene: {scene} "
+            f"Style: {style} "
+            "Keep the main subject in the middle of the frame and the very top and bottom of the frame calm for captions. "
+            "Avoid: " + ("colour on anything except the one coloured thing, " if colour else "colour, ") +
+            "shading, gradients, 3D, photographic detail, any words or letters (only the simple symbols "
+            "the scene asks for, like $ on cash or a small price tag), any real person's face or likeness, any game, "
+            "film or cartoon character, any logo, watermark or frame.")
+
+
+def script_problem(story):
+    """Why this script.md can't be approved yet, or None."""
+    lines = short_lines(story)
+    if not lines:
+        return "this script has no 'Lines and pictures' section, so Claude builds its setup by hand"
+    if [i for i, _, _, _ in lines] != list(range(1, len(lines) + 1)):
+        return "lines must be numbered 1, 2, 3 ... with no gaps"
+    # the lines must say exactly the narration, word for word, or the voice and the pictures would not match
+    narration = story.split("\n## ", 1)[0]
+    narration = "\n".join(l for l in narration.splitlines() if not l.startswith("# "))
+    words = lambda t: re.sub(r"[^a-z0-9$ ]", " ", t.lower()).split()
+    if words(narration) != words(" ".join(t for _, t, _, _ in lines)):
+        return "the numbered lines don't add up to the narration text above them"
+    return None
+
+
+def save_script(slug, text):
+    """Justin edited the script on the dashboard: write script.md. Only before approval (script.json is built from it)."""
+    d = folder(slug)
+    if (d / "script.json").exists():
+        raise ValueError("this script is already approved; editing it now would not change the video")
+    if not text.strip():
+        raise ValueError("the script is empty")
+    text = text.replace("\r\n", "\n")
+    (d / "script.md").write_text(text, encoding="utf-8", newline="\n")
+    problem = script_problem(text)
+    return {"message": "Script saved." + (f" Fix this before approving: {problem}." if problem else ""), "problem": problem}
+
+
+def approve(slug):
+    """Justin approved the script: write script.json (one segment per line, each with its full prompt) and put the
+    channel's style picture in refs/. After this the video shows as ready for its render workflow."""
+    d = folder(slug)
+    c = channel_of(d)
+    if (d / "script.json").exists():
+        raise ValueError("already approved")
+    story = (d / "script.md").read_text(encoding="utf-8")
+    problem = script_problem(story)
+    if problem:
+        raise ValueError(problem)
+    lines = short_lines(story)
+    st = c["settings"]
+    segs = [dict({"id": i, "text": t, "scene": sc, "prompt": short_prompt(sc, st["image_style"], st.get("colour_subject", False), "paper_ref" in st)},
+                 **({"count": 0 if mark == "-" else int(mark)} if mark else {})) for i, t, sc, mark in lines]
+    title = story.splitlines()[0][2:].strip() if story.startswith("# ") else slug
+    (d / "refs").mkdir(exist_ok=True)
+    Image.open(HERE / st["style_ref"]).convert("RGB").save(d / "refs" / "style-ref.jpg", quality=95)
+    if "paper_ref" in st:
+        Image.open(HERE / st["paper_ref"]).convert("RGB").save(d / "refs" / "paper.jpg", quality=95)
+    (d / "script.json").write_text(json.dumps({"title": title, "voice": "am_liam", "segments": segs}, indent=1,
+                                              ensure_ascii=False), encoding="utf-8")
+    return {"message": f"Approved: {len(segs)} lines, each with its picture prompt. Press Start to make the Short."}
 
 
 def stop():
     stopped = []
-    for status in ("running", "waiting"):
-        for e in n8n(f"/executions?workflowId={WORKFLOW}&status={status}&limit=20")["data"]:
-            n8n(f"/executions/{e['id']}/stop", "POST", {})
-            stopped.append(e["id"])
+    for wid in (WORKFLOW, *flow_ids(SHORTS_FLOW)):
+        for status in ("running", "waiting"):
+            for e in n8n(f"/executions?workflowId={wid}&status={status}&limit=20")["data"]:
+                n8n(f"/executions/{e['id']}/stop", "POST", {})
+                stopped.append(e["id"])
     b = bridge_status()
     if b is None:
         return {"message": f"stopped run(s) {stopped or 'none'}; the bridge is not running, so no windows were closed"}
@@ -625,8 +767,16 @@ def redo(slug, i):
     return {"message": f"image {i:03d} moved to img/redo/; the next run makes it again"}
 
 
+# What a run makes. Delete removes only these; the script, sources, prompts and refs/ stay, so the video can be made again.
+MADE_DIRS = ("img", "img_clean", "audio", "thumbs", "edit")
+MADE_FILES = ("voice.wav", "timings.json", "voice-settings.json", "voice-check.json", "thumbs-approved.json",
+              "gemini-results.json", "chats.json", "music.json", "numbered.json")
+MADE_MP4S = ("mp4", "srt", "nomusic.mp4", "music.mp4", "nonum.mp4", "numbering.mp4")   # <slug>.<this>
+
+
 def delete(slug, typed):
-    """Delete the whole output/<slug>/ folder (script, images, voice, MP4: everything). Permanent."""
+    """Delete what was made for the video (images, voice, subtitles, MP4, thumbnails). Permanent.
+    The script (script.md, script.json), sources.md and refs/ are kept."""
     d = folder(slug)
     if typed != slug:
         raise ValueError("type the video's name exactly to delete it")
@@ -640,9 +790,14 @@ def delete(slug, typed):
         Path(path).chmod(0o666)
         fn(path)
 
-    shutil.rmtree(d, onerror=unlock)
-    _scripts.pop(d / "script.json", None)
-    return {"message": f"deleted {slug}"}
+    for name in MADE_DIRS:
+        if (d / name).is_dir():
+            shutil.rmtree(d / name, onerror=unlock)
+    for p in [d / n for n in MADE_FILES] + [d / f"{slug}.{x}" for x in MADE_MP4S]:
+        if p.exists():
+            p.chmod(0o666)
+            p.unlink()
+    return {"message": f"deleted the images, voice, subtitles and MP4 of {slug}; the script is kept"}
 
 
 # ---------- thumbnails ----------
@@ -775,6 +930,10 @@ class H(BaseHTTPRequestHandler):
                 return self.send(redo(r["slug"], r["id"]))
             if act == "/api/sources/start":
                 return self.send(sources_start(r["channel"]))
+            if act == "/api/script":
+                return self.send(save_script(r["slug"], r["text"]))
+            if act == "/api/approve":
+                return self.send(approve(r["slug"]))
             if act == "/api/delete":
                 return self.send(delete(r["slug"], r.get("typed")))
         except (ValueError, KeyError) as e:

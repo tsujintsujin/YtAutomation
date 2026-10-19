@@ -4,7 +4,7 @@ The same files voice.py (Kokoro) makes, so images, subtitles and OpenCut need no
 usage: chatterbox/.venv/Scripts/python voice_cb.py output/<slug> [--if-needed] [--preview N | --only 133,134]
 
 The channel voice is Mark (tts/samples/voices/29_mark.mp3, Justin 2026-10-09), Chatterbox Standard with its default
-settings. Like voice.py, whole sentences are spoken in one take, so the voice keeps its flow. A sentence usually spans
+settings, or the channel's voice exaggeration/cfg from channels/<channel>/settings.json. Like voice.py, whole sentences are spoken in one take, so the voice keeps its flow. A sentence usually spans
 several 2-4 s segments; Chatterbox gives no word times, so Whisper (small.en, CPU) listens to each take and the image
 cut between two segments goes in the middle of the gap between their words. Commas need no rules: Chatterbox pauses.
 
@@ -160,7 +160,12 @@ def main():
     out = Path(a.folder).resolve()
     segs = json.loads((out / "script.json").read_text(encoding="utf-8"))["segments"]
     texts = hashlib.sha1(json.dumps([s["text"] for s in segs]).encode("utf-8")).hexdigest()
-    settings = {"engine": "chatterbox", "ref": REF.name, "texts": texts, "method": METHOD}
+    # channels/<channel>/videos/<slug>: the channel's energy (found-rich: 1.0 / 0.3, Justin 2026-10-18); else defaults
+    ch = out.parent.parent / "settings.json"
+    voice = json.loads(ch.read_text(encoding="utf-8")).get("voice", {}) if ch.exists() else {}
+    ex, cfg = voice.get("exaggeration", 0.5), voice.get("cfg", 0.5)
+    method = METHOD if (ex, cfg) == (0.5, 0.5) else f"{METHOD}+ex{ex}+cfg{cfg}"   # default videos stay up to date
+    settings = {"engine": "chatterbox", "ref": REF.name, "texts": texts, "method": method}
     test = bool(a.preview or a.only)
     done = [out / "voice.wav", out / "timings.json"]
     made_with = json.loads((out / "voice-settings.json").read_text(encoding="utf-8")) if (out / "voice-settings.json").exists() else None
@@ -189,7 +194,7 @@ def main():
         name = f"{g[0]['id']:03d}-{g[-1]['id']:03d}"
         meta = cache / f"{name}.json"
         saved = json.loads(meta.read_text(encoding="utf-8")) if meta.exists() else None
-        if saved and saved["text"] == text and saved["method"] == METHOD and (cache / f"{name}.wav").exists():
+        if saved and saved["text"] == text and saved["method"] == method and (cache / f"{name}.wav").exists():
             wav, sr = sf.read(cache / f"{name}.wav", dtype="float32")
             heard, ratio, good = [tuple(h) for h in saved["heard"]], saved["ratio"], saved["good"]
             reused += 1
@@ -199,14 +204,14 @@ def main():
                 from chatterbox.tts import ChatterboxTTS
                 from faster_whisper import WhisperModel
                 model = ChatterboxTTS.from_pretrained(device="cuda" if torch.cuda.is_available() else "cpu")
-                model.prepare_conditionals(str(REF))          # Mark, read once; default exaggeration 0.5
+                model.prepare_conditionals(str(REF), exaggeration=ex)   # Mark, read once
                 whisper = WhisperModel("small.en", device="cpu", compute_type="int8")
                 print(f"loaded in {time.time() - t0:.0f}s{' (closed the Chatterbox page)' if closed else ''}; "
                       f"{len(takes)} takes, {reused} reused", file=sys.stderr, flush=True)
             sr, want, best = model.sr, words(text), None
             for k in range(TRIES):
                 torch.manual_seed(1000 * g[0]["id"] + k)      # same take again on a rerun; a retry gets a new one
-                take = trim(model.generate(text).squeeze().cpu().numpy(), sr)   # Standard, default settings
+                take = trim(model.generate(text, exaggeration=ex, cfg_weight=cfg).squeeze().cpu().numpy(), sr)
                 h = hear(whisper, take, sr)
                 good, ratio = score(want, [x[0] for x in h])
                 if best is None or ratio > best[2]:
@@ -218,7 +223,7 @@ def main():
             if k:
                 retried.append(name)
             sf.write(cache / f"{name}.wav", wav, sr)
-            meta.write_text(json.dumps({"text": text, "method": METHOD, "heard": heard, "ratio": ratio, "good": good}),
+            meta.write_text(json.dumps({"text": text, "method": method, "heard": heard, "ratio": ratio, "good": good}),
                             encoding="utf-8")
         if not good:
             check.append({"segments": name, "match": round(ratio, 2), "script": text,
