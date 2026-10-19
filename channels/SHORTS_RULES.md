@@ -104,6 +104,14 @@ Avoid list. Every prompt stands on its own.
 - Never edit `script.json` while a run is going; write it when no run is going, then make again only the
   pictures whose prompt changed.
 
+### Cover (Justin, 2026-10-19: "just a frame from the video should do")
+- No designed thumbnail: the hit Shorts (`research.md`) and the big stickman channels all use a frame of the video.
+- With the scenes, write `cover.json` = `{"segment": N}` next to `script.md`: the line whose picture sells the video
+  (usually the money shot: the find next to what it sold for). Not in `script.json`. No file = segment 1.
+- After the MP4, Shorts Render's "Save cover frame" runs `cover.py`: the frame at the middle of that line ->
+  `cover.jpg` (1080x1920). The dashboard shows it under "Ready to post" with a download button. Use it as the
+  cover when posting. Changed your mind? Edit `cover.json`, run `python cover.py <video folder>`.
+
 ### Before calling a set of prompts done
 Read every prompt once more against its line and its neighbours: same people and objects described in the same
 words, a full place, nothing the story doesn't say, the line's meaning shown, no capital labels, black ink only.

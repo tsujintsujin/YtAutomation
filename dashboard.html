@@ -119,6 +119,13 @@ h1 span { color: var(--muted); }
 .entry { display: flex; gap: 12px; padding: 10px; margin: 0 -10px; border-radius: 14px; cursor: pointer; min-width: 0; }
 .entry:hover { background: var(--input); }
 .vlist { padding: 8px 20px 12px; }
+.qrow { display: flex; align-items: center; gap: 4px; }
+.qrow .vrow { flex: 1; min-width: 0; }
+.qpick { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 10px; cursor: pointer; margin-left: -12px; }
+.qpick:hover { background: var(--input); }
+.qpick input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.qpick input:disabled { cursor: not-allowed; }
+.card-h .qbar { display: flex; gap: 8px; flex: none; }
 .vrow { display: flex; gap: 18px; align-items: center; margin: 0 -10px; }
 .vrow .info { display: flex; gap: 12px; width: 300px; flex: none; min-width: 0; }
 .yts { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
@@ -286,6 +293,7 @@ details.setfold > summary:hover, details.setfold[open] > summary { color: var(--
 .facts li span:first-child { color: var(--muted); }
 .facts li b { font-weight: 600; text-align: right; overflow-wrap: anywhere; }
 .side-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 18px; }
+.cover { display: block; width: 132px; aspect-ratio: 9/16; object-fit: cover; margin: 0 20px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--input); }
 details.fold { margin-top: 16px; }
 details.fold > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700;
   color: var(--soft); padding: 8px 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); margin-bottom: 12px; }
@@ -400,6 +408,7 @@ dialog .row {display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap
     <div class="sp"></div>
     <label class="qs"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="qs" placeholder="Search scripts and videos…" aria-label="Search scripts and videos"><kbd>Ctrl K</kbd></label>
     <span class="pill runpill" id="runPill"></span>
+    <button class="btn sm primary" id="resumeTop" hidden><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Resume</button>
     <button class="btn sm danger" id="stopTop" hidden><svg class="i" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>Stop</button>
     <button class="ib" id="refresh" aria-label="Refresh" title="Refresh"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button>
     <button class="ib" id="theme" aria-label="Toggle dark mode" title="Light / dark"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
@@ -437,6 +446,7 @@ const SUB = { running: 'Being made right now.', waiting: 'Script ready; the next
   failed: 'The last run stopped with an error.',
   done: 'MP4 made. Watch, then upload by hand.', draft: 'Claude is still writing it. It is approved as soon as it is finished (no approval step).' };
 
+let qPick = new Set();   // Waiting Shorts ticked for Run selected (kept across the 5 s redraws)
 let S = null, filter = 'all', query = '', V = null, vFilter = 'all', chan = 'jin', rulesOpen = false, srcWeek = {}, setOpen = false;
 
 // ---------- helpers ----------
@@ -474,7 +484,7 @@ function shell() {
   for (const [k, n] of APPS) { const a = h.apps?.[k] || {}; svc.push([n, a.on ? 'on' : 'idle', a.on ? 'running' : a.starting ? 'starting' : 'down']); }
   const restarting = h.n8nState === 'restarting';
   $('#svc').innerHTML = `<p class="t">YtAutomation</p>` + svc.map(([n, c, t]) => `<div><strong>${n}</strong><span title="${n === 'OpenCut' && !h.opencut ? 'Starts by itself when a video is rendered' : t}"><span class="dot ${c}"></span> ${t}</span></div>`).join('')
-    + `<button class="btn sm" data-n8n ${S.run || restarting ? 'disabled' : ''} title="${S.run ? 'A run is going; stop it first' : 'Ends n8n, even when it is frozen, and starts it again in its own minimised window. Takes about 3 minutes.'}">${restarting ? 'Restarting n8n…' : 'Restart n8n'}</button>`
+    + `<button class="btn sm" data-n8n ${S.run || S.queue || restarting ? 'disabled' : ''} title="${S.run || S.queue ? 'A run is going; stop it first' : 'Ends n8n, even when it is frozen, and starts it again in its own minimised window. Takes about 3 minutes.'}">${restarting ? 'Restarting n8n…' : 'Restart n8n'}</button>`
     + APPS.map(([k, n, port, tip]) => { const a = h.apps?.[k] || {};
       return `<button class="btn sm primary" data-app="${k}" ${a.starting ? 'disabled' : ''} title="${tip} (http://127.0.0.1:${port}). ${a.on ? 'Opens it.' : 'Starts it in its own minimised window; close that window to stop it.'}">${a.starting ? `Starting ${n}…` : n}</button>`; }).join('');
   const j = h.jobstash || {};
@@ -484,7 +494,10 @@ function shell() {
   const r = S.run;
   $('#runPill').innerHTML = r ? `<span class="dot on" style="background:var(--accent)"></span><span class="lbl">${esc(r.slug || 'starting')}${r.video ? ` · ${r.video.made}/${r.video.total}` : ''}</span>`
     : robot() ? `<span class="dot off"></span><span class="lbl">Robot check</span>` : `<span class="dot idle"></span><span class="lbl">Idle</span>`;
-  $('#stopTop').hidden = !r;
+  $('#stopTop').hidden = !r && !S.queue;
+  const ql = !r && !S.queue && S.queueLeft;
+  $('#resumeTop').hidden = !ql;
+  if (ql) { $('#resumeTop').lastChild.textContent = `Resume (${ql.slugs.length})`; $('#resumeTop').title = `The queue stopped: ${ql.reason}. Makes the ${ql.slugs.length} left, one after another.`; }
   $('#liveN').hidden = !r;
 }
 
@@ -618,6 +631,13 @@ function nowLine(c) {
   const vs = inChan(), run = S.run && vs.find(v => v.slug === S.run.slug), w = c.sources && c.sources.weeks[0];
   const of = k => vs.filter(v => v.status === k), n = k => of(k).length;
   const open = (v, label) => `<a class="btn sm primary" href="#/video/${encodeURIComponent(v.slug)}">${label}</a>`;
+  const q = S.queue && S.queue.channel === c.key && S.queue, qt = s => esc((S.videos.find(v => v.slug === s) || { title: s }).title);
+  if (q) return [st('running', 'Queue'), q.i < q.slugs.length
+    ? `Making ${q.i + 1} of ${q.slugs.length}: <b>${qt(q.slugs[q.i])}</b>. ${q.i + 1 < q.slugs.length ? `Next: ${qt(q.slugs[q.i + 1])}.` : 'Last one.'}`
+    : `Finishing the queue of ${q.slugs.length}.`, '<button class="btn sm danger" data-qstop>Stop the queue</button>'];
+  const ql = !S.run && !S.queue && S.queueLeft && S.queueLeft.channel === c.key && S.queueLeft;
+  if (ql) return [st('failed', 'Queue stopped'), `${esc(ql.reason[0].toUpperCase() + ql.reason.slice(1))}. ${ql.slugs.length} left: ${ql.slugs.map(qt).join(', ')}.`,
+    `<button class="btn sm primary" data-qresume>${ic.play}Resume (${ql.slugs.length})</button>`];
   if (run) return [st('running', 'Making'), `<b>${esc(run.title)}</b>: ${stage(run)[0].toLowerCase()}.`, '<a class="btn sm" href="#/live">Watch it</a>'];
   if (c.sources && c.sources.running) return [st('running', 'Working'), 'Finding popular videos and writing down what they say.', ''];
   if (n('failed')) return [st('failed', 'Stopped'), `<b>${esc(of('failed')[0].title)}</b> stopped with an error.`, open(of('failed')[0], 'See why')];
@@ -698,14 +718,40 @@ function groups() {
   const html = ORDER.map(k => {
     const vs = list.filter(v => v.status === k);
     if (!vs.length) return '';
+    const qOn = k === 'waiting' && C().settings.pipeline === 'shorts', q = S.queue, lock = !!(S.run || q) || !S.health.n8n;
+    if (qOn) qPick = new Set([...qPick].filter(s => vs.some(v => v.slug === s)));
+    const all = qOn && vs.every(v => qPick.has(v.slug));
+    const box = v => qOn ? `<div class="qrow"><label class="qpick" title="${lock ? 'A run is going' : 'Add to the queue'}"><input type="checkbox" data-q="${esc(v.slug)}" aria-label="Add ${esc(v.title)} to the queue"${(q ? q.slugs.includes(v.slug) : qPick.has(v.slug)) ? ' checked' : ''}${lock ? ' disabled' : ''}></label>` : '';
     return `<section class="card"><div class="card-h"><span class="tile">${k === 'done' ? ic.check : k === 'failed' ? ic.alert : k === 'running' ? ic.pulse : k === 'draft' ? ic.doc : ic.clock}</span>
-      <div><h3>${STATUS[k]}</h3><p>${SUB[k]}</p></div><span class="badge">${vs.length}</span></div>
-      <div class="vlist">${vs.map(v => `<a class="entry vrow" href="#/video/${encodeURIComponent(v.slug)}">
+      <div><h3>${STATUS[k]}</h3><p>${qOn ? 'Tick the ones to make and press Run selected: they are made one after another, top to bottom.' : SUB[k]}</p></div><span class="badge">${vs.length}</span>
+      ${qOn ? `<div class="qbar"><button class="btn sm" data-qall ${lock ? 'disabled' : ''}>${all ? 'Clear' : 'Select all'}</button>
+        <button class="btn sm primary" data-qrun ${lock || !qPick.size ? 'disabled' : ''} title="${!S.health.n8n ? 'n8n is not ready yet' : lock ? 'A run is going; wait for it or stop it' : !qPick.size ? 'Tick at least one video' : 'Make the ticked videos one after another'}">${ic.play}Run selected (${qPick.size})</button></div>` : ''}</div>
+      <div class="vlist">${vs.map(v => `${box(v)}<a class="entry vrow" href="#/video/${encodeURIComponent(v.slug)}">
         <div class="info"><span class="thumb" ${v.made ? `style="background-image:url('/thumb/${encodeURIComponent(v.slug)}/${firstId(v)}')"` : ''}>${v.made ? '' : ic.film}</span>
         <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'Story written, waiting for your OK'}${v.status === 'failed' && v.lastRun && !isGone('run:' + v.lastRun.id) ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></div>
-        <div class="yts" aria-label="Thumbnails">${ytStrip(v)}</div></a>`).join('')}</div></section>`;
+        <div class="yts" aria-label="Thumbnails">${ytStrip(v)}</div></a>${qOn ? '</div>' : ''}`).join('')}</div></section>`;
   }).join('');
+  bindQueue();
   $('#groups').innerHTML = html || `<div class="card"><div class="empty">${inChan().length ? 'No video matches.' : `No videos yet. A new script goes in <code>${esc(C().settings.videos)}/&lt;slug&gt;/script.md</code>.`}</div></div>`;
+}
+// Run selected: ticks, Select all, start the queue (in list order, top to bottom), stop it
+function bindQueue() {
+  setTimeout(() => {                                   // after #groups is filled
+    document.querySelectorAll('[data-q]').forEach(b => b.onchange = () => { b.checked ? qPick.add(b.dataset.q) : qPick.delete(b.dataset.q); groups(); });
+    const allB = $('[data-qall]'); if (allB) allB.onclick = () => {
+      const slugs = [...document.querySelectorAll('[data-q]')].map(b => b.dataset.q);
+      if (slugs.every(s => qPick.has(s))) qPick.clear(); else slugs.forEach(s => qPick.add(s));
+      groups(); };
+    const run = $('[data-qrun]'); if (run) run.onclick = async () => {
+      const slugs = [...document.querySelectorAll('[data-q]')].map(b => b.dataset.q).filter(s => qPick.has(s));
+      if (!confirm(`Make these ${slugs.length} one after another?
+
+${slugs.map((s, i) => `${i + 1}. ${(S.videos.find(v => v.slug === s) || { title: s }).title}`).join('\n')}
+
+The queue stops by itself if every Gemini account is on limit or Google shows a robot check.`)) return;
+      try { toast((await api('/api/queue', { channel: C().key, slugs })).message); qPick.clear(); } catch (e) { toast(e.message, true); }
+      refresh(true); };
+  });
 }
 const firstId = v => v.firstId || 1;
 const ytStrip = v => (v.thumbs || []).length ? v.thumbs.map(t => t.v
@@ -718,6 +764,8 @@ function bindVideos() {
   $('#rules').ontoggle = e => { rulesOpen = e.target.open; };
   const c = C();
   const sf = $('#setfold'); if (sf) sf.ontoggle = e => { setOpen = e.target.open; };
+  const qs = $('[data-qstop]'); if (qs) qs.onclick = () => act('stop');
+  const qr = $('[data-qresume]'); if (qr) qr.onclick = () => resumeQueue();
   if (c.sources) {
     const wk = $('#srcWeek'); if (wk) wk.onchange = e => { srcWeek[c.key] = e.target.value; refresh(true); };
     document.querySelectorAll('[data-tx]').forEach(b => b.onclick = () => openTranscript(c, b.dataset.tx));
@@ -746,9 +794,9 @@ async function renderVideo(slug, keepScroll) {
   try { V = await api('/api/video?slug=' + encodeURIComponent(slug)); }
   catch (e) { $('#page').innerHTML = `<a class="back" href="#/">${ic.back}All scripts and videos</a><div class="card"><div class="empty">${esc(e.message)}</div></div>`; return; }
   const sv = S.videos.find(x => x.slug === slug) || {};
-  lastVSig = JSON.stringify([V, sv.status, !!S.run, S.health.n8n]);
+  lastVSig = JSON.stringify([V, sv.status, !!S.run, !!S.queue, S.health.n8n]);
   const status = sv.status || (V.mp4 ? 'done' : 'waiting');
-  const running = status === 'running', anyRun = !!S.run;
+  const running = status === 'running', anyRun = !!S.run || !!S.queue;
   const vc = S.channels.find(c => c.key === V.channel) || {}, noPipe = !(vc.settings || {}).pipeline;
   const back = `<a class="back" href="#/videos/${encodeURIComponent(V.channel || '')}">${ic.back}${esc(vc.name || 'All scripts and videos')}</a>`;
   const made = V.segments.filter(s => s.v).length, missing = V.segments.length - made;
@@ -779,7 +827,8 @@ async function renderVideo(slug, keepScroll) {
   const facts = `<section class="card"><div class="card-h"><div><h3>${V.mp4 ? 'Ready to post' : 'To post it'}</h3>
       <p>${V.mp4 ? 'Download these and post them.' : 'The files appear here once the video is made.'}</p></div></div>
       <ul class="facts"><li><span>Length</span><b>${V.length ? (V.length >= 60 ? `${Math.floor(V.length / 60)} min ${Math.round(V.length % 60)} s` : `${Math.round(V.length)} s`) : 'Not made yet'}</b></li></ul>
-      ${V.mp4 || V.srt ? `<div class="side-actions">${V.mp4 ? `<a class="btn sm primary" href="${file('mp4')}" download>${ic.dl}Video (MP4)</a>` : ''}${V.srt ? `<a class="btn sm" href="${file('srt')}">${ic.dl}Subtitles (.srt)</a>` : ''}</div>` : ''}</section>
+      ${V.cover ? `<img class="cover" src="/file/${encodeURIComponent(V.slug)}/cover.jpg?v=${V.cover}" alt="Cover: the frame of the video used as its thumbnail">` : ''}
+      ${V.mp4 || V.srt ? `<div class="side-actions">${V.mp4 ? `<a class="btn sm primary" href="${file('mp4')}" download>${ic.dl}Video (MP4)</a>` : ''}${V.srt ? `<a class="btn sm" href="${file('srt')}">${ic.dl}Subtitles (.srt)</a>` : ''}${V.cover ? `<a class="btn sm" href="/file/${encodeURIComponent(V.slug)}/cover.jpg?v=${V.cover}" download="${esc(V.slug)}-cover.jpg">${ic.dl}Cover (JPG)</a>` : ''}</div>` : ''}</section>
       <div class="side-actions" style="padding:4px 0 0">${!V.mp4 && made ? `<button class="btn sm" id="redoSel">${ic.redo}Redo images</button><button class="btn sm" id="redoCancel" hidden>Cancel</button>` : ''}<button class="btn sm danger" data-a="delete" ${anyRun ? 'disabled title="Stop the run first"' : ''}>${ic.trash}Delete images, voice and MP4</button></div>`;
   $('#topTitle').textContent = V.title;
   $('#page').innerHTML = `${back}
@@ -914,7 +963,7 @@ async function act(a, slug) {
     } else if (a === 'edit') {
       openEdit();
     } else if (a === 'stop') {
-      if (!confirm('Stop the run? n8n stops, the video is released and every Gemini window closes. Images already saved stay.')) return;
+      if (!confirm('Stop the run? n8n stops (the queue too, if one is going), the video is released and every Gemini window closes. Images already saved stay.')) return;
       toast('Stopping… the runner finishes its current order, then closes the windows.');
       toast((await api('/api/stop', {})).message);
     } else if (a === 'delete') {
@@ -1015,7 +1064,7 @@ async function refresh(force) {
       shell();
       const v = await api('/api/video?slug=' + encodeURIComponent(arg));
       if (my !== seq) return;
-      const vsig = JSON.stringify([v, (S.videos.find(x => x.slug === arg) || {}).status, !!S.run, S.health.n8n]);
+      const vsig = JSON.stringify([v, (S.videos.find(x => x.slug === arg) || {}).status, !!S.run, !!S.queue, S.health.n8n]);
       if (force || vsig !== lastVSig) await renderVideo(arg, true);
     } else if (same && !force) shell();
     else if (p === 'videos' && $('#groups')) {          // keep the search box focused while typing
@@ -1031,6 +1080,19 @@ async function refresh(force) {
 window.addEventListener('hashchange', () => { scrollTo(0, 0); render(); });
 $('#refresh').onclick = () => refresh(true);
 $('#stopTop').onclick = () => act('stop');
+$('#resumeTop').onclick = () => resumeQueue();
+// Resume: a new queue with the videos the last one did not make, in the same order
+async function resumeQueue() {
+  const ql = S.queueLeft; if (!ql) return;
+  const t = s => (S.videos.find(v => v.slug === s) || { title: s }).title;
+  if (!confirm(`The last queue stopped: ${ql.reason}.
+
+Make these ${ql.slugs.length} one after another?
+
+${ql.slugs.map((s, i) => `${i + 1}. ${t(s)}`).join('\n')}${/robot/i.test(ql.reason) ? "\n\nSolve Google's robot check in the Gemini window first." : ''}`)) return;
+  try { toast((await api('/api/queue', { channel: ql.channel, slugs: ql.slugs })).message); } catch (e) { toast(e.message, true); }
+  refresh(true);
+}
 $('#svc').onclick = async e => {
   const v = e.target.closest('[data-app]');
   if (v && !v.disabled) return voiceApp(v);
