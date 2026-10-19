@@ -1,6 +1,6 @@
 """Image prompts for watch-sofa-bowl, written as one story (channels/SHORTS_RULES.md "How image prompts are written";
 worked example: ../nail-sandwich-nugget-declaration/scenes.py). Checks every line against script.md; once the script
-is approved (script.json exists) writes scene + full prompt for every line into script.json.
+is approved (right away: no approval step, this file approves it) writes scene + full prompt for every line into script.json.
 usage: python channels/found-rich/videos/watch-sofa-bowl/scenes.py"""
 import json
 import sys
@@ -9,7 +9,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent                 # videos/<slug>
 ROOT = HERE.parents[3]                                 # YtAutomation
 sys.path.insert(0, str(ROOT))
-from dashboard import short_lines, short_prompt        # the script's lines, and the fixed frame around every prompt
+from dashboard import approve, short_lines, short_prompt       # the script's lines, and the fixed frame around every prompt
 
 STYLE = json.loads((HERE.parents[1] / "settings.json").read_text(encoding="utf-8"))["image_style"]
 TOTAL = 35
@@ -272,7 +272,7 @@ lines = short_lines((HERE / "script.md").read_text(encoding="utf-8"))
 assert len(S) == TOTAL and [(i, t) for i, t, _, _ in lines] == [(n, t) for n, t, _ in S], "scenes.py and script.md differ"
 p = HERE / "script.json"
 if not p.exists():
-    sys.exit(f"ok: {TOTAL} scenes match script.md; script.json is written after approval")
+    print(approve(HERE.name)["message"])            # no approval step (Justin, 2026-10-19)
 data = json.load(open(p, encoding="utf-8"))
 segs = data["segments"]
 assert len(segs) == TOTAL

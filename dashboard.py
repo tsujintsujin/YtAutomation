@@ -376,7 +376,7 @@ def video_summary(d):
 
 
 def videos():
-    """Every <channel videos>/<slug>/ that is a video (has script.json, its MP4, or a story to approve in script.md);
+    """Every <channel videos>/<slug>/ that is a video (has script.json, its MP4, or a script.md still being written);
     "_" folders are tests."""
     return [dict(video_summary(d), channel=c["key"]) for c in channels() if c["dir"].is_dir() for d in c["dir"].iterdir()
             if d.is_dir() and not d.name.startswith("_")
@@ -537,10 +537,9 @@ def video_detail(slug):
              "v": int(imgs[x["id"]].stat().st_mtime) if x["id"] in imgs else None} for x in s["segments"]]
     if not s["segments"]:                                    # old folder without script.json: just its images
         segs = [{"id": i, "text": "", "prompt": "", "scene": "", "v": int(p.stat().st_mtime)} for i, p in sorted(imgs.items())]
-    story = d / "script.md"                                   # the written script, shown on the page to read and approve
+    story = d / "script.md"                                   # the written script, shown on the page
     return dict(video_summary(d), segments=segs, channel=channel_of(d)["key"],
-                story=story.read_text(encoding="utf-8") if story.exists() else "",
-                approvable=story.exists() and not (d / "script.json").exists() and bool(short_lines(story.read_text(encoding="utf-8"))))
+                story=story.read_text(encoding="utf-8") if story.exists() else "")
 
 
 # ---------- actions ----------
@@ -565,7 +564,8 @@ def start(slug):
     return {"message": f"started {slug}"}
 
 
-# ---------- short channels: Approve builds the video's setup from its script ----------
+# ---------- short channels: approve() builds the video's setup from its script ----------
+# No approval step (Justin, 2026-10-19): a video's scenes.py calls approve() the first time it runs.
 # "3. [#1] **spoken line** — picture": [#n] / [#-] marks are still read into script.json "count", but no number is
 # shown any more (Justin removed the on-screen numbers, 2026-10-18)
 LINE = re.compile(r"^(\d+)\. (?:\[#(\d+|-)\] )?\*\*(.+?)\*\* — (.+)$")
@@ -631,7 +631,7 @@ def save_script(slug, text):
 
 
 def approve(slug):
-    """Justin approved the script: write script.json (one segment per line, each with its full prompt) and put the
+    """Approve the script (called by the video's scenes.py, no approval step since 2026-10-19): write script.json (one segment per line, each with its full prompt) and put the
     channel's style picture in refs/. After this the video shows as ready for its render workflow."""
     d = folder(slug)
     c = channel_of(d)
@@ -932,8 +932,6 @@ class H(BaseHTTPRequestHandler):
                 return self.send(sources_start(r["channel"]))
             if act == "/api/script":
                 return self.send(save_script(r["slug"], r["text"]))
-            if act == "/api/approve":
-                return self.send(approve(r["slug"]))
             if act == "/api/delete":
                 return self.send(delete(r["slug"], r.get("typed")))
         except (ValueError, KeyError) as e:

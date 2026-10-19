@@ -14,8 +14,8 @@ Justin's instruction: note them, don't apply until he says.
    Chatterbox page (`chatterbox/app.py`, :7861) is for trying it out; plan and test before touching n8n.
 3. **DONE 2026-10-09** ("no more rules for commas"; HANDOFF story rules updated).
 4. **Shorts pipeline for `found-rich`** (agreed 2026-10-18; Justin says "go" before each build step).
-   Who does what: **n8n** finds sources, transcribes, renders. **Justin** says when the week's sources are in and
-   approves the scripts. **Claude** only writes the scripts (with segments + one stickman image prompt per segment)
+   Who does what: **n8n** finds sources, transcribes, renders. **Justin** says when the week's sources are in (no script
+   approval since 2026-10-19: running a video's scenes.py approves it). **Claude** only writes the scripts (with segments + one stickman image prompt per segment)
    and uploads the finished videos (YouTube Shorts, TikTok, Reels; one batch a week, confirmed with Justin before posting).
    - Workflow A "Shorts: weekly sources" (new): Monday 06:00 timer + manual start; stops if this week's batch exists.
      `find_shorts.py found-rich` (yt-dlp): Shorts from known format channels (Law By Mike first) + topic searches;

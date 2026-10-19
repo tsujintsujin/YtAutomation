@@ -20,7 +20,7 @@ What's the luckiest thing you've ever lost?
 
 ## Lines and pictures
 
-Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json on approval). People are plain stick figures, never a likeness of anyone real.
+Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json when scenes.py runs). People are plain stick figures, never a likeness of anyone real.
 
 1. **A farmer lost his hammer in a field.** — A farmer pats his empty pockets in a ploughed field; a dropped hammer hidden in the furrows.
 2. **Looking for it made two friends rich.** — The farmer and his friend with a metal detector, cash raining down on them.

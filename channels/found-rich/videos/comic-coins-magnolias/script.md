@@ -19,7 +19,7 @@ What's hiding in your walls?
 
 ## Lines and pictures
 
-Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json on approval). People are plain stick figures, never a likeness of anyone real.
+Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json when scenes.py runs). People are plain stick figures, never a likeness of anyone real.
 
 1. **A man hung a painting** — A man hangs an old flower painting on his living-room wall.
 2. **over a hole in his wall.** — The painting lifted aside: a ragged hole in the plaster behind it.

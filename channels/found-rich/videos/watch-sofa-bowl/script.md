@@ -18,7 +18,7 @@ What's sitting on your shelf right now?
 
 ## Lines and pictures
 
-Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json on approval). People are plain stick figures, never a likeness of anyone real.
+Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json when scenes.py runs). People are plain stick figures, never a likeness of anyone real.
 
 1. **A family paid three dollars** — A family hands three $1 bills to a seller at a yard-sale table.
 2. **for a little bowl at a yard sale.** — The small plain bowl drawn big on the yard-sale table.

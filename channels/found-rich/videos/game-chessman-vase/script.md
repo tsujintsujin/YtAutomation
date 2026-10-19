@@ -19,7 +19,7 @@ So, have you checked your attic?
 
 ## Lines and pictures
 
-Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json on approval). People are plain stick figures, never a likeness of anyone real.
+Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json when scenes.py runs). People are plain stick figures, never a likeness of anyone real.
 
 1. **A family brought a vase to an auction house** — A couple carries a shoebox up the steps of a grand auction house.
 2. **in a shoebox.** — The open shoebox: a vase wrapped in newspaper inside.

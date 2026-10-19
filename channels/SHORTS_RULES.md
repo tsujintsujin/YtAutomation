@@ -17,8 +17,9 @@ These apply to every channel whose `settings.json` has `"pipeline": "shorts"` (f
 - **Segments:** fast pace, 1-3 s each (Justin, 2026-10-18): most lines are cut in two, each half with its own
   image; lines under about 2 s stay one image. One image per segment, never a one-word segment.
 - **Never "this"** for an item: no real picture is shown, so it is always "a" ("A four-dollar painting ...").
-- **Flow:** same as Jin. Claude writes the script, runs it through `/humanize`, Justin approves it, it is saved as
-  `videos/<slug>/script.md`; then the setup (`script.json`, prompts) and the pipeline make the video.
+- **Flow:** same as Jin. Claude writes the script, runs it through `/humanize`, it is saved as `videos/<slug>/script.md`.
+  **No approval step** (Justin, 2026-10-19: "remove the approve. approve all script right away"): a finished script
+  is approved at once; then the setup (`script.json`, prompts) and the pipeline make the video.
 - **Image prompts:** written exactly as in "How image prompts are written" below. Every short channel, every video.
 - **Facts are checked.** Every name, number, date and outcome must be real and checked; list the sources in
   `videos/<slug>/sources.md`. Never make a fact up to make the story better.
@@ -96,9 +97,9 @@ Avoid list. Every prompt stands on its own.
 
 ### Where the prompts live
 - `script.md` "Lines and pictures" holds each line with a first sketch of its picture; approving builds
-  `script.json` from it.
+  `script.json` from it (`dashboard.approve`, called by the video's `scenes.py` the first time it runs).
 - Then the video's own `scenes.py` (next to `script.md`, like the example) holds the fixed descriptions and the
-  full scene for every line, and writes `scene` + `prompt` into `script.json`. That is what Gemini gets. It checks
+  full scene for every line, and writes `scene` + `prompt` into `script.json` (running it approves the script first if there is no `script.json` yet). That is what Gemini gets. It checks
   that every line's id and text match `script.json`, so it can't drift from the script.
 - Never edit `script.json` while a run is going; write it when no run is going, then make again only the
   pictures whose prompt changed.

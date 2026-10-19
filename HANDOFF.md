@@ -18,7 +18,9 @@ free Gemini web app driven through his own Chrome; voice is local Chatterbox (Ko
 1. **Justin** gives a topic.
 2. **Claude (in a session)** writes the story (~12 min of narration) and runs it through `/humanize`.
 3. **Justin** reviews and approves it. Save it as `output/<slug>/script.md` (opening question first): the dashboard
-   lists any folder with a `script.md` and no `script.json` under "Story to approve" (Justin, 2026-10-08).
+   lists any folder with a `script.md` and no `script.json` as "Being written" (Justin, 2026-10-08).
+   **Short channels have no approval step** (Justin, 2026-10-19): a video's `scenes.py` approves its script
+   (`dashboard.approve` -> `script.json`) the first time it runs; the dashboard has no Approve button.
 4. **Claude** builds the setup in `output/<slug>/`: segments, one standalone image prompt per segment,
    character reference sheets in `refs/`, `script.json`, and 5 thumbnail ideas (`thumb-ideas.json` ->
    `python thumbnails.py output/<slug>` -> `thumbnails.json`).

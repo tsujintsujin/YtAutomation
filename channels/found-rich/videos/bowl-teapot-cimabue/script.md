@@ -19,7 +19,7 @@ What's hanging in your kitchen?
 
 ## Lines and pictures
 
-Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json on approval). People are plain stick figures, never a likeness of anyone real.
+Each line is one picture. The full picture prompts are in `scenes.py` (written into script.json when scenes.py runs). People are plain stick figures, never a likeness of anyone real.
 
 1. **An old woman kept a small painting in her kitchen,** — An old woman cooking in her kitchen; a tiny old painting on the wall.
 2. **right above the stove.** — Close view: the tiny painting hanging just above the hot plate, steam rising past it.
