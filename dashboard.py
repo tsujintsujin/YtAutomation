@@ -40,6 +40,7 @@ N8N = "http://127.0.0.1:5678"
 BRIDGE = "http://127.0.0.1:8766"
 WORKFLOW = "ytrender00000001"
 SHORTS_FLOW = "Shorts Render"                # same steps for short channels (build_yt_workflow.py --shorts)
+QUEUE_FLOW = "Shorts: run queue"            # makes the ticked Shorts one after another (n8n/build_shorts_queue.py)
 JOBSTASH = Path(r"D:\AIO Freelance\TheJobStash")
 CLOUDFLARED = Path(os.environ["APPDATA"]) / r"npm\node_modules\cloudflared\bin\cloudflared.exe"
 KEY = Path(r"D:\AIO Freelance\Credentials\n8n\api-key.txt").read_text(encoding="utf-8").strip()
@@ -106,7 +107,7 @@ def n8n_restart():
     """End n8n (also when it is frozen: process alive, port open, never answers) and start it again the way
     start_dashboard.cmd does. Refused while a video run is going, since that would kill the run."""
     global _n8n_restarted
-    if n8n_state() == "running" and any(r["live"] for r in runs(10)):
+    if n8n_state() == "running" and (any(r["live"] for r in runs(10)) or queue_state()):
         raise ValueError("a run is going; stop it first")
     if time.time() - _n8n_restarted < 60:
         raise ValueError("already restarting; give it a few minutes")
@@ -372,6 +373,8 @@ def video_summary(d):
         "lastImage": max([p.stat().st_mtime for p in imgs.values()], default=0),
         "firstId": min(imgs, default=None),
         "thumbs": thumbnails(d),
+        # Shorts: cover.py's frame of the MP4; the mtime busts the browser cache when it is made again
+        "cover": int((d / "cover.jpg").stat().st_mtime) if (d / "cover.jpg").exists() else None,
     }
 
 
@@ -420,6 +423,77 @@ def run_details(eid):
     CACHE.mkdir(exist_ok=True)
     RUNS_CACHE.write_text(json.dumps(_runs), encoding="utf-8")
     return _runs[eid]
+
+
+def queue_state():
+    """The running "Shorts: run queue": {id, channel, slugs, i (0-based, the one being made), results}, or None."""
+    for wid in flow_ids(QUEUE_FLOW):
+        for e in n8n(f"/executions?workflowId={wid}&status=running&limit=1")["data"]:
+            rd = (n8n(f"/executions/{e['id']}?includeData=true").get("data") or {}).get("resultData", {}).get("runData", {})
+            last = lambda name: rd[name][-1]["data"]["main"][0][0]["json"] if rd.get(name) else None
+            q, nxt = last("Read queue"), last("Next video")
+            if not q:
+                return {"id": e["id"], "channel": "", "slugs": [], "i": 0, "results": []}
+            return {"id": e["id"], "channel": q["channel"], "slugs": q["slugs"],
+                    "i": nxt["i"] if nxt else 0, "results": (nxt or q)["results"]}
+    return None
+
+
+def queue_left():
+    """The last queue, if it stopped with videos not made yet: {id, channel, slugs (still waiting, in order), reason}
+    for the Resume button. None while a queue runs, after a queue that finished, or when nothing is left."""
+    for wid in flow_ids(QUEUE_FLOW):
+        for e in n8n(f"/executions?workflowId={wid}&limit=1")["data"]:
+            if e["status"] in ("running", "waiting", "new"):
+                return None
+            if e["id"] not in _queue_left:
+                rd = (n8n(f"/executions/{e['id']}?includeData=true", timeout=30).get("data") or {}).get("resultData", {}).get("runData", {})
+                last = lambda name: rd[name][-1]["data"]["main"][0][0]["json"] if rd.get(name) else None
+                stop, nxt = last("Read result") if "Queue stopped" in rd else None, last("Next video")
+                if stop:                                   # stopped by itself: the video it stopped on was not made
+                    _queue_left[e["id"]] = (stop["channel"], stop["slugs"][stop["i"] - 1:], stop["reason"])
+                elif e["status"] == "canceled" and nxt:    # Stop: the video being made and the ones after it
+                    _queue_left[e["id"]] = (nxt["channel"], nxt["slugs"][nxt["i"]:], "stopped by hand")
+                else:
+                    _queue_left[e["id"]] = None
+            if not _queue_left[e["id"]]:
+                return None
+            channel, slugs, reason = _queue_left[e["id"]]
+            left = []
+            for slug in slugs:
+                try:
+                    v = video_summary(folder(slug))
+                except ValueError:
+                    continue
+                if v["script"] and not v["mp4"]:
+                    left.append(slug)
+            return {"id": e["id"], "channel": channel, "slugs": left, "reason": reason} if left else None
+    return None
+
+
+_queue_left = {}                                           # finished queue execution id -> (channel, slugs, reason)
+
+
+def queue_start(channel, slugs):
+    """Run selected: the ticked Waiting Shorts of one channel, made one after another by n8n's queue workflow."""
+    c = next((c for c in channels() if c["key"] == channel), None)
+    if not c or c["settings"].get("pipeline") != "shorts":
+        raise ValueError("this channel has no Shorts render set up")
+    if not slugs or len(set(slugs)) != len(slugs):
+        raise ValueError("tick at least one video, each once")
+    for slug in slugs:
+        d = folder(slug)
+        v = video_summary(d)
+        if channel_of(d)["key"] != channel or not v["script"] or v["mp4"]:
+            raise ValueError(f"{slug} is not waiting in this channel")
+    if n8n_state() != "running":
+        raise ValueError("n8n is not ready yet (its dot, bottom left)")
+    if any(r["live"] for r in runs(10)) or queue_state():
+        raise ValueError("a run is already going; stop it first")
+    if not flow_ids(QUEUE_FLOW):
+        raise ValueError("the queue workflow is not in n8n (n8n/build_shorts_queue.py)")
+    http(N8N + "/webhook/shorts-queue", "POST", {"channel": channel, "slugs": slugs}, timeout=15)
+    return {"message": f"Queue started: {len(slugs)} video{'s' if len(slugs) > 1 else ''}, one after another."}
 
 
 def runs(limit=40):
@@ -513,7 +587,7 @@ def state():
         v = next((x for x in vids if x["slug"] == slug), None)
         recent_imgs = [p.stat().st_mtime for p in images(OUT / slug).values()] if v else []
         # images / min over the last 15 min, or since the run started if that is shorter
-        started = datetime.fromisoformat(live[0]["startedAt"].replace("Z", "+00:00")).timestamp()
+        started = datetime.fromisoformat(live[0]["startedAt"].replace("Z", "+00:00")).timestamp() if live[0]["startedAt"] else time.time()  # "new": waiting for an n8n slot
         since = max(time.time() - 900, started)
         mins = max((time.time() - since) / 60, 1)
         rate = sum(1 for m in recent_imgs if m > since) / mins
@@ -523,6 +597,8 @@ def state():
     robot = named[0] if named and not named[0]["live"] and "robot check" in named[0]["reason"] else None
     return {"health": health, "videos": vids, "run": run, "runs": [r for r in rs if r["outcome"] != "idle"],
             "idleRuns": sum(1 for r in rs if r["outcome"] == "idle"), "robot": robot,
+            "queue": queue_state() if health["n8n"] else None,
+            "queueLeft": queue_left() if health["n8n"] and not live else None,
             "wins": (b or {}).get("wins", {}), "recent": (b or {}).get("recent", [])[::-1],
             "accounts": accounts((b or {}).get("wins", {})), "now": time.time(),
             "channels": [dict({k: c[k] for k in ("key", "name", "settings", "rules")}, sources=sources_state(c, health["n8n"]))
@@ -555,7 +631,7 @@ def start(slug):
         raise ValueError("this video already has its MP4")
     if n8n_state() != "running":
         raise ValueError("n8n is not ready: open the dashboard shortcut (it starts n8n), wait for its dot to turn green, then press Start")
-    if any(r["live"] for r in runs(10)):
+    if any(r["live"] for r in runs(10)) or queue_state():
         raise ValueError("a run is already going; stop it first")
     if channel_of(d)["settings"].get("pipeline") == "shorts":
         http(N8N + "/webhook/shorts-render", "POST", {"slug": slug, "channel": channel_of(d)["key"]}, timeout=15)
@@ -657,7 +733,7 @@ def approve(slug):
 
 def stop():
     stopped = []
-    for wid in (WORKFLOW, *flow_ids(SHORTS_FLOW)):
+    for wid in (*flow_ids(QUEUE_FLOW), WORKFLOW, *flow_ids(SHORTS_FLOW)):
         for status in ("running", "waiting"):
             for e in n8n(f"/executions?workflowId={wid}&status={status}&limit=20")["data"]:
                 n8n(f"/executions/{e['id']}/stop", "POST", {})
@@ -770,7 +846,7 @@ def redo(slug, i):
 # What a run makes. Delete removes only these; the script, sources, prompts and refs/ stay, so the video can be made again.
 MADE_DIRS = ("img", "img_clean", "audio", "thumbs", "edit")
 MADE_FILES = ("voice.wav", "timings.json", "voice-settings.json", "voice-check.json", "thumbs-approved.json",
-              "gemini-results.json", "chats.json", "music.json", "numbered.json")
+              "gemini-results.json", "chats.json", "music.json", "numbered.json", "cover.jpg")
 MADE_MP4S = ("mp4", "srt", "nomusic.mp4", "music.mp4", "nonum.mp4", "numbering.mp4")   # <slug>.<this>
 
 
@@ -898,7 +974,7 @@ class H(BaseHTTPRequestHandler):
                 return self.file(p)
             if parts[0] == "file" and len(parts) == 3:
                 d = folder(parts[1])
-                if parts[2] not in (f"{d.name}.mp4", f"{d.name}.srt") or not (d / parts[2]).exists():
+                if parts[2] not in (f"{d.name}.mp4", f"{d.name}.srt", "cover.jpg") or not (d / parts[2]).exists():
                     return self.send({"error": "no such file"}, code=404)
                 return self.file(d / parts[2])
         except (ValueError, KeyError) as e:
@@ -914,6 +990,8 @@ class H(BaseHTTPRequestHandler):
         r = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
         try:
             act = urlparse(self.path).path
+            if act == "/api/queue":
+                return self.send(queue_start(r["channel"], list(r["slugs"])))
             if act == "/api/start":
                 return self.send(start(r["slug"]))
             if act == "/api/stop":

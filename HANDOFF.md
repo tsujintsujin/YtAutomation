@@ -57,6 +57,22 @@ polished first: `found-rich` (Items People Found That Made Them Rich). Videos go
 Same flow as Jin, but **n8n is not wired for them yet** (`"pipeline": false`; the dashboard's Start refuses): it still
 renders 16:9 with the intro from `output/`. Voice is a placeholder (Mark) until Justin picks one per channel.
 
+**Run queue (Justin, 2026-10-19):** a Shorts channel's Waiting card has a checkbox per video, Select all and
+"Run selected (N)". The dashboard posts `/webhook/shorts-queue {"channel","slugs"}` to n8n "Shorts: run queue"
+(`n8n/build_shorts_queue.py`, pushes itself). For each video in list order it starts Shorts Render through its
+normal webhook (like Start) and every 30 s runs `queue_check.py <slug> <since>`, which reads that run's outcome the
+way the Runs list does (`dashboard.run_details`). MP4 made or any other failure -> next video; every account on
+limit, robot check, already in progress or stopped by hand -> the queue stops. Not a waited sub-workflow: tried
+first, and inside one every Wait node of the render took ~60 s (n8n resumed it only on the minute). The queue saves
+progress after every node, so the dashboard reads "Making 2 of 5" from the running execution (`queue_state()`).
+Stop stops the queue first, then the render. **Resume** (top bar and channel line, Justin 2026-10-19: "Resume button
+only", nothing restarts by itself): when the last queue stopped with videos not made, starts a new queue with
+those, same order (`queue_left()`).
+
+**Shorts cover (Justin, 2026-10-19):** a frame of the video, no designed thumbnail. `cover.json` {"segment": N}
+(Claude, with the scenes) -> Shorts Render's last step "Save cover frame" runs `cover.py` -> `cover.jpg` (frame at the
+middle of that line). Dashboard: shown + download in "Ready to post". Rules: `channels/SHORTS_RULES.md` "Cover".
+
 No AI model inside n8n without asking Justin first. The writing stays with Claude where Justin can review it.
 
 ### Rules for the story text (step 2)
