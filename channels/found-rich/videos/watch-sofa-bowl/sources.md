@@ -1,0 +1,6 @@
+# Sources
+
+- LeCoultre Deep Sea Alarm (1959), bought for $5.99 at a Phoenix-area Goodwill by Zach Norris, sold for $35,000: [Fox 10 Phoenix](https://www.fox10phoenix.com/news/man-buys-watch-at-goodwill-for-6-sells-it-for-35k), [Boss Hunting](https://www.bosshunting.com.au/gear/jlc-thrift-shop-find)
+- Berlin flea-market sofa bed ($215) with a small 17th-century oil painting (circle of Carlo Saraceni, 1605-1620) inside, found when it was pulled out; sold for $27,630 at a Hamburg auction: [NBC News](https://www.nbcnews.com/id/wbna21545781), [Fox News](https://www.foxnews.com/story/german-student-finds-valuable-painting-in-thrift-store-couch.amp)
+- Northern Song Ding bowl, bought for about $3 at a New York yard sale in 2007, kept in the living room, sold at Sotheby's New York in March 2013 for $2.225 million; the only similar bowl known is in the British Museum: [CNBC](https://www.cnbc.com/id/100572529), [NBC News](https://www.nbcnews.com/news/us-news/picked-3-bucks-chinese-bowl-goes-2-2-million-auction-flna1c8967405)
+- Taken from: "Free Items People Sold For Millions!" (Law By Mike), "10 LUCKY Finds That Made People MILLIONAIRES" (Top 10s), "10 Extremely Lucky Finds That Made People Rich In Thrift Shops" (TheRichest), "Things Found in Thrift Stores THAT MADE LUCKY PEOPLE RICH" (AzzyLand). Facts only; every line is new wording.

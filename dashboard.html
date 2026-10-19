@@ -431,11 +431,11 @@ const ic = {
   trash: '<svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>',
   redo: '<svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>',
 };
-const STATUS = { running: 'Running', waiting: 'Waiting', failed: 'Failed', done: 'Done', draft: 'Story to approve' };
+const STATUS = { running: 'Running', waiting: 'Waiting', failed: 'Failed', done: 'Done', draft: 'Being written' };
 const ORDER = ['running', 'failed', 'waiting', 'draft', 'done'];
 const SUB = { running: 'Being made right now.', waiting: 'Script ready; the next run or the 5-hour timer picks these up.',
   failed: 'The last run stopped with an error.',
-  done: 'MP4 made. Watch, then upload by hand.', draft: 'Story written (script.md). Approve it, then Claude builds script.json.' };
+  done: 'MP4 made. Watch, then upload by hand.', draft: 'Claude is still writing it. It is approved as soon as it is finished (no approval step).' };
 
 let S = null, filter = 'all', query = '', V = null, vFilter = 'all', chan = 'jin', rulesOpen = false, srcWeek = {}, setOpen = false;
 
@@ -621,8 +621,7 @@ function nowLine(c) {
   if (run) return [st('running', 'Making'), `<b>${esc(run.title)}</b>: ${stage(run)[0].toLowerCase()}.`, '<a class="btn sm" href="#/live">Watch it</a>'];
   if (c.sources && c.sources.running) return [st('running', 'Working'), 'Finding popular videos and writing down what they say.', ''];
   if (n('failed')) return [st('failed', 'Stopped'), `<b>${esc(of('failed')[0].title)}</b> stopped with an error.`, open(of('failed')[0], 'See why')];
-  if (n('draft')) return [st('waiting', 'Your turn'), `${n('draft')} script${n('draft') > 1 ? 's' : ''} to read and approve.`, open(of('draft')[0], 'Read and approve')];
-  if (n('waiting')) return [st('waiting', 'Your turn'), `<b>${esc(of('waiting')[0].title)}</b> is approved and ready.`, open(of('waiting')[0], 'Start it')];
+  if (n('waiting')) return [st('waiting', 'Your turn'), `<b>${esc(of('waiting')[0].title)}</b> is ready.`, open(of('waiting')[0], 'Start it')];
   if (!c.sources) return [st('done', 'All done'), 'Every video with a script is made.', ''];
   if (!w) return [st('', 'Next'), "Find this week's popular videos.", `<button class="btn sm primary" data-src="full">Find ${c.sources.count} videos</button>`];
   if (!vs.length) return [st('waiting', 'Next'), "Tell Claude this week's videos are in, and new scripts get written.", ''];
@@ -639,8 +638,6 @@ function trackRow(c) {
       w && w.done ? `${w.videos.length - ok} skipped: no narration.` : 'Writes down what each video says.'],
     ['Write new scripts', 'Claude', vs.length ? 'ok' : w ? 'now' : '', vs.length ? st('done', `${vs.length} written`) : st('waiting', 'Waiting for you'),
       'Facts from 3-5 sources, our own words.'],
-    ['Approve', 'You', n('draft') ? 'now' : vs.length ? 'ok' : '', n('draft') ? st('waiting', `${n('draft')} to approve`) : vs.length ? st('done', 'All approved') : st('', 'Nothing yet'),
-      'Read the script, then approve it.'],
     ['Make the Short', 'Automatic', run ? 'now' : made ? 'ok' : c.settings.pipeline ? '' : 'off',
       run ? st('running', stage(run)[1]) : made ? st('done', `${made} made`) : st('', c.settings.pipeline ? 'Ready' : 'Not built yet'),
       'Voice, stickman pictures, vertical MP4.'],
@@ -708,7 +705,7 @@ function groups() {
         <div style="min-width:0;flex:1"><h4>${esc(v.title)}</h4><p>${v.scriptError ? esc(short(v.scriptError)) : v.script ? `${v.made} / ${v.total} images` : v.mp4 ? 'Made before this pipeline' : 'Story written, waiting for your OK'}${v.status === 'failed' && v.lastRun && !isGone('run:' + v.lastRun.id) ? ' · ' + esc(short(v.lastRun.reason)) : ''}</p>${v.script ? bar(v) : ''}${ticks(v)}</div></div>
         <div class="yts" aria-label="Thumbnails">${ytStrip(v)}</div></a>`).join('')}</div></section>`;
   }).join('');
-  $('#groups').innerHTML = html || `<div class="card"><div class="empty">${inChan().length ? 'No video matches.' : `No videos yet. A story to approve goes in <code>${esc(C().settings.videos)}/&lt;slug&gt;/script.md</code>.`}</div></div>`;
+  $('#groups').innerHTML = html || `<div class="card"><div class="empty">${inChan().length ? 'No video matches.' : `No videos yet. A new script goes in <code>${esc(C().settings.videos)}/&lt;slug&gt;/script.md</code>.`}</div></div>`;
 }
 const firstId = v => v.firstId || 1;
 const ytStrip = v => (v.thumbs || []).length ? v.thumbs.map(t => t.v
@@ -760,17 +757,15 @@ async function renderVideo(slug, keepScroll) {
   const draft = !V.script;
   // the one thing to do on this page, and the sentence that says where the video stands
   const action = running ? `<button class="btn danger" data-a="stop">${ic.stop}Stop making it</button>`
-    : V.approvable ? `<button class="btn primary" data-a="approve">${ic.check}Approve script</button>`
     : V.mp4 ? `<a class="btn primary" href="${file('mp4')}" download>${ic.dl}Download MP4</a>`
-    : `<button class="btn primary" data-a="start" ${noPipe || !V.script || anyRun || !S.health.n8n ? 'disabled' : ''} title="${noPipe ? 'This channel has no render set up yet' : !V.script ? 'Approve the script first' : anyRun ? 'Another video is being made; wait for it or stop it' : !S.health.n8n ? 'n8n is not ready yet (its dot, bottom left)' : 'Make this video now'}">${ic.play}Start</button>`;
+    : `<button class="btn primary" data-a="start" ${noPipe || !V.script || anyRun || !S.health.n8n ? 'disabled' : ''} title="${noPipe ? 'This channel has no render set up yet' : !V.script ? 'Claude is still writing this script' : anyRun ? 'Another video is being made; wait for it or stop it' : !S.health.n8n ? 'n8n is not ready yet (its dot, bottom left)' : 'Make this video now'}">${ic.play}Start</button>`;
   const line = running ? [st('running', 'Making'), stage(V)[0] + '.']
     : V.mp4 ? [st('done', 'Done'), `Made. ${(V.mp4Size / 1048576).toFixed(0)} MB${V.srt ? ', subtitles ready' : ''}. Watch it, then post it.`]
-    : V.approvable ? [st('waiting', 'Your turn'), 'Read the script below, then approve it.']
-    : draft ? [st('waiting', 'Your turn'), 'Read the story, then tell Claude to approve it.']
+    : draft ? [st('', 'Being written'), 'Claude is still writing this script. It is ready to Start as soon as it is finished.']
     : status === 'failed' ? [st('failed', 'Stopped'), 'The last try stopped with an error (below). Press Start to try again.']
-    : [st('waiting', 'Ready'), `Approved and ready. Press Start to make it${made ? ` (${made} of ${V.total} pictures already made)` : ''}.`];
+    : [st('waiting', 'Ready'), `Ready. Press Start to make it${made ? ` (${made} of ${V.total} pictures already made)` : ''}.`];
   const scriptCard = open => V.story ? `<section class="card"><div class="card-h"><span class="tile">${ic.doc}</span><div><h3>Script</h3>
-      <p>${V.approvable ? 'Read it. Approve it at the top when it is right, or edit it.' : draft ? 'Edit it, or tell Claude to approve it or what to change.' : 'The approved script.'}</p></div>${draft ? `<button class="btn sm" data-a="edit" style="margin-left:auto">${ic.doc}Edit script</button>` : ''}</div><div class="md story">${md(V.story)}</div></section>` : '';
+      <p>${draft ? 'Being written by Claude.' : 'The script.'}</p></div>${draft ? `<button class="btn sm" data-a="edit" style="margin-left:auto">${ic.doc}Edit script</button>` : ''}</div><div class="md story">${md(V.story)}</div></section>` : '';
   const thumbsCard = V.thumbs.length ? `<section class="card"><div class="card-h"><span class="tile">${ic.img}</span><div><h3>Thumbnails</h3><p>Tick up to 3 to use on YouTube (${V.thumbs.filter(t => t.ok).length} of 3 picked). Click one to see it big.</p></div><span class="badge">${V.thumbs.filter(t => t.v).length}</span></div>
       <div class="ytgrid" id="ytgrid">${V.thumbs.map(t => `<div class="ytc${t.ok ? ' ok' : ''}">${t.v
         ? `<span class="imw"><button class="im" data-id="${t.id}" style="background-image:url('/ythumb/${encodeURIComponent(V.slug)}/${t.id}?v=${t.v}')" aria-label="Thumbnail ${t.id}: ${esc(t.text)}"><span class="no">${t.id}</span></button>
@@ -797,7 +792,7 @@ async function renderVideo(slug, keepScroll) {
       ${V.mp4 ? `<section class="card"><video controls preload="metadata" src="${file('mp4')}" style="${vc.settings && vc.settings.format && vc.settings.format.height > vc.settings.format.width ? 'aspect-ratio:9/16;max-height:78vh' : ''}"></video></section>` : ''}
       ${draft ? scriptCard() : ''}
       ${picsCard}${thumbsCard}
-    </div><aside>${facts}${!draft && V.story ? `<section class="card side-script"><div class="card-h"><div><h3>Script</h3><p>The approved script.</p></div></div><div class="md story">${md(V.story.split('\n## ')[0])}</div></section>` : ''}</aside></div>`;
+    </div><aside>${facts}${!draft && V.story ? `<section class="card side-script"><div class="card-h"><div><h3>Script</h3><p>The script.</p></div></div><div class="md story">${md(V.story.split('\n## ')[0])}</div></section>` : ''}</aside></div>`;
   drawImgs();
   if ($('#ytgrid')) $('#ytgrid').onclick = async e => {
     const c = e.target.closest('input[data-pick]');
@@ -918,9 +913,6 @@ async function act(a, slug) {
       toast((await api('/api/start', { slug })).message);
     } else if (a === 'edit') {
       openEdit();
-    } else if (a === 'approve') {
-      if (!confirm('Approve this script? Its lines and picture prompts are built, and it is ready to Start.')) return;
-      toast((await api('/api/approve', { slug })).message);
     } else if (a === 'stop') {
       if (!confirm('Stop the run? n8n stops, the video is released and every Gemini window closes. Images already saved stay.')) return;
       toast('Stopping… the runner finishes its current order, then closes the windows.');
