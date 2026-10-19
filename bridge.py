@@ -153,9 +153,12 @@ def pool_post(path, r):
 
 
 def folder(slug):
-    f = (OUT / slug).resolve()
-    assert f.parent == OUT.resolve() and (f / "script.json").exists(), f"no video {slug}"
-    return f
+    """output/<slug>/ (Jin) or channels/<key>/videos/<slug>/ (short channels); slugs are unique across both."""
+    for base in [OUT, *sorted((OUT.parent / "channels").glob("*/videos"))]:
+        f = (base / slug).resolve()
+        if f.parent == base.resolve() and (f / "script.json").exists():
+            return f
+    raise AssertionError(f"no video {slug}")
 
 
 def segments(slug):
@@ -191,7 +194,10 @@ def thumb_prompt_text(slug, i):
 
 def refs(slug):
     out = []
-    for name in ("style-ref.jpg", "geek-sheet.jpg", "cat-sheet.jpg"):
+    # Jin videos have all 3; a short channel's video has only the style picture
+    names = [n for n in ("style-ref.jpg", "geek-sheet.jpg", "cat-sheet.jpg") if (folder(slug) / "refs" / n).exists()]
+    assert names, f"{slug}: no reference pictures in refs/"
+    for name in names:
         im = Image.open(folder(slug) / "refs" / name).convert("RGB")
         im.thumbnail((1600, 1600))
         buf = io.BytesIO()

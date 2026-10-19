@@ -1,0 +1,35 @@
+{
+  "note": "Where find_sources.py looks for this channel's source videos. Edit freely; the script reads it each run. 'money' here = the process words (key name is shared with found-rich).",
+  "shorts_channels": [
+    "@zackdfilms"
+  ],
+  "searches": [
+    "how it was done before vs now",
+    "how people used to do it before",
+    "then vs now how it works",
+    "how surgery was done before anesthesia",
+    "how dentists pulled teeth in the past",
+    "how was ice cream made before freezers",
+    "how people washed clothes before washing machines",
+    "how people kept food cold before fridges",
+    "how people brushed teeth before toothbrushes",
+    "how mail was sent in the past",
+    "how people traveled before cars",
+    "how babies were born in the past",
+    "how they used to make",
+    "what people did before toilet paper",
+    "how prisons used to work",
+    "how doctors used to treat",
+    "old way vs new way how its done"
+  ],
+  "search_results_per_query": 100,
+  "topic": "\\b(used to|before|back then|in the past|ancient|medieval|old days|olden|victorian|centur\\w*|1[5-9][0-9]0s|1[5-9][0-9]{2}|history|historical|then vs now|then and now|old way|vintage)\\b",
+  "money": "\\b(how|why|what|made|make|done|did|was|were|worked?|works|treated|used|process|way)\\b",
+  "exclude": "\\b(cast|celebrit\\w*|actors?|makeup|memes?|song|lyrics?|official video|music video|trailer|full episode|reacts?|roblox|minecraft|fortnite|prank|(fiction)|legend\\?)\\b|before (and|&) after (weight|glow)",
+  "min_views": 1000000,
+  "max_seconds": 1800,
+  "count": 28,
+  "long_people": "\\b(how|people|they|we|did|doctors?|dentists?)\\b",
+  "monday_timer": false,
+  "monday_timer_note": "Off until one Short is proven end to end."
+}
