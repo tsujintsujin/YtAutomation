@@ -1,0 +1,6 @@
+# Sources
+
+- Chew sticks, twigs with frayed ends, used from about 3500 BC (Sumer, an Egyptian tomb of 3000 BC, Chinese records of 1600 BC); bristle brushes in China with hog bristles from Siberia and northern China (firmer in the cold), bamboo or bone handles; William Addis, jailed in 1770, judged the usual soot-and-salt rag a poor way to clean teeth, attached bristle tufts to a saved bone, and after prison started a toothbrush business (mass-produced from 1780); nylon bristles on sale 24 February 1938; rinse and let the brush dry: [Wikipedia: Toothbrush](https://en.wikipedia.org/wiki/Toothbrush)
+- Tooth powders of crushed eggshells, oyster and other shells (sometimes burned before grinding), bones, pumice: [Wikipedia: Tooth powder](https://en.wikipedia.org/wiki/Tooth_powder)
+- Today: fluoride toothpaste prevents tooth decay; brush twice a day for two minutes, spit don't swallow, replace the brush every three to four months: [Wikipedia: Toothpaste](https://en.wikipedia.org/wiki/Toothpaste), [American Dental Association: Toothbrushes](https://www.ada.org/resources/ada-library/oral-health-topics/toothbrushes), [NHS: How to keep your teeth clean](https://www.nhs.uk/live-well/healthy-teeth-and-gums/how-to-keep-your-teeth-clean/)
+- Our own topic: no reference Short; the template's shape (RULES.md) only.
