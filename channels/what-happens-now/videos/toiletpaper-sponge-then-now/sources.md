@@ -1,0 +1,7 @@
+# Sources
+
+- Ancient Rome: a sponge on a stick (xylospongium / tersorium), rinsed in a pail of vinegar (or salt water) after use; historians still debate exactly how it was used and whether it was shared, so the script says "probably": [Wikipedia: Toilet paper](https://en.wikipedia.org/wiki/Toilet_paper), [Wikipedia: Xylospongium](https://en.wikipedia.org/wiki/Xylospongium)
+- Before toilet paper: leaves, moss, hay, snow, corncobs and more; by the seventeen hundreds newspapers and cheap books were used (Lord Chesterfield's 1747 letter): [Wikipedia: Toilet paper](https://en.wikipedia.org/wiki/Toilet_paper)
+- Joseph Gayetty's "Medicated Paper", 1857, flat sheets, widely credited as the first commercial toilet paper in the US; rolls popularised by the Scott Paper Company from 1890: [Wikipedia: Toilet paper](https://en.wikipedia.org/wiki/Toilet_paper)
+- Today: wood chipped, cooked into pulp, washed and bleached, sprayed onto moving mesh screens where the water drains, dried on a huge heated cylinder (Yankee dryer), scraped off by a doctor blade which crinkles (crepes) it soft, wound on jumbo reels of up to about five tons, rewound onto cardboard cores as long logs, cut into rolls: [Madehow: Toilet paper](https://www.madehow.com/Volume-6/Toilet-Paper.html), [Wikipedia: Yankee dryer](https://en.wikipedia.org/wiki/Yankee_dryer)
+- Taken from (structure only): "What We Did Before Toilet Paper" (Zack D. Films). Our own order (Rome to today), our own facts and wording; the now part is ours.
