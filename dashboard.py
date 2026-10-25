@@ -375,7 +375,36 @@ def video_summary(d):
         "thumbs": thumbnails(d),
         # Shorts: cover.py's frame of the MP4; the mtime busts the browser cache when it is made again
         "cover": int((d / "cover.jpg").stat().st_mtime) if (d / "cover.jpg").exists() else None,
+        # Shorts: how each part (voice / pictures / finish) last ended, from parts.json (the bridge writes it)
+        "parts": parts_made(d),
+        # uploaded to YouTube and scheduled (posted.json: url, publish_at); never upload it again
+        "posted": read_json(d / "posted.json"),
     }
+
+
+def read_json(f):
+    try:
+        return json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
+    except ValueError:
+        return None
+
+
+def parts_made(d):
+    try:
+        return json.loads((d / "parts.json").read_text(encoding="utf-8")) if (d / "parts.json").exists() else {}
+    except ValueError:
+        return {}
+
+
+def analytics(key):
+    """The channel's daily YouTube Studio readings (channels/ANALYTICS.md): the newest and the one before it (for the
+    change), how many there are, and LEARNINGS.md. None until the first reading."""
+    raw = sorted((CHANNELS / key / "analytics" / "raw").glob("*.json"))
+    if not raw:
+        return None
+    learn = CHANNELS / key / "LEARNINGS.md"
+    return {"latest": read_json(raw[-1]), "prev": read_json(raw[-2]) if len(raw) > 1 else None, "readings": len(raw),
+            "learnings": learn.read_text(encoding="utf-8") if learn.exists() else ""}
 
 
 def videos():
@@ -400,15 +429,22 @@ def first_json(rd, node):
 
 
 def run_details(eid):
-    """slug / outcome / reason of a finished run, read once from its execution data and kept in runs.json."""
+    """slug / part / outcome / reason of a finished run, read once from its execution data and kept in runs.json.
+    part: the Shorts Render part it made (voice / pictures / finish), "" for a YouTube Render run."""
     if eid in _runs:
         return _runs[eid]
     rd = n8n(f"/executions/{eid}?includeData=true", timeout=30)["data"]["resultData"]["runData"]
+    body = (first_json(rd, "Start: make a video") or {}).get("body") or {}
     slug = ((first_json(rd, "Read video name") or {}).get("slug") or (first_json(rd, "Pick that video") or {}).get("slug")
-            or ((first_json(rd, "Start: make a video") or {}).get("body") or {}).get("slug"))
+            or body.get("slug"))
+    part = (first_json(rd, "Read video name") or {}).get("part") or body.get("part") or ""
     fail = first_json(rd, "Collect failure")
     if "MP4 done" in rd:
         outcome, reason = "made", "MP4 made"
+    elif "Voice done" in rd:
+        outcome, reason = "voice", "voice made"
+    elif "Pictures done" in rd:
+        outcome, reason = "pictures", "every picture made"
     elif fail:
         outcome, reason = "failed", f"{fail.get('stage', '')}: {fail.get('error', '')}".strip(": ")
     elif "Wait for next try" in rd:
@@ -419,43 +455,77 @@ def run_details(eid):
         outcome, reason = "idle", "timer check: nothing waiting"
     else:
         outcome, reason = "", ""
-    _runs[eid] = {"slug": slug, "outcome": outcome, "reason": reason}
+    _runs[eid] = {"slug": slug, "part": part, "outcome": outcome, "reason": reason}
     CACHE.mkdir(exist_ok=True)
     RUNS_CACHE.write_text(json.dumps(_runs), encoding="utf-8")
     return _runs[eid]
 
 
+def _queue_run(eid):
+    """("Read queue" json, last "Remember" json) of a run-queue execution (None, None for a queue before the lanes)."""
+    rd = (n8n(f"/executions/{eid}?includeData=true", timeout=30).get("data") or {}).get("resultData", {}).get("runData", {})
+    last = lambda name: rd[name][-1]["data"]["main"][0][0]["json"] if rd.get(name) else None
+    return last("Read queue"), last("Remember")
+
+
 def queue_state():
-    """The running "Shorts: run queue": {id, channel, slugs, i (0-based, the one being made), results}, or None."""
+    """The running "Shorts: run queue" (n8n/build_shorts_queue.py), from its last check:
+    {id, channel, slugs, lanes {voice, pictures, finish: slug or ""}, made, total, failed {slug: why}, picsClosed},
+    or None."""
     for wid in flow_ids(QUEUE_FLOW):
         for e in n8n(f"/executions?workflowId={wid}&status=running&limit=1")["data"]:
-            rd = (n8n(f"/executions/{e['id']}?includeData=true").get("data") or {}).get("resultData", {}).get("runData", {})
-            last = lambda name: rd[name][-1]["data"]["main"][0][0]["json"] if rd.get(name) else None
-            q, nxt = last("Read queue"), last("Next video")
-            if not q:
-                return {"id": e["id"], "channel": "", "slugs": [], "i": 0, "results": []}
-            return {"id": e["id"], "channel": q["channel"], "slugs": q["slugs"],
-                    "i": nxt["i"] if nxt else 0, "results": (nxt or q)["results"]}
+            q, m = _queue_run(e["id"])
+            m = m or {}
+            s = m.get("state") or {}
+            channel = (q or {}).get("channel", "")
+            return {"id": e["id"], "channel": channel, "slugs": (q or {}).get("slugs", []),
+                    "lanes": m.get("lanes") or {}, "made": m.get("made"), "total": m.get("total"),
+                    "failed": s.get("failed") or {}, "picsClosed": s.get("picsClosed", ""),
+                    # Continue pictures pressed after the lane closed, not yet seen by the queue's next check
+                    "retryPending": bool(s.get("picsClosed")) and pictures_retry_at(channel) * 1000 > (s.get("closedAt") or 0)}
     return None
 
 
+def pictures_retry_at(channel):
+    f = CHANNELS / channel / "pictures-retry.json"
+    try:
+        return json.loads(f.read_text(encoding="utf-8")).get("at", 0) if SLUG.match(channel or "") and f.exists() else 0
+    except (OSError, ValueError):
+        return 0
+
+
+def pictures_retry(channel):
+    """Continue pictures (Justin, 2026-10-21): after the running queue's pictures stopped on a robot check (solved) or
+    the account limits (credits back). Writes the time; the queue reopens its pictures lane at its next check (30 s)."""
+    q = queue_state()
+    if not q or q["channel"] != channel:
+        raise ValueError("no queue is running for this channel")
+    if not q["picsClosed"]:
+        raise ValueError("the pictures are not stopped")
+    (CHANNELS / channel / "pictures-retry.json").write_text(json.dumps({"at": time.time()}), encoding="utf-8")
+    return {"message": "The pictures carry on from where they stopped at the queue's next check, within 30 seconds."}
+
+
 def queue_left():
-    """The last queue, if it stopped with videos not made yet: {id, channel, slugs (still waiting, in order), reason}
-    for the Resume button. None while a queue runs, after a queue that finished, or when nothing is left."""
+    """The last queue, if it ended early with videos not made yet: {id, channel, slugs (in order), reason} for the
+    Resume button. Early = stopped by hand, n8n died under it, its check kept failing, or the pictures lane closed
+    (accounts on limit, robot check). Videos that failed in it are left out (they show Failed; Start makes them
+    again). None while a queue runs, after a queue that ended normally, or when nothing is left."""
     for wid in flow_ids(QUEUE_FLOW):
         for e in n8n(f"/executions?workflowId={wid}&limit=1")["data"]:
             if e["status"] in ("running", "waiting", "new"):
                 return None
             if e["id"] not in _queue_left:
-                rd = (n8n(f"/executions/{e['id']}?includeData=true", timeout=30).get("data") or {}).get("resultData", {}).get("runData", {})
-                last = lambda name: rd[name][-1]["data"]["main"][0][0]["json"] if rd.get(name) else None
-                stop, nxt = last("Read result") if "Queue stopped" in rd else None, last("Next video")
-                if stop:                                   # stopped by itself: the video it stopped on was not made
-                    _queue_left[e["id"]] = (stop["channel"], stop["slugs"][stop["i"] - 1:], stop["reason"])
-                elif e["status"] == "canceled" and nxt:    # Stop: the video being made and the ones after it
-                    _queue_left[e["id"]] = (nxt["channel"], nxt["slugs"][nxt["i"]:], "stopped by hand")
-                else:
+                q, m = _queue_run(e["id"])
+                if not q or not m:                         # a queue from before the lanes, or one that never checked
                     _queue_left[e["id"]] = None
+                else:
+                    reason = ("stopped by hand" if e["status"] == "canceled"
+                              else "n8n stopped while it ran" if e["status"] in ("crashed", "error")
+                              else m.get("reason") if m.get("finished") and (m["state"].get("picsClosed") or m.get("error"))
+                              else "")
+                    _queue_left[e["id"]] = (q["channel"], [s for s in q["slugs"] if s not in m["state"]["failed"]],
+                                            reason) if reason else None
             if not _queue_left[e["id"]]:
                 return None
             channel, slugs, reason = _queue_left[e["id"]]
@@ -471,11 +541,11 @@ def queue_left():
     return None
 
 
-_queue_left = {}                                           # finished queue execution id -> (channel, slugs, reason)
+_queue_left = {}                                           # ended queue execution id -> (channel, slugs, reason)
 
 
 def queue_start(channel, slugs):
-    """Run selected: the ticked Waiting Shorts of one channel, made one after another by n8n's queue workflow."""
+    """Run selected / Resume / Start on one Short: n8n's queue workflow makes these Shorts' parts in lanes."""
     c = next((c for c in channels() if c["key"] == channel), None)
     if not c or c["settings"].get("pipeline") != "shorts":
         raise ValueError("this channel has no Shorts render set up")
@@ -492,8 +562,17 @@ def queue_start(channel, slugs):
         raise ValueError("a run is already going; stop it first")
     if not flow_ids(QUEUE_FLOW):
         raise ValueError("the queue workflow is not in n8n (n8n/build_shorts_queue.py)")
+    # Nothing is running (checked above), so a claim the bridge still holds for these videos was left by a run that
+    # died without releasing it (n8n stopped under it). The queue would wait on it forever: free it first.
+    b = bridge_status()
+    for key in (b or {}).get("claims", {}):
+        slug, _, part = key.partition(":")
+        if slug in slugs:
+            http(BRIDGE + "/release", "POST", {"slug": slug, "part": part, "outcome": "stopped",
+                                               "reason": "left over from a run that ended without releasing it"} if part else {"slug": slug})
     http(N8N + "/webhook/shorts-queue", "POST", {"channel": channel, "slugs": slugs}, timeout=15)
-    return {"message": f"Queue started: {len(slugs)} video{'s' if len(slugs) > 1 else ''}, one after another."}
+    n = len(slugs)
+    return {"message": f"Queue started: {n} video{'s' if n > 1 else ''}. Voice and pictures run side by side."}
 
 
 def runs(limit=40):
@@ -562,7 +641,10 @@ def state():
         rs, health["n8nError"] = [], str(e)
     vids = videos()
     claims = (b or {}).get("claims", {})
+    states = (b or {}).get("states", {})            # claim key -> queued / running
     live = [r for r in rs if r["live"]]
+    queue = queue_state() if health["n8n"] else None
+    failed_in_queue = (queue or {}).get("failed", {})
     for v in vids:
         # a run that ended before this script.json was written belongs to an earlier version of the video (restarted)
         sj = folder(v["slug"]) / "script.json"
@@ -570,38 +652,60 @@ def state():
         last = next((r for r in rs if r["slug"] == v["slug"] and not r["live"] and r.get("stoppedAt")
                      and datetime.fromisoformat(r["stoppedAt"].replace("Z", "+00:00")).timestamp() >= since), None)
         v["lastRun"] = last
-        if live and v["slug"] in claims:
+        keys = [k for k in claims if k.partition(":")[0] == v["slug"]]
+        # Shorts: the parts of this video being made right now: {voice: "running", pictures: "queued", ...}
+        v["now"] = {k.partition(":")[2]: states.get(k, "running") for k in keys if ":" in k} if live or queue else {}
+        if (live or queue) and keys:
             v["status"] = "running"
         elif v["mp4"]:
-            v["status"] = "done"
+            v["status"] = "posted" if v["posted"] else "done"
         elif not v["script"]:
             v["status"] = "draft"
-        elif last and last["outcome"] == "failed":
+        elif v["slug"] in failed_in_queue or (last and last["outcome"] == "failed"):
             v["status"] = "failed"
         else:
             v["status"] = "waiting"
     vids.sort(key=lambda v: (v["status"] != "running", -v["changed"]))
-    run = None
-    if live:
-        slug = next(iter(claims), None)
-        v = next((x for x in vids if x["slug"] == slug), None)
-        recent_imgs = [p.stat().st_mtime for p in images(OUT / slug).values()] if v else []
-        # images / min over the last 15 min, or since the run started if that is shorter
-        started = datetime.fromisoformat(live[0]["startedAt"].replace("Z", "+00:00")).timestamp() if live[0]["startedAt"] else time.time()  # "new": waiting for an n8n slot
+    by_slug = {v["slug"]: v for v in vids}
+
+    def rate_eta(v, started):
+        """Pictures per minute over the last 15 min (or since the pictures started, if shorter), and minutes left."""
         since = max(time.time() - 900, started)
         mins = max((time.time() - since) / 60, 1)
-        rate = sum(1 for m in recent_imgs if m > since) / mins
-        run = {"id": live[0]["id"], "startedAt": live[0]["startedAt"], "slug": slug, "video": v,
-               "rate": round(rate, 2), "eta": round((v["total"] - v["made"]) / rate) if v and rate else None}
+        rate = sum(1 for p in images(folder(v["slug"])).values() if p.stat().st_mtime > since) / mins
+        return round(rate, 2), (round((v["total"] - v["made"]) / rate) if rate else None)
+
+    # YouTube Render (Jin): one run makes the whole video, claim key = its slug
+    run = None
+    jin = [r for r in live if r.get("workflowId") == WORKFLOW]
+    if jin:
+        slug = next((k for k in claims if ":" not in k), None)
+        v = by_slug.get(slug)
+        started = datetime.fromisoformat(jin[0]["startedAt"].replace("Z", "+00:00")).timestamp() if jin[0]["startedAt"] else time.time()  # "new": waiting for an n8n slot
+        rate, eta = rate_eta(v, started) if v else (0, None)
+        run = {"id": jin[0]["id"], "startedAt": jin[0]["startedAt"], "slug": slug, "video": v, "rate": rate, "eta": eta}
+    # Shorts: one run per part, side by side. lanes = {part: {slug, state, since, video, rate, eta}}
+    lanes = {}
+    if live or queue:
+        for k, s_ in states.items():
+            slug, _, part = k.partition(":")
+            if part and slug in by_slug:
+                v = by_slug[slug]
+                at = (v["parts"].get(part) or {}).get("at") or time.time()
+                lanes[part] = {"slug": slug, "state": s_, "since": at, "video": v}
+                if part == "pictures":
+                    lanes[part]["rate"], lanes[part]["eta"] = rate_eta(v, at)
     named = [r for r in rs if r["slug"]]
     robot = named[0] if named and not named[0]["live"] and "robot check" in named[0]["reason"] else None
-    return {"health": health, "videos": vids, "run": run, "runs": [r for r in rs if r["outcome"] != "idle"],
+    return {"health": health, "videos": vids, "run": run, "lanes": lanes, "going": bool(live or queue),
+            "runs": [r for r in rs if r["outcome"] != "idle"],
             "idleRuns": sum(1 for r in rs if r["outcome"] == "idle"), "robot": robot,
-            "queue": queue_state() if health["n8n"] else None,
-            "queueLeft": queue_left() if health["n8n"] and not live else None,
+            "queue": queue,
+            "queueLeft": queue_left() if health["n8n"] and not live and not queue else None,
             "wins": (b or {}).get("wins", {}), "recent": (b or {}).get("recent", [])[::-1],
             "accounts": accounts((b or {}).get("wins", {})), "now": time.time(),
-            "channels": [dict({k: c[k] for k in ("key", "name", "settings", "rules")}, sources=sources_state(c, health["n8n"]))
+            "channels": [dict({k: c[k] for k in ("key", "name", "settings", "rules")}, sources=sources_state(c, health["n8n"]),
+                              analytics=analytics(c["key"]))
                          for c in channels()]}
 
 
@@ -634,7 +738,8 @@ def start(slug):
     if any(r["live"] for r in runs(10)) or queue_state():
         raise ValueError("a run is already going; stop it first")
     if channel_of(d)["settings"].get("pipeline") == "shorts":
-        http(N8N + "/webhook/shorts-render", "POST", {"slug": slug, "channel": channel_of(d)["key"]}, timeout=15)
+        # a Short is made in parts (voice, pictures, finish) by the run queue, so Start is a queue of this one
+        return queue_start(channel_of(d)["key"], [slug])
     else:
         http(N8N + "/webhook/yt-render", "POST", {"slug": slug, "voice": v["voice"]}, timeout=15)
     return {"message": f"started {slug}"}
@@ -657,21 +762,25 @@ def short_lines(story):
 
 def short_prompt(scene, style, colour=False, paper=False):
     """One complete prompt per picture: Gemini sees each in a fresh chat with only the style picture attached.
-    colour = the channel's settings.json "colour_subject": the scene names one coloured thing, the rest is black ink.
+    colour = the channel's settings.json "colour_subject": the scene names one coloured thing, the rest is black ink;
+    "full" = settings.json "colour": "full" (chaotic-lives): everything is coloured in, the sample gives only the shapes.
     paper = the channel has a "paper_ref": Gemini draws on pure white and voice.py --images-only lays the picture
     on that paper (refs/paper.jpg) afterwards."""
+    full = colour == "full"
     return ("Generate one image. 9:16 vertical portrait, 1080x1920, full-bleed: the drawing fills the whole tall canvas edge "
             "to edge, like one full-screen frame of a YouTube Short. Match the drawing style of the attached image exactly: "
             "the same simple stick figures, the same even black ink line"
-            + ("" if paper else ", the same plain warm off-white paper")
-            + (" (that image has no colour at all; in this picture the one coloured thing the scene names is "
+            + ("" if paper or full else ", the same plain warm off-white paper")
+            + (" (that image has no colour at all; this picture is fully coloured in: every person's clothes, every "
+               "object and the whole place are filled with flat colour inside the black outlines). " if full else
+               " (that image has no colour at all; in this picture the one coloured thing the scene names is "
                "filled with flat colour, everything else stays black ink like that image). " if colour else ". ") +
             ("Draw on a plain flat pure white background, not on the attached image's paper: no paper texture, no "
              "off-white, no stains. " if paper else "") +
             f"Scene: {scene} "
             f"Style: {style} "
             "Keep the main subject in the middle of the frame and the very top and bottom of the frame calm for captions. "
-            "Avoid: " + ("colour on anything except the one coloured thing, " if colour else "colour, ") +
+            "Avoid: " + ("" if full else "colour on anything except the one coloured thing, " if colour else "colour, ") +
             "shading, gradients, 3D, photographic detail, any words or letters (only the simple symbols "
             "the scene asks for, like $ on cash or a small price tag), any real person's face or likeness, any game, "
             "film or cartoon character, any logo, watermark or frame.")
@@ -719,7 +828,7 @@ def approve(slug):
         raise ValueError(problem)
     lines = short_lines(story)
     st = c["settings"]
-    segs = [dict({"id": i, "text": t, "scene": sc, "prompt": short_prompt(sc, st["image_style"], st.get("colour_subject", False), "paper_ref" in st)},
+    segs = [dict({"id": i, "text": t, "scene": sc, "prompt": short_prompt(sc, st["image_style"], st.get("colour") or st.get("colour_subject", False), "paper_ref" in st)},
                  **({"count": 0 if mark == "-" else int(mark)} if mark else {})) for i, t, sc, mark in lines]
     title = story.splitlines()[0][2:].strip() if story.startswith("# ") else slug
     (d / "refs").mkdir(exist_ok=True)
@@ -741,8 +850,10 @@ def stop():
     b = bridge_status()
     if b is None:
         return {"message": f"stopped run(s) {stopped or 'none'}; the bridge is not running, so no windows were closed"}
-    for slug in b["claims"]:
-        http(BRIDGE + "/release", "POST", {"slug": slug})
+    for key in b["claims"]:                        # "slug" (YouTube Render) or "slug:part" (a Shorts part)
+        slug, _, part = key.partition(":")
+        http(BRIDGE + "/release", "POST", {"slug": slug, "part": part, "outcome": "stopped", "reason": "stopped by hand"}
+             if part else {"slug": slug})
     # the runner finishes the order it is on, then this one closes every Gemini window and tab
     ans = http(BRIDGE + "/command", "POST", {"name": "setup", "args": {}, "timeout": 90}, timeout=100)
     closed = f"closed {ans.get('closedTabs', 0)} Gemini tab(s)" if ans.get("ok") else f"windows not closed: {ans.get('error')}"
@@ -846,7 +957,7 @@ def redo(slug, i):
 # What a run makes. Delete removes only these; the script, sources, prompts and refs/ stay, so the video can be made again.
 MADE_DIRS = ("img", "img_clean", "audio", "thumbs", "edit")
 MADE_FILES = ("voice.wav", "timings.json", "voice-settings.json", "voice-check.json", "thumbs-approved.json",
-              "gemini-results.json", "chats.json", "music.json", "numbered.json", "cover.jpg")
+              "gemini-results.json", "chats.json", "music.json", "numbered.json", "cover.jpg", "parts.json")
 MADE_MP4S = ("mp4", "srt", "nomusic.mp4", "music.mp4", "nonum.mp4", "numbering.mp4")   # <slug>.<this>
 
 
@@ -859,7 +970,7 @@ def delete(slug, typed):
     if any(r["live"] for r in runs(10)):
         raise ValueError("a run is going; stop it before deleting a video")
     b = bridge_status()
-    if b and slug in b["claims"]:
+    if b and any(k.partition(":")[0] == slug for k in b["claims"]):
         raise ValueError("the bridge still has this video claimed by a run")
 
     def unlock(fn, path, _):                         # Windows: read-only files refuse to be removed
@@ -992,6 +1103,8 @@ class H(BaseHTTPRequestHandler):
             act = urlparse(self.path).path
             if act == "/api/queue":
                 return self.send(queue_start(r["channel"], list(r["slugs"])))
+            if act == "/api/pictures/retry":
+                return self.send(pictures_retry(r["channel"]))
             if act == "/api/start":
                 return self.send(start(r["slug"]))
             if act == "/api/stop":
