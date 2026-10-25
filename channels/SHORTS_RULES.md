@@ -17,6 +17,8 @@ These apply to every channel whose `settings.json` has `"pipeline": "shorts"` (f
 - **Segments:** fast pace, 1-3 s each (Justin, 2026-10-18): most lines are cut in two, each half with its own
   image; lines under about 2 s stay one image. One image per segment, never a one-word segment.
 - **Never "this"** for an item: no real picture is shown, so it is always "a" ("A four-dollar painting ...").
+- **Learn from the numbers first:** before writing a channel's next script, read its `LEARNINGS.md` (made each
+  Monday from the daily Studio readings, `channels/ANALYTICS.md`) and apply what it says.
 - **Flow:** same as Jin. Claude writes the script, runs it through `/humanize`, it is saved as `videos/<slug>/script.md`.
   **No approval step** (Justin, 2026-10-19: "remove the approve. approve all script right away"): a finished script
   is approved at once; then the setup (`script.json`, prompts) and the pipeline make the video.
