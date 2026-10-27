@@ -23,7 +23,7 @@
   "voice": {
     "engine": "chatterbox",
     "copy": "tts/samples/voices/29_mark.mp3",
-    "exaggeration": 1.0,
+    "exaggeration": 0.75,
     "cfg": 0.3,
     "note": "placeholder: same Mark voice as Jin until Justin picks one per channel"
   },
