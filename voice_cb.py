@@ -11,7 +11,11 @@ cut between two segments goes in the middle of the gap between their words. Comm
 Nothing in here stops the step (Justin 2026-10-09: "this needs to be 'it wont fail'"; run 473 died at sentence 102
 of 180 on "thirty" vs Whisper's "30" and lost 26 minutes of narration):
 - Whisper only picks the best take. A take is good when at most 1 word differs or 90% match (numbers count the same
-  however they are written); otherwise up to 3 takes are made and the best is kept. Kept takes that were not good
+  however they are written), and Whisper heard no word that is not in the script (Justin 2026-10-20: Chatterbox
+  said an extra "you" after a sentence and it passed); extra words after the script's last word are cut off the
+  take first. Under 5 words every word must match. A take that clips (shouted) or runs long for its syllables
+  (babble) is not good either (Justin 2026-10-26). Otherwise up to 3 takes are made and the best is kept, turned
+  down to -1 dB at most. Kept takes that were not good
   are listed in voice-check.json and the last line, to listen to; they never stop the run.
 - Every finished take is saved in voice-parts/ at once; a rerun reuses the ones whose text is unchanged, so a stop
   (PC or n8n restart, Stop button) never redoes finished narration. Deleted once voice.wav is written.
@@ -52,17 +56,24 @@ METHOD = "chatterbox-standard+whisper"  # recorded in voice-settings.json, so a 
 TRIES = 3
 GOOD = 0.90                             # a take is good at this share of words, or with at most 1 word different
 MAX_WORDS = 45                          # ~15 s of speech; Chatterbox cuts off at ~40 s
+SHORT = 3                               # a sentence this short is spoken with the next one, not alone
+CLIPPED = 20                            # samples at full scale: a shouted take (Justin 2026-10-26, Cleopatra 1:00 had 165)
+BABBLE = 0.27                           # seconds of voice per syllable: a babbled take runs long ("forty-six years" 0.285,
+                                        # normal lines 0.12-0.24 over 3 videos); Whisper stretches the last word over it
+PEAK = 0.89                             # -1 dB: every kept take is turned down to this, so it never crackles
+LOOSE = 5                               # "at most 1 word different" only counts from this many words up
 NUMBER = set("""zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen
 seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion
 """.split())
 
 
 def sentences(segs):
-    """Consecutive segments, grouped so each group ends where a sentence ends (as voice.py)."""
+    """Consecutive segments, grouped so each group ends where a sentence ends (as voice.py). A group of SHORT words
+    or fewer runs on into the next sentence: "How?" spoken alone came out drawn out and odd (Justin 2026-10-25)."""
     groups, cur = [], []
     for s in segs:
         cur.append(s)
-        if SENTENCE_END.search(s["text"].strip()):
+        if SENTENCE_END.search(s["text"].strip()) and sum(len(x["text"].split()) for x in cur) > SHORT:
             groups.append(cur)
             cur = []
     return groups + ([cur] if cur else [])
@@ -92,10 +103,44 @@ def words(text):
 
 
 def score(want, got):
-    """(good?, ratio) for the script's words against Whisper's."""
+    """(good?, ratio, extra) for the script's words against Whisper's. extra = words Whisper heard that have no
+    script word in their place (a mishearing like "rocket" for "rock it" is a replacement, not extra). The 1-word
+    allowance needs LOOSE words: in a 1-word sentence it passed any word at all ("How'd" for "How?")."""
     sm = difflib.SequenceMatcher(None, want, got, autojunk=False)
     same = sum(b.size for b in sm.get_matching_blocks())
-    return (sm.ratio() >= GOOD or (len(want) - same <= 1 and len(got) - same <= 1)), sm.ratio()
+    extra = sum(j2 - j1 for op, _, _, j1, j2 in sm.get_opcodes() if op == "insert")
+    near = len(want) >= LOOSE and len(want) - same <= 1 and len(got) - same <= 1
+    return (not extra and (sm.ratio() >= GOOD or near)), sm.ratio(), extra
+
+
+def cut_tail(want, heard, wav, sr):
+    """A take that says extra words after the script's last word ("Norway Norway", a "you" after the sentence) is
+    cut in the middle of the gap before the first extra word, with a 10 ms fade so it does not click."""
+    sm = difflib.SequenceMatcher(None, want, [h[0] for h in heard], autojunk=False)
+    op, i1, _, j1, _ = sm.get_opcodes()[-1] if heard else ("equal", 0, 0, 0, 0)
+    if op != "insert" or i1 != len(want) or not j1:
+        return wav, heard
+    end = int((heard[j1 - 1][2] + heard[j1][1]) / 2 * sr)
+    wav = wav[:end].copy()
+    fade = min(len(wav), int(0.01 * sr))
+    wav[len(wav) - fade:] *= np.linspace(1, 0, fade, dtype=np.float32)
+    return wav, heard[:j1]
+
+
+def syllables(text):
+    """Rough syllable count: vowel groups per word, a silent final e dropped."""
+    return sum(max(1, len(re.findall(r"[aeiouy]+", w.rstrip("e")))) for w in re.findall(r"[a-z']+", text.lower()))
+
+
+def sound(wav, sr, text):
+    """(ok?, clipped samples, seconds of voice per syllable). At exaggeration 0.75-1.0 Chatterbox now and then shouts
+    a line past full scale or babbles; Whisper skips babble, so the word check alone passed both (Justin 2026-10-26)."""
+    clipped = int((np.abs(wav) > 0.98).sum())
+    h = sr // 20                                              # 50 ms frames; pauses are not counted, babble is
+    n = len(wav) // h
+    voiced = (np.sqrt((wav[:n * h].reshape(n, h) ** 2).mean(1)) > 10 ** (-30 / 20)).sum() / 20
+    rate = float(voiced) / max(1, syllables(text))                    # plain float: good is saved as JSON
+    return clipped <= CLIPPED and rate <= BABBLE, clipped, rate
 
 
 def close_page():
@@ -154,16 +199,21 @@ def main():
     p.add_argument("--if-needed", action="store_true", help="skip if the voice is already made this way")
     p.add_argument("--preview", type=int, default=0, help="only the first N sentences, into voice-preview/")
     p.add_argument("--only", default="", help="only the sentences holding these segment ids (1,5,9), into voice-preview/")
+    p.add_argument("--ex", type=float, help="try another exaggeration (with --preview/--only only)")
     a = p.parse_args()
+    if a.ex is not None and not (a.preview or a.only):
+        p.error("--ex only goes with --preview or --only")
 
     t0 = time.time()
     out = Path(a.folder).resolve()
     segs = json.loads((out / "script.json").read_text(encoding="utf-8"))["segments"]
     texts = hashlib.sha1(json.dumps([s["text"] for s in segs]).encode("utf-8")).hexdigest()
-    # channels/<channel>/videos/<slug>: the channel's energy (found-rich: 1.0 / 0.3, Justin 2026-10-18); else defaults
+    # channels/<channel>/videos/<slug>: the channel's energy (0.75 / 0.3, Justin 2026-10-26: 1.0 shouted and
+    # babbled); else defaults
     ch = out.parent.parent / "settings.json"
     voice = json.loads(ch.read_text(encoding="utf-8")).get("voice", {}) if ch.exists() else {}
     ex, cfg = voice.get("exaggeration", 0.5), voice.get("cfg", 0.5)
+    ex = a.ex if a.ex is not None else ex
     method = METHOD if (ex, cfg) == (0.5, 0.5) else f"{METHOD}+ex{ex}+cfg{cfg}"   # default videos stay up to date
     settings = {"engine": "chatterbox", "ref": REF.name, "texts": texts, "method": method}
     test = bool(a.preview or a.only)
@@ -212,14 +262,18 @@ def main():
             for k in range(TRIES):
                 torch.manual_seed(1000 * g[0]["id"] + k)      # same take again on a rerun; a retry gets a new one
                 take = trim(model.generate(text, exaggeration=ex, cfg_weight=cfg).squeeze().cpu().numpy(), sr)
-                h = hear(whisper, take, sr)
-                good, ratio = score(want, [x[0] for x in h])
-                if best is None or ratio > best[2]:
-                    best = (take, h, ratio, good)
+                take, h = cut_tail(want, hear(whisper, take, sr), take, sr)
+                good, ratio, extra = score(want, [x[0] for x in h])
+                calm, clipped, rate = sound(take, sr, text)
+                good = good and calm
+                if best is None or (-extra, calm, ratio) > (-best[4], best[5], best[2]):   # fewest extra words first
+                    best = (take, h, ratio, good, extra, calm)
                 if good:
                     break
-                print(f"  segments {name}: heard {ratio:.0%} of the words, another take", file=sys.stderr, flush=True)
-            wav, heard, ratio, good = best
+                print(f"  segments {name}: heard {ratio:.0%} of the words, {clipped} clipped, {rate:.2f}s a syllable, "
+                      f"another take", file=sys.stderr, flush=True)
+            wav, heard, ratio, good, _, _ = best
+            wav = wav * min(1.0, PEAK / max(1e-9, float(np.abs(wav).max())))
             if k:
                 retried.append(name)
             sf.write(cache / f"{name}.wav", wav, sr)
