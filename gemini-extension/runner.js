@@ -5,7 +5,8 @@
 //   listWindows    { windowIds }              -> { open: [windowIds that still have a Gemini tab] }
 //   openWindows    { accounts }               -> { opened: { account: windowId } }
 //   prompt         { slug, kind?, jobs:[{windowId, id}] } -> { sent: { windowId: {id, sent} | {id, error} }, sentAt }
-//   look           { windowIds }              -> { found: { windowId: {src} | {limit} | {waiting} | {gone} | {robotCheck} } }
+//   look           { windowIds }              -> { found: { windowId: {src} | {limit} | {failed} | {waiting} | {gone} | {robotCheck} } }
+//                                                failed = Gemini answered "Sorry, something went wrong" (no image)
 //                                                each with forKind ('image' | 'thumbnail') and forImage (its number)
 //   openTabs       { jobs:[{windowId, url}] }  -> { tabIds }
 //   saveImages     { slug, kind?, jobs:[{windowId, id, src}] } -> { saved: [ids], errors: { id: error } }
@@ -13,10 +14,13 @@
 //   closeTabs      { tabIds }                 -> {}
 //   switchAccounts { jobs:[{windowId, account}] } -> {}
 //   newChat        { jobs:[{windowId, account}] } -> {}   a new chat for that account
+// prompt refuses a window whose page shows another account than the one last asked for it (openWindows /
+// switchAccounts / newChat): Google opens the default account (justin.masiga.94) when the asked one is not signed in.
 const BRIDGE = 'http://127.0.0.1:8766';
 const get = p => fetch(BRIDGE + p).then(r => r.json());
 const post = (p, body) => fetch(BRIDGE + p, { method: 'POST', body: JSON.stringify(body) }).then(r => r.json());
 const chatUrl = acct => `https://gemini.google.com/app?authuser=${encodeURIComponent(acct)}`;
+const asked = {};                                             // windowId -> account last opened in it
 const log = s => {
   const el = document.getElementById('log');
   el.textContent = (new Date().toLocaleTimeString() + ' ' + s + '\n' + el.textContent).slice(0, 20000);
@@ -101,6 +105,7 @@ async function openWindows({ accounts }) {
     const w = await chrome.windows.create({ url: chatUrl(acct), focused: false,
       left: area.left + (i % 3) * colW, top: area.top, width: colW, height: rowH });
     opened[acct] = w.id;
+    asked[w.id] = acct;
     await loaded(w.tabs[0].id);
   });
   return { opened };
@@ -114,21 +119,27 @@ async function prompt({ slug, kind = 'image', jobs }) {
     const tab = await windowTab(windowId);
     if (!tab) { sent[windowId] = { id, error: 'no Gemini tab in this window' }; return; }
     const { text } = await get(`/prompt?slug=${encodeURIComponent(slug)}&id=${id}&kind=${kind}`);
-    sent[windowId] = Object.assign({ id }, await inPage(tab.id, sendPrompt, [text, refs]));
+    sent[windowId] = Object.assign({ id }, await inPage(tab.id, sendPrompt, [text, refs, asked[windowId] || null]));
   });
   return { sent, sentAt: Date.now() };
 }
 
-async function sendPrompt(text, refs) {
+async function sendPrompt(text, refs, account) {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const waitFor = async (fn, ms) => { for (let t = 0; t < ms; t += 250) { const v = fn(); if (v) return v; await sleep(250); } return null; };
   const ed = await waitFor(() => document.querySelector('rich-textarea .ql-editor'), 30000);
   if (!ed) return { error: 'input box not found' };
+  if (account) {
+    const shown = (document.querySelector('[aria-label^="Google Account"]')?.getAttribute('aria-label') || '').match(/[\w.+-]+@[\w.-]+/);
+    if (!shown || shown[0].toLowerCase() !== account.toLowerCase())
+      return { error: `wrong account: asked ${account}, Gemini shows ${shown ? shown[0] : 'none'} (not signed in to Chrome?)` };
+  }
   // The image input exists only once the "Upload & tools" menu has been drawn, which needs the window on screen
   // (Gemini, 2026-10-07; before, it was always in the page). Fill it, then wait until all refs show as previews.
+  // Its accept was 'image/*' until 2026-10-28, now 'image/*,video/*'.
   const menu = [...document.querySelectorAll('button')].find(b => /^upload/i.test(b.getAttribute('aria-label') || ''));
   if (!menu) return { error: 'Upload button not found', visibility: document.visibilityState };
-  const imgInput = () => [...document.querySelectorAll('input[type=file]')].find(i => i.accept === 'image/*');
+  const imgInput = () => [...document.querySelectorAll('input[type=file]')].find(i => i.accept.split(',').includes('image/*'));
   if (!imgInput()) menu.click();
   const input = await waitFor(imgInput, 15000);
   if (!input) return { error: 'image input not found', visibility: document.visibilityState };
@@ -171,6 +182,7 @@ async function look({ windowIds }) {
         const img = [...resp.querySelectorAll('img')].find(i => /AI generated/i.test(i.alt || '') && i.classList.contains('loaded'));
         if (img) return { src: img.src, forKind, forImage };
         if (/limit resets|create more images as soon as your limit/i.test(resp.innerText)) return { limit: true, forKind, forImage };
+        if (/Sorry, something went wrong/i.test(resp.innerText)) return { failed: true, forKind, forImage };
       }
       return { waiting: true, forKind, forImage };
     });
@@ -209,6 +221,7 @@ async function closeTabs({ tabIds }) {
 async function switchAccounts({ jobs }) {
   await eachStaggered(jobs, async ({ windowId, account }) => {
     const tab = await windowTab(windowId);
+    asked[windowId] = account;
     if (tab) await chrome.tabs.update(tab.id, { url: chatUrl(account) });
   });
   return {};
@@ -219,6 +232,7 @@ async function newChat({ jobs }) {
   await eachStaggered(jobs, async ({ windowId, account }) => {
     const tab = await windowTab(windowId);
     if (!tab) return;
+    asked[windowId] = account;
     await chrome.tabs.update(tab.id, { url: chatUrl(account) });
     await loaded(tab.id);
   });
