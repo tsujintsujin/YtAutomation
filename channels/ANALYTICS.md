@@ -59,6 +59,26 @@ OldSticksNewSticks `UCG8zeGkCD4_hrLPIQYkSezQ`). A new channel there = read here 
    Subscribers shown as "—" = 0. `read_at` is the real clock time (`date "+%Y-%m-%d %H:%M"`: the PC runs on UTC+8; `TZ=Asia/Manila` in Git Bash wrongly gives GMT), never estimated.
 6. `python analytics_report.py <key> <date>`, then open the `.md` it wrote and check it against what Studio showed.
 
+## LuckySticks (found-rich): learn and improve EVERY day (Justin, 2026-10-29)
+"Even the shorts, you need to monitor daily. improve daily." Claude owns this channel's research and development
+(`found-rich/MONETIZATION.md`), so for found-rich the learnings are not weekly and not only proposals:
+1. **Every morning run (the 09:00 one)**, after the daily read, rewrite `found-rich/LEARNINGS.md` from all the
+   daily files so far (not just Mondays). Keep the same rules as the weekly one below (numbers only, under ~200
+   views is too early, at most 5 points, each a concrete thing to do), and add at the top:
+   - **Yesterday's change and what it did:** the last thing we changed and the Shorts made with it, against the
+     Shorts before it (stayed to watch %, average % viewed, subs per 1,000 views). Kept, or reverted.
+   - **Today's one change:** the single next thing to try, from the numbers. One change at a time, so its effect
+     can be read.
+2. **Apply it yourself, the same morning.** Write today's change into `found-rich/RULES.md` (a dated line), and
+   change the Shorts that are not on YouTube yet where it fits: titles in `script.json` / `script.md` of
+   videos with no `posted.json`. Never re-render or re-upload, never touch a Short already uploaded, never
+   change a fact. Log what was changed in LEARNINGS.md.
+3. **Track the goal** in `found-rich/MONETIZATION.md` section 8 (one line per day): subscribers, Shorts views,
+   long-video watch hours, and whether it is on the line for 1,000 subscribers by 2026-12-31 (~16 a day).
+4. **Long videos too:** each public long video's views, average view duration and watch hours (Studio Content
+   tab, "Videos"), in the same raw file under `"long"`. The first week's target: 300 views a day each.
+Other channels stay weekly, as below.
+
 ## Weekly learnings (Mondays, after the daily read)
 Read the channel's last 7 daily files plus each Short's `script.md`, and rewrite `channels/<key>/LEARNINGS.md`:
 - What the best and worst Shorts did differently (hook, title promise, length, order of items, ending), with the

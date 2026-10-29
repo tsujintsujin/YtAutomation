@@ -64,7 +64,9 @@ Math: views by day N at k Shorts/day = k × (800·N + 15·N·(N−1)). Subs = vi
    into watch hours.
 3. **LuckySticks goes to 3 Shorts a day**, 30-50 s each (RULES.md length rule). Fits the shared ~10 uploads/day
    limit: 3 here + 1 each on the other channels. The third slot's time is decided in step R3 below.
-4. **Every Monday**, the LEARNINGS.md weekly read also covers the long videos (views/day, average watch,
+4. **Every day** (Justin 2026-10-29: "monitor daily, improve daily"; `channels/ANALYTICS.md` "LuckySticks: learn
+   and improve EVERY day"): the 09:00 analytics run rewrites LEARNINGS.md, applies one change, and logs the goal
+   line in section 8. The read covers the long videos too (views/day, average watch,
    watch hours to date vs the 47 h/day line, subs to date vs the 3-a-day line). **Stop rule:** if the first two
    long videos are each under ~300 views/day after a week, don't keep posting the same thing: change one thing
    (topic, title, length, opening) and tell Justin.
