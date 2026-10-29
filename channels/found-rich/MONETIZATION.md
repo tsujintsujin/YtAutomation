@@ -23,9 +23,10 @@ From 2027-02-01 the bar for NEW applicants doubles (YouTube blog, announced 2026
 | Full YPP (ads) | 1,000 subs + 4,000 long-video watch hours (12 months) **or** 10M Shorts views (90 days) | 8,000 watch hours **or** 20M Shorts views |
 | Lower tier (fan funding, no ads) | 500 subs + 3 uploads + 3,000 watch hours or 3M Shorts views | unchanged |
 
-Not yet confirmed (check first, section 5): whether the channel has to be **accepted** by 2027-02-01 or only
-**eligible/applied**; the subscriber count under the new rules. YouTube's review can take weeks, so the
-working target is **eligible by mid-January 2027**.
+**Checked 2026-10-29 (R1, section 5): the channel must be ACCEPTED, not just applied, before 2027-02-01.**
+The blog says only "This update won't impact creators already in YPP"; nothing protects a pending application.
+Review is "typically in about 1 month". So the real target is **eligible and applied by 2026-12-31**
+(about 63 days from 2026-10-29), not mid-January.
 
 Also needed for YPP: 2-Step Verification on justin.masiga.94, an AdSense account linked, no Community
 Guidelines strikes (**Justin**: AdSense and 2SV are his steps).
@@ -105,6 +106,71 @@ Math: views by day N at k Shorts/day = k × (800·N + 15·N·(N−1)). Subs = vi
 4. Add the Related-video link to every public/scheduled LuckySticks Short.
 5. Switch LuckySticks to 3 Shorts a day in `channels/UPLOADING.md` (pending: section 7).
 6. Weekly read every Monday (step 4 of the plan) until eligible; update section 8 below.
+
+## 5b. Research results (2026-10-29)
+
+**R1. Rules (YouTube's own pages: blog post above, Help `answer/72851`, monetization policies `answer/1311392`).**
+- Full YPP today: 1,000 subs + 4,000 qualified watch hours (12 months) or 10M qualified Shorts views (90 days).
+- From 2027-02-01 new applicants need 8,000 h or 20M views; the subscriber number isn't restated. Members
+  already in YPP are not affected. Accepted before 2027-02-01 is what counts (section 1).
+- To apply: 2-Step Verification on, one AdSense for YouTube account linked, no strikes, "advanced features
+  access". Review "typically in about 1 month". Rejected: appeal within 21 days or re-apply after 30 days.
+  Channel age and phone verification are not listed as YPP requirements.
+- Inauthentic content (renamed from "repetitious"): not allowed are "image slideshows, templated storylines ...
+  with minimal or no narrative", and "AI-generated content made with generic or unoriginal templates giving the
+  impression of mass production". Allowed: AI used to visualize your own narrative. Reviewers look at the main
+  theme, most viewed, newest videos and metadata, for the channel as a whole. So: every video a real story told
+  in our words, checked facts, no copy-paste structure, no reused Shorts as long videos.
+
+**R2. Long-video format: proven in exactly our look.**
+- **Simple Paint** (@SimplePaintOfficial): MS-Paint-style stick figures + narration, long videos only, started
+  about a year ago, 541K subs, 136 videos. Its FIRST videos already did 142K-6M views ("The Most AVOIDABLE Cave
+  Deaths Ever" 6M, "Luckiest Cave Divers Who Survived The Impossible" 2.1M). Now 13-18 min, 1 every 3-4 days,
+  recent ones 12K-3M. Also 1-hour "Marathon" compilations (850K).
+- **The Paint Explainer** (2.01M subs): "The Luckiest People Who Survived The Impossible", 8:09, 6.1M views.
+- **Shape of these videos** (from their chapter lists): **no intro**: the first person starts at 0:00; **7-12
+  people, about 60-70 s each**, one chapter per person (name as chapter title); title = "The Most/Luckiest
+  <superlative> <who>". Simple Paint's luck video: 12 people in 13:35 (Joan Murray, Bugorski, Yamaguchi...).
+- Older list channels (TheRichest, Top Trending) did 1-4M on "thrift store finds that made people rich" 7-8 years
+  ago; few recent long videos on finds, so the luck angle is the proven one right now.
+- What it means for watch hours: 4,000 h = 240,000 min. At ~4 min average watch on a 10-13 min video that is
+  **~60,000 long-video views in total**. One modest hit does it; Simple Paint's first uploads all passed that.
+
+**R3. Studio, LuckySticks Audience tab (read 2026-10-29).**
+- "When your viewers are on YouTube": *not enough viewer data*. Third/fourth slot times can't be picked from
+  data yet; propose times to Justin.
+- Viewers: 99.8% new, 0.0% watch time from subscribers. 25-44 years old 90%, 60% female. Phone 77%.
+- **Top country Philippines 48.8%** (South Africa 2.7%, Sweden 1.1%, US 0.8%). Doesn't block YPP, but PH ads pay
+  far less than US ones; English titles about US/UK finds should pull more US viewers over time. Watch it.
+- **"Related video" is available on our Shorts now** (seen on `wBlNzsabjoU`'s edit page, currently "None").
+
+**R4. Pipeline.**
+- The long-video n8n workflow ("YouTube Render", `n8n/build_yt_workflow.py` without `--shorts`) already makes
+  1920x1080 videos; folder `output/<slug>/`, with intro.json/thumbnails.json steps (skip themselves if absent).
+  The long cat videos were 11-13 min with **181-312 images** (one per ~2.5 s).
+- Image capacity (bridge `usage.jsonl`): **~180-480 images on a normal run day** (615 best), with 3-8 accounts.
+  A LuckySticks Short is ~35 images. 4 Shorts a day = ~140; the other two channels ~70; a 12-min long video at
+  one image per ~5 s = ~150, i.e. ~40/day at 2 a week. Total ~250/day: **at the limit**. So long videos use one
+  image per ~5 s (paint channels hold one drawing for several seconds), not 2.5 s.
+- Not checked yet: a test render of a long stick-figure video (needs Justin's OK; section 6 step 3).
+
+**Revised numbers for the 2026-12-31 target** (63 days, Short = 800 at launch + 30/day, 1 sub per 400 views):
+
+| LuckySticks Shorts/day | Subs by 2026-12-31 (Shorts only) |
+|---|---|
+| 2 | ~555 |
+| 3 | ~830 |
+| **4** | **~1,100** |
+
+Watch hours: first long video ~2026-11-08 leaves ~53 days → ~75 h/day, or ~60,000 long-video views in total.
+**Proposal: 4 Shorts a day + one long video a week (two if images allow).** Long videos also bring subscribers.
+
+**Proposed first long video (waiting for Justin's OK):** the 13 luck stories already researched for Shorts
+(`*-luck` folders, every one has `sources.md`: Yamaguchi, Vulović, Koepcke, Jessop, Okene, Oliver, Sullivan,
+Gage, Hodges, Packard, Alvarenga, Adams, Morgan). 10-12 of them, a NEW ~60-70 s script each (more detail than
+the Short, our own words), no intro, one chapter per person, ~12 min. Each luck Short then links to it with
+"Related video". Simple Paint and The Paint Explainer cover Yamaguchi/Murray-type stories too: tell ours with
+our own facts, angle and wording (RULES.md).
 
 ## 7. What is applied vs pending (2026-10-28)
 
