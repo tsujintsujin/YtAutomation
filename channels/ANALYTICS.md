@@ -11,11 +11,11 @@ dropped it the same day). A scheduled Claude task runs this every morning; it ca
 - On **Mondays** also `channels/<key>/LEARNINGS.md` (see "Weekly learnings").
 
 ## Rules
-- **Read only.** Never change anything in Studio, never press Download/Export, never play or open the video itself
+- **Read only** (except LuckySticks' scheduled Shorts, see its section). Never change anything else in Studio, never press Download/Export, never play or open the video itself
   (Justin: never watch our own videos; the analytics pages don't play it).
 - Never make a number up. A number Studio doesn't show is `null`, and why goes in `note`.
 - One reading per channel per day. A raw file for today already there = that channel is done, skip it.
-- Never edit scripts, RULES.md or SHORTS_RULES.md from this task. Findings go in LEARNINGS.md; a rule change is
+- Other channels: never edit scripts, RULES.md or SHORTS_RULES.md from this task (LuckySticks: see its section). Findings go in LEARNINGS.md; a rule change is
   proposed in `PENDING_CHANGES.md` for Justin.
 
 ## Channels
@@ -65,14 +65,26 @@ OldSticksNewSticks `UCG8zeGkCD4_hrLPIQYkSezQ`). A new channel there = read here 
 1. **Every morning run (the 09:00 one)**, after the daily read, rewrite `found-rich/LEARNINGS.md` from all the
    daily files so far (not just Mondays). Keep the same rules as the weekly one below (numbers only, under ~200
    views is too early, at most 5 points, each a concrete thing to do), and add at the top:
-   - **Yesterday's change and what it did:** the last thing we changed and the Shorts made with it, against the
-     Shorts before it (stayed to watch %, average % viewed, subs per 1,000 views). Kept, or reverted.
-   - **Today's one change:** the single next thing to try, from the numbers. One change at a time, so its effect
-     can be read.
-2. **Apply it yourself, the same morning.** Write today's change into `found-rich/RULES.md` (a dated line), and
-   change the Shorts that are not on YouTube yet where it fits: titles in `script.json` / `script.md` of
-   videos with no `posted.json`. Never re-render or re-upload, never touch a Short already uploaded, never
-   change a fact. Log what was changed in LEARNINGS.md.
+   - **Yesterday's changes and what they did:** each change and the Shorts made with it, against the Shorts
+     before it (stayed to watch %, average % viewed, subs per 1,000 views). Kept, or reverted.
+   - **Today's changes (up to 3):** the next things to try, from the numbers, each on a different lever and on
+     different Shorts, so each effect can be read.
+2. **Apply it yourself, the same morning. Claude owns the growth (Justin, 2026-10-30: "I gave you the task...
+   work on it. stop asking me").** Don't just note things: act on every lever below, without asking Justin.
+   - **Up to 3 changes a day**, each on a different lever and on different Shorts, so each effect can be read.
+     Log each in LEARNINGS.md with the Shorts it applies to and a dated line in `found-rich/RULES.md`.
+   - **Shorts not on YouTube yet** (no `posted.json`): rewrite title, opening line, ending and length in
+     `script.json` / `script.md`. Cutting lines to hit 30-50 s is allowed; changing or inventing a fact is not.
+     A changed script must be re-rendered before upload: list it under "Needs render" in LEARNINGS.md (the
+     upload session renders it through n8n; this task does not start renders).
+   - **Scheduled Shorts in Studio** (posted.json `status: scheduled`, not public yet): you may change the title
+     and the scheduled time in Studio (Details → Visibility), and set "Related video" to the newest public long
+     video. Update `posted.json` to match. Never touch a Short that is already public, never delete, never upload.
+   - **Upload slots and cadence** (UPLOADING.md, LuckySticks lines only): move a slot time or the mix of finds
+     and `-luck` Shorts when the numbers say so.
+   - **Next scripts:** write what the next scripts must do into `found-rich/RULES.md` (dated), not only
+     LEARNINGS.md, so the next script follows it.
+   - Revert a change the numbers show made things worse, and say so in LEARNINGS.md.
 3. **Track the goal** in `found-rich/MONETIZATION.md` section 8 (one line per day): subscribers, Shorts views,
    long-video watch hours, and whether it is on the line for 1,000 subscribers by 2026-12-31 (~16 a day).
 4. **Long videos too:** each public long video's views, average view duration and watch hours (Studio Content

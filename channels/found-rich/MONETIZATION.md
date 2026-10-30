@@ -177,14 +177,15 @@ our own facts, angle and wording (RULES.md).
 ## 7. What is applied vs pending (2026-10-28)
 
 - Applied: this file; pointers in HANDOFF.md section 5, `channels/UPLOADING.md`, `RULES.md`.
-- **Pending (do not apply until development starts):** 3 Shorts/day in UPLOADING.md (still 2), long-video
-  template, Related-video links, first long video.
+- Applied 2026-10-30: 3 Shorts/day in UPLOADING.md; the daily run now owns growth changes (ANALYTICS.md).
+- Pending: long-video template, Related-video links (once a long video is public), first long video.
 
 ## 8. Progress log (one line per week)
 
 | Date | Subs | Long-video watch hours | Shorts views (90 d) | Note |
 |---|---|---|---|---|
 | 2026-10-28 | 10 | 0 | ~3,770 | Plan agreed. 5 Shorts public, 2/day. |
+| 2026-10-30 | 10 | 0 | 6,017 | 6 Shorts public, no long video yet. Behind the line: 1,000 subs by 2026-12-31 needs ~16 a day, we have 10 total. |
 
 ## Sources
 
