@@ -59,4 +59,5 @@ if __name__ == "__main__":
     else:
         first = dt.date.fromisoformat(sys.argv[1])
         plan = [(a.split(":")[0], a.split(":")[1].split(",")) for a in sys.argv[2:]]
+        sys.stdout.reconfigure(encoding="utf-8")  # titles have £ and €
         print("\n".join("\t".join(str(c) for c in r) for r in [HEAD] + rows(first, plan, random.Random())))
