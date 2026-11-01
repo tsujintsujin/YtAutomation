@@ -209,8 +209,9 @@ def main():
     segs = json.loads((out / "script.json").read_text(encoding="utf-8"))["segments"]
     texts = hashlib.sha1(json.dumps([s["text"] for s in segs]).encode("utf-8")).hexdigest()
     # channels/<channel>/videos/<slug>: the channel's energy (0.75 / 0.3, Justin 2026-10-26: 1.0 shouted and
-    # babbled); else defaults
-    ch = out.parent.parent / "settings.json"
+    # babbled); output/<slug> with "channel" in script.json (a channel's long video): that channel's; else defaults
+    key = json.loads((out / "script.json").read_text(encoding="utf-8")).get("channel")
+    ch = (out.parents[1] / "channels" / key if key else out.parent.parent) / "settings.json"
     voice = json.loads(ch.read_text(encoding="utf-8")).get("voice", {}) if ch.exists() else {}
     ex, cfg = voice.get("exaggeration", 0.5), voice.get("cfg", 0.5)
     ex = a.ex if a.ex is not None else ex

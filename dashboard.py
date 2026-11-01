@@ -24,6 +24,7 @@ import subprocess
 import time
 import urllib.request
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -140,8 +141,10 @@ _js_started = 0                          # when the dashboard last started TheJo
 def jobstash():
     """TheJobStash's scorer (py_server.py :3300) and its tunnel (cloudflared's /ready, metrics on 20241-20245),
     which are what let thejobstash.com take resumes. n8n is the same n8n as above."""
-    s = {"scorer": ok("http://127.0.0.1:3300/healthz"),
-         "tunnel": any(ok(f"http://127.0.0.1:{p}/ready") for p in range(20241, 20246))}
+    urls = ["http://127.0.0.1:3300/healthz"] + [f"http://127.0.0.1:{p}/ready" for p in range(20241, 20246)]
+    with ThreadPoolExecutor(len(urls)) as ex:          # all at once: each closed port costs 0.25 s
+        res = list(ex.map(ok, urls))
+    s = {"scorer": res[0], "tunnel": any(res[1:])}
     s["starting"] = not (s["scorer"] and s["tunnel"]) and time.time() - _js_started < 30
     return s
 
@@ -410,9 +413,12 @@ def analytics(key):
 def videos():
     """Every <channel videos>/<slug>/ that is a video (has script.json, its MP4, or a script.md still being written);
     "_" folders are tests."""
-    return [dict(video_summary(d), channel=c["key"]) for c in channels() if c["dir"].is_dir() for d in c["dir"].iterdir()
-            if d.is_dir() and not d.name.startswith("_")
-            and any((d / f).exists() for f in ("script.json", f"{d.name}.mp4", "script.md"))]
+    found = [(c["key"], d) for c in channels() if c["dir"].is_dir() for d in c["dir"].iterdir()
+             if d.is_dir() and not d.name.startswith("_")
+             and any((d / f).exists() for f in ("script.json", f"{d.name}.mp4", "script.md"))]
+    with ThreadPoolExecutor(8) as ex:                  # side by side: the first read runs ffprobe on every MP4
+        sums = list(ex.map(video_summary, (d for _, d in found)))
+    return [dict(s, channel=key) for (key, _), s in zip(found, sums)]
 
 
 # ---------- n8n runs ----------
@@ -631,10 +637,12 @@ def accounts(wins):
 # ---------- state ----------
 
 def state():
-    b = bridge_status()
-    n8n_now = n8n_state()
-    health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": up("http://127.0.0.1:3000"),
-              "jobstash": jobstash(), "apps": {k: voice_app(k) for k in VOICE_APPS}}
+    with ThreadPoolExecutor(8) as ex:                  # the health checks side by side, not one after another
+        fb, fn, fo, fj = ex.submit(bridge_status), ex.submit(n8n_state), ex.submit(up, "http://127.0.0.1:3000"), ex.submit(jobstash)
+        fa = {k: ex.submit(voice_app, k) for k in VOICE_APPS}
+        b, n8n_now = fb.result(), fn.result()
+        health = {"n8n": n8n_now == "running", "n8nState": n8n_now, "bridge": b is not None, "opencut": fo.result(),
+                  "jobstash": fj.result(), "apps": {k: f.result() for k, f in fa.items()}}
     try:
         rs = runs() if health["n8n"] else []
     except Exception as e:
