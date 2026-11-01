@@ -21,7 +21,7 @@ def known(ch):
         d = json.load(open(f, encoding="utf-8"))
         slug = os.path.basename(os.path.dirname(f))
         for p in d.get("parts") or []:
-            out[p["video_id"]] = (slug, p["n"], p.get("publish_at", ""))
+            out[p["video_id"]] = (slug, f"Part {p['n']}", p.get("publish_at", ""))  # text, so the sheet's QUERY sees one type
         out.setdefault(d.get("video_id"), (slug, "whole", d.get("publish_at", "")))
     return out
 
