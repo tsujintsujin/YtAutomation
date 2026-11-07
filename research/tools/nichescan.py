@@ -54,7 +54,8 @@ def number(text):
 
 def days(text):
     """'14h ago' -> 0.6, '9d ago' -> 9, '3w ago' -> 21, '1mo ago' -> 30."""
-    m = re.search(r"(\d+)\s*(second|minute|hour|day|week|month|year|s|m|h|d|w|mo|y)", text or "")
+    # "mo" must come before "m": YouTube writes "11mo ago", which would otherwise read as 11 minutes
+    m = re.search(r"(\d+)\s*(second|minute|hour|day|week|month|year|mo|s|m|h|d|w|y)", text or "")
     if not m:
         return 30
     n, u = int(m.group(1)), m.group(2)
@@ -119,4 +120,5 @@ def main(out_path):
 
 if __name__ == "__main__":
     assert mins("14:47") == 14 + 47 / 60 and mins("1:02:00") == 62 and number("3.76K subscribers") == 3760
+    assert days("11mo ago") == 330 and days("1 month ago") == 30 and days("6y ago") == 2190 and days("9d ago") == 9
     main(sys.argv[1])
