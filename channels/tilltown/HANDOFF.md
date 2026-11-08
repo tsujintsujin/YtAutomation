@@ -17,7 +17,7 @@ his own Google account or his decision; those steps are listed first, below.
 Justin's reference for the animation is Grow With Kaz, "I Made VIRAL Animation Videos Using Claude Code"
 (https://www.youtube.com/watch?v=3tpaWHaiLQ8, uploaded 2026-11-04): Claude animates every frame in code with his free
 plugin. **Use the plugin; do not build a style or a kit from scratch, and do not invent a look** (2026-11-07: a
-self-made "cut paper" look and a Crayon/PENNY-style frame were both wrong and are discarded, as is `LOOK.md`).
+self-made "cut paper" look and a Crayon/PENNY-style frame were both wrong and are discarded; the old LOOK.md was removed).
 - **Plugin:** GrowKaz Stickman Studio v1.1.0. Justin downloaded it (`C:\Users\justi\Downloads\GrowKaz_Stickman.plugin`,
   from the Drive folder linked in the video's description). Every file was read or scanned before install: it only
   serves files to a headless Chromium on localhost, runs ffmpeg, writes inside its own project folders; no outside
