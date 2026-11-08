@@ -5,17 +5,47 @@ built on). Started 2026-11-07. **Claude runs this channel end to end** (Justin, 
 this channel", "if there's a blocker that needs me, work on something else and note it"). Justin does only what needs
 his own Google account or his decision; those steps are listed first, below.
 
+## The channel
+- **Tilltown**, handle **@Tilltown**, channel ID `UCqZM2RVq6Fo56mV6pFONLZw` (created by Justin 2026-11-07, a Brand
+  Account like The Paperback Millionaire). Studio: https://studio.youtube.com/channel/UCqZM2RVq6Fo56mV6pFONLZw
+- State 2026-11-07: no picture, no banner, no videos. Standard features enabled; intermediate features (custom
+  thumbnails, videos over 15 min) "Eligible", i.e. **not phone-verified yet**.
+- **Voice: Mark** (Justin 2026-11-07: "keep mark"), so every upload has **"Altered content: Yes"**. Other voices for
+  characters: Justin wants to be asked before any is used.
+
+## How the videos are made: Kaz's plugin (installed 2026-11-08)
+Justin's reference for the animation is Grow With Kaz, "I Made VIRAL Animation Videos Using Claude Code"
+(https://www.youtube.com/watch?v=3tpaWHaiLQ8, uploaded 2026-11-04): Claude animates every frame in code with his free
+plugin. **Use the plugin; do not build a style or a kit from scratch, and do not invent a look** (2026-11-07: a
+self-made "cut paper" look and a Crayon/PENNY-style frame were both wrong and are discarded, as is `LOOK.md`).
+- **Plugin:** GrowKaz Stickman Studio v1.1.0. Justin downloaded it (`C:\Users\justi\Downloads\GrowKaz_Stickman.plugin`,
+  from the Drive folder linked in the video's description). Every file was read or scanned before install: it only
+  serves files to a headless Chromium on localhost, runs ffmpeg, writes inside its own project folders; no outside
+  network, no keys, no hooks.
+- **Skills** (in `C:\Users\justi\.claude\skills\`): `make-2d-video` (the full pipeline; read its SKILL.md and
+  `references/style-bible.md` before any shot), `new-video`, `video-styles`, `render-video`, `video-sound`.
+- **Studio:** `D:\AIO Freelance\YtAutomation\growkaz-stickman-studio\` (kept out of git by its own `.gitignore`).
+  Its Chromium (build 1194) and Python venv live inside it, on D:. **Always run through `.\studio.cmd <command>`** from
+  that folder (cmd on this PC needs the `.\`), e.g. `.\studio.cmd node render.mjs --project projects\<slug> --sheet --scale 0.5`.
+- Checked 2026-11-08: `verify_kit.py` 29/29, `doctor.py` all OK, self-test (the example "reaction-time" project) rendered
+  14 shots with no errors, looked at.
+- The master prompt (`2D Niche Prompt for Claude.pdf`) is 3-4 minute scripts for self-improvement / psychology / what-if /
+  science / history niches; our scripts follow `RULES.md`, so it is reference only.
+- Next: run the pipeline on the opening of video 1 (`videos/eiffel-tower/`, voice already made: 83.6 s), stage 5 renders
+  the shots in the plugin's 5 styles and **Justin picks the style**.
+
 ## Waiting on Justin (do these when you're back)
 | # | What | Why only you | Blocks |
 |---|---|---|---|
-| 1 | **Create the channel**: YouTube → profile → Settings → "Add or manage your channel(s)" → "Create a channel" → name **Tilltown**, handle **@Tilltown** (free on 2026-11-07). Same way as The Paperback Millionaire (a Brand Account under justin.masiga.94). | Claude may not create accounts | Channel art upload, first upload |
-| 2 | **Phone-verify** the new channel (Studio → Settings → Channel → Feature eligibility) | Your phone | Videos over 15 min, custom thumbnails |
-| 3 | **The narration voice.** The "Mark" sample (`tts/samples/voices/29_mark.mp3`) has no recorded origin. If it is a real person's voice, YouTube treats our narration as "a real person appearing to say" our words. Choose: **(a)** a clone of your own voice (`chatterbox/refs/justin.wav` exists; YouTube explicitly exempts cloning your own voice from the AI label), or **(b)** keep Mark and tick "Altered content: Yes" on every upload (Paperback Millionaire already does), or **(c)** tell me where Mark came from. | Your voice / your knowledge | Final voice of video 1 (the test uses Mark) |
-| 4 | Watch the first finished MP4 before it goes public | You asked for this on every channel | Video 1 going public |
-| 5 | Later, at eligibility: AdSense for YouTube + 2-Step Verification + the Partner Program application | Your accounts | Monetization |
-| 6 | Robot checks (`google.com/sorry`) when Gemini hits one | Only you can solve them | Gemini pictures (caricatures, thumbnails) |
+| 1 | **Phone-verify** Tilltown: Studio → Settings → Channel → Feature eligibility → "Intermediate features" → verify | Your phone | Custom thumbnails, videos over 15 min |
+| 2 | **Character voices**, if the cast speaks: Claude proposes 2-3 voices to pick from | You asked to choose them | Dialogue lines with their own voices (narrator reads them until then) |
+| 3 | Watch the first finished MP4 before it goes public | You asked for this on every channel | Video 1 going public |
+| 4 | Later, at eligibility: AdSense for YouTube + 2-Step Verification + the Partner Program application | Your accounts | Monetization |
+| 5 | Robot checks (`google.com/sorry`) when Gemini hits one | Only you can solve them | Gemini pictures (caricatures, thumbnails) |
 
-A note on item 1: YouTube's rules say a terminated channel can mean losing all of that person's channels. This
+Done by Justin: channel created (2026-11-07); narration voice decided (Mark + "Altered content: Yes", 2026-11-07).
+
+A note on ownership: YouTube's rules say a terminated channel can mean losing all of that person's channels. This
 channel is kept clean (`RULES.md`: facts, copyright, no repeats), but the risk exists for any channel under the same
 owner.
 

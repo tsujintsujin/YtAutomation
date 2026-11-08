@@ -69,7 +69,8 @@ ear unless the exactness is the point.
 - Scenes: HyperFrames animation (Tilltown, its cast, charts, counters, maps, timelines, documents). Gemini only for
   caricatures of real people, big dramatic moments and thumbnail art (~20-40 per video).
 - Captions: 2-4 words at a time, bold, one key word coloured.
-- Voice: Chatterbox (pending Justin's choice, `HANDOFF.md` "Waiting on Justin" #3).
+- Voice: Chatterbox copying Mark (Justin 2026-11-07), so "Altered content: Yes" on every upload. Character dialogue
+  is read by the narrator until Justin picks character voices (he chooses them; never add one without asking).
 - Every scene's design is its own; reusing Tilltown and the cast is fine, reusing whole scenes is not.
 
 ## 7. Posting
