@@ -1,0 +1,33 @@
+{
+ "title": "One man was struck by lightning seven times",
+ "aspect": "9:16",
+ "resolution": "1080p",
+ "fps": 24,
+ "style": "tilltown",
+ "voiceover": "input/voiceover.wav",
+ "script": "input/script.txt",
+ "duration": 38.959,
+ "captions": true,
+ "bars": "none",
+ "fadeIn": 0.15,
+ "fadeOut": 0.4,
+ "music": {
+  "enabled": true,
+  "gainDb": -17
+ },
+ "sfx": {
+  "enabled": true,
+  "gainDb": -6
+ },
+ "loudness": -14,
+ "captionStyle": {
+  "max": 2,
+  "phrase": true,
+  "upper": false,
+  "hi": "#ffffff",
+  "font": "Montserrat",
+  "weight": 900,
+  "y": 1370,
+  "size": 92
+ }
+}

@@ -1,6 +1,6 @@
 # Tilltown: full handoff
 
-**A new session starts here.** Last updated 2026-11-09. Read this file, then `RULES.md` and `LOOK.md` in this folder, then
+**A new session starts here.** Last updated 2026-11-09. Read this file, then `RULES.md`, `LOOK.md` and `ANIMATION.md` in this folder, then
 `growkaz-stickman-studio/library/README.md`. `research/README.md` is the research the channel is built on.
 
 Master copy: `channels/tilltown/HANDOFF.md` in git. A copy sits at `growkaz-stickman-studio/HANDOFF.md` so it can be opened
@@ -35,7 +35,8 @@ decision. Those steps are listed below.
 - Toon character renderer; a 3D Paris world; a 5-second test clip with voice, captions, music and ambience. Sent to Justin,
   who replied "sounds good" and asked to reuse the world.
 - Render speed fixed: 24-26 s for those 5 seconds instead of about 4 minutes.
-- Library in 8 categories, tested: the clip builds from it unchanged, and the same world gives different views.
+- Library in 10 categories, tested: the clip builds from it unchanged, and the same world gives different views.
+- A full 40-second 9:16 test (2026-11-09): LuckySticks' "struck by lightning seven times" Short remade in this look with its existing voice (`growkaz-stickman-studio/projects/sullivan-lightning/`). Rendered in 2m09s to 2m50s; one earlier run crashed and did not repeat, the error text was lost. **Uploaded at Justin's request** as a second video, `OGRfCY86cgA`, public 2026-11-10 09:54 PHT, recorded in `channels/found-rich/videos/sullivan-lightning-toon-luck/` and the sheet. It went up with known scene problems: they are why `ANIMATION.md` exists. Fixes were started in that project's scene code after the MP4 was made; they are not rendered and not uploaded.
 
 **Not done**
 - The 34-shot opening in the new look. Only the test shot exists.
@@ -92,7 +93,8 @@ What was tried and rejected, so nobody repeats it:
 Run from `growkaz-stickman-studio\`. Everything is free and local. In bash on this PC, wrap studio commands as
 `cmd //c ".\\studio.cmd node render.mjs ..."`.
 
-1. **Script and facts** per `RULES.md`, every claim in `sources.md`, in `channels/tilltown/videos/<slug>/`.
+1. **Script with scene direction, and facts** per `RULES.md` and `ANIMATION.md`, every claim in `sources.md`, in
+   `channels/tilltown/videos/<slug>/`. Nothing gets built until the direction is written and passes.
 2. **Voice:** from the repo root, `chatterbox/.venv/Scripts/python voice_cb.py channels/tilltown/videos/<slug>` (Chatterbox copying
    Mark; reads `script.json`, writes `voice.wav` and `timings.json`). Book videos have first claim on the PC.
 3. **Project:**
@@ -100,9 +102,9 @@ Run from `growkaz-stickman-studio\`. Everything is free and local. In bash on th
 4. **Timestamps:** `.venv/Scripts/python.exe tools/transcribe.py --project projects/<slug> --script input/script.txt`
 5. **Config** (`config.json`), as in `projects/look-ricks/config.json`: `"bars": "none"`,
    `"captionStyle": {"max": 2, "phrase": true, "upper": false, "hi": "#ffffff", "font": "Montserrat", "weight": 900, "y": 800, "size": 72}`.
-6. **Story:** `story/bible.md` and `story/shots.json`, per Kaz's `make-2d-video/references/story-breakdown.md`. Each shot starts
-   0.1-0.2 s before its phrase, median 2-3.5 s.
-7. **Build shots** in `scenes/shots/*.js`, importing from `/library/...`. New places go in the library first.
+6. **Story:** `story/bible.md` and `story/shots.json`, one entry per **scene** from the script's direction (`ANIMATION.md`). Kaz's
+   "cut on phrases, 2-3.5 s" pacing does not apply.
+7. **Build one scene at a time** in `scenes/shots/*.js`, importing from `/library/...`. New places go in the library first.
    `projects/look-ricks/scenes/shots/01_test.js` is the working example.
 8. **Check batches on a contact sheet:** `.\studio.cmd node render.mjs --project projects\<slug> --sheet --gl gpu --format jpeg`,
    then look at it against Kaz's `references/render-qc.md`.
@@ -112,7 +114,8 @@ Run from `growkaz-stickman-studio\`. Everything is free and local. In bash on th
     of a Claude session.**
 11. **Sound and final MP4:** `.\studio.cmd python audio\mix.py --project projects\<slug>` (writes `out/<title>.mp4`). Music, SFX
     and ambience come from `story/shots.json`, per Kaz's `references/sound-design.md`.
-12. **Check the real MP4:** frames from it, including mid-gesture and every shot change, then send Justin the first one.
+12. **Viewer check of the real MP4** (`ANIMATION.md`): a table, one row per line, every row clean, before anyone sees it. Only then send
+    Justin the first one.
 
 ### Render speed (measured 2026-11-08 on the 5-second test)
 **Always use `--gl gpu --format jpeg --workers 2`.** Without `--gl gpu`, headless Chromium draws the 3D on the CPU (SwiftShader)
@@ -130,16 +133,18 @@ Estimates from that, if other shots are about as heavy: ~7 minutes for the 85-se
 
 | Category | In it now |
 |---|---|
-| `worlds/` | `paris-street` |
-| `sky/` | `dayStage`, `clouds` |
-| `ground/` | `road`, `sidewalks`, `grass`, `avenue` |
-| `buildings/` | `haussmannRow`, `block`, `facadeTex`, `farSkyline` |
-| `nature/` | `tree` |
-| `street-props/` | `lamp`, `morrisColumn`, `awning`, `cafeTables` |
+| `worlds/` | `paris-street`, `blue-ridge` |
+| `sky/` | `dayStage`, `stormStage`, `clouds`, `stormClouds` |
+| `ground/` | `road`, `sidewalks`, `grass`, `avenue`, `meadow`, `tufts`, `dirtRoad` |
+| `buildings/` | `haussmannRow`, `block`, `facadeTex`, `farSkyline`, `lookoutTower`, `cabin` |
+| `nature/` | `tree`, `pine`, `forest`, `ridges`, `pond` |
+| `street-props/` | `lamp`, `morrisColumn`, `awning`, `cafeTables`, `woodSign` |
+| `vehicles/` | `pickup` |
 | `landmarks/` | `eiffel` |
-| `characters/` | `drawToon`, `toonCard`, 7 expressions, `LUSTIG`, `PASSERSBY` |
+| `characters/` | `drawToon`, `toonCard`, 8 expressions, `LUSTIG`, `RANGER`, `PASSERSBY`, `drawBear`, `drawFish`, `drawCat`, `drawClover` |
+| `effects/` | `bolt`, `flash`, `smoke`, `flame`, `sparks`, `dizzy`, `project`, `hit`, `blurBack` |
 
-- Limits: daylight only; only the fedora hat; `paris-street` works looking down the street or from above, with nothing behind
+- Limits: day and storm only; fedora and ranger hats only; `paris-street` works looking down the street or from above, with nothing behind
   z = +18; café windows need an interior for close-ups.
 - **Reuse pieces, not finished shots.** Same shots across videos look mass-produced (`research/06-production.md`, "Template
   feel"; `RULES.md` section 6). Vary `seed`, layout, camera and action.
@@ -162,7 +167,8 @@ patch: `diff -u --label a/<file> --label b/<file> <kit file> <studio file>` for 
 ## Video 1: The Man Who Sold the Eiffel Tower
 Project: `growkaz-stickman-studio/projects/eiffel-tower/`.
 
-**Keep:** the voice, `timeline/`, and the timing, lines and sound cues of `story/shots.json` (34 shots, 85.14 s, median 2.52 s).
+**Keep:** the voice, `timeline/`, and the lines and sound cues of `story/shots.json`. Its 34 shots were made one per line, so they get
+regrouped into scenes from a script with direction (`ANIMATION.md`).
 **Change when rebuilding:**
 - `config.json`: `captions` on with the Tilltown caption style, `"bars": "none"`.
 - `story/shots.json`: each `scene` text was written for the dark look. Remove the `scope`/`none` bars. Most scenes become daylight.
@@ -203,15 +209,16 @@ close-up heads, hands holding things.
   today: gift cards, crypto).
 
 ## Next steps, in order
-1. Close the look gaps from `LOOK.md` while building: more world detail, slight hand-drawn line wobble, motion blur and fast
+1. Write the scene direction for the opening (`ANIMATION.md`) and regroup its 34 shots into scenes.
+2. Close the look gaps from `LOOK.md` while building: more world detail, slight hand-drawn line wobble, motion blur and fast
    whips, more hats and body types.
-2. Add `sky/night.js` and the missing places to the library, in batches, each checked on the preview sheet.
-3. Rebuild the 34-shot opening. Contact sheet after each batch, then a preview, then frames from the real MP4.
-4. Send Justin the finished opening.
-5. Write the full script (12-16 min) per `RULES.md`, fact-check it, voice it, build it.
-6. Thumbnails and channel art. Plan: same engine, not tested yet.
-7. Shorts at 9:16 from the same worlds. Not tested yet; compositions will need re-framing.
-8. Upload per `RULES.md` section 7. Set up monitoring below.
+3. Add `sky/night.js` and the missing places to the library, in batches, each checked on the preview sheet.
+4. Rebuild the opening, scene by scene. Then the viewer check of the real MP4.
+5. Send Justin the finished opening.
+6. Write the full script (12-16 min) with direction, per `RULES.md`; fact-check it, voice it, build it.
+7. Thumbnails and channel art. Plan: same engine, not tested yet.
+8. Shorts at 9:16 from the same worlds. Not tested yet; compositions will need re-framing.
+9. Upload per `RULES.md` section 7. Set up monitoring below.
 
 ## The plan
 Each phase: plan → small test → real run. Nothing is called done without looking at the real output.
@@ -236,6 +243,9 @@ Learned the hard way on 2026-11-07 and 08. Each of these cost him real time.
 - **Test small first, then look.** One frame or a 5-second clip before a batch. Look at frames, including mid-motion. The green
   road glitch only showed up on three frames.
 - **If he corrects something, fix the thing.** "so modify? maybe? why do i even have to tell you this?"
+- **When he asks why, answer why and stop.** "i didnt ask you to fix it, i am asking why".
+- **When he says upload, finish the upload first.** Anything else waits until it is done.
+- **"Checked" means the viewer check in `ANIMATION.md`.** Rendering clean is not checked.
 - **No background agents without saying the token cost first.** He had one stopped for burning tokens.
 - **Justin pays for nothing.** No paid APIs or plugins.
 - Close Chrome tabs after checking videos. Never leave a video playing. Never play our own videos from analytics checks.
@@ -254,6 +264,8 @@ Learned the hard way on 2026-11-07 and 08. Each of these cost him real time.
 | First Chrome screenshot after loading can time out | Take it again |
 | A character in a dark building shadow casts no visible shadow | Place characters in the sun |
 | `ffmpeg` filter paths with `D:` break on the colon | Use a relative path |
+| A prop past the edge of a toon image is cut off flat | Pass a wider `W` to `toonCard` |
+| An effect placed with `project` lands in the frame corner | The position was NaN: the card has no `ground` height set |
 | The film-grade colour step runs in JS per pixel | Fine at 154 ms a frame; look here first if renders slow down |
 
 ## Bad scenarios and what we do
@@ -301,6 +313,7 @@ channels/tilltown/
   HANDOFF.md            this file
   RULES.md              how a video is written, checked and posted
   LOOK.md               the art reference and how it is made
+  ANIMATION.md          the rulebook: scene direction, building, the viewer check
   TOPICS.md             candidate topics with their YouTube check
   settings.json         channel id, voice, upload settings
   studio/               git backup of the library, projects and our engine changes
@@ -336,13 +349,14 @@ Justin sees it on the dashboard (http://127.0.0.1:8770, Tilltown tab and Analyti
 - 2026-11-08 (Claude): 3D worlds with Kaz's Three.js kit, characters as flat cut-outs inside them; captions on (2 words, white,
   Montserrat); render on the GPU.
 - 2026-11-08 (Justin): reusable worlds, sorted into categories.
+- 2026-11-09 (Justin): scripts include scene direction; animation follows `ANIMATION.md`.
 
 ## Daily log
 | Date | What happened |
 |---|---|
 | 2026-11-07 | Research done (`research/`), plan agreed, channel files written, name picked, topics written. |
 | 2026-11-08 | Kaz's plugin installed. Opening voiced, timed, bible and 34-shot list written. Dark look dropped for Ricks Clips. Toon characters, 3D Paris, 5-second test clip. Render on GPU (about 10x faster). Library in 8 categories. |
-| 2026-11-09 | This handoff; library and project sources backed up in git. |
+| 2026-11-09 | This handoff; library and project sources backed up in git. LuckySticks lightning Short remade as a 9:16 test and uploaded; storm, mountains, tower, cabin, truck, pond, bear and effects added to the library. Justin found wrong and broken-up scenes; `ANIMATION.md` and scene direction written. |
 
 ## Pick up here
-Next steps, item 1: look gaps and the missing places, then rebuild the 34-shot opening.
+Next steps, item 1: write the opening's scene direction, then build it scene by scene.

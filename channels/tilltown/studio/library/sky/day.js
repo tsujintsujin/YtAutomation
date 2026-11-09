@@ -16,7 +16,7 @@ function cloudTex(T, seed) { return T.canvasTex(512, 256, (g, W, H) => {
 
 const CLOUDS = [[-330, 210, -1500, 420, 1], [-130, 430, -1700, 520, 2], [330, 250, -1500, 460, 3], [-620, 500, -1800, 560, 4], [640, 520, -1700, 500, 5], [150, 610, -1800, 380, 6]];
 // clouds(T, st, { list: [[x, y, z, width, seed], ...], seed })   Far away, in front of a camera looking toward -z.
-export function clouds(T, st, { list = CLOUDS, seed = 0 } = {}) {
+export function clouds(T, st, { list = CLOUDS, seed = 0, color = '#ffffff' } = {}) {
   const { THREE } = T;
-  list.forEach(([x, y, z, w, s]) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex(T, s + seed), transparent: true, depthWrite: false, fog: false })); sp.position.set(x, y, z); sp.scale.set(w, w / 2, 1); st.add(sp); });
+  list.forEach(([x, y, z, w, s]) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex(T, s + seed), color: new THREE.Color(color), transparent: true, depthWrite: false, fog: false })); sp.position.set(x, y, z); sp.scale.set(w, w / 2, 1); st.add(sp); });
 }
