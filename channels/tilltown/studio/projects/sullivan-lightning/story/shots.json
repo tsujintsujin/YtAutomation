@@ -1,0 +1,640 @@
+{
+ "title": "One man was struck by lightning seven times",
+ "duration": 40.2,
+ "shots": [
+  {
+   "id": "s01",
+   "start": 0.0,
+   "end": 1.36,
+   "line": "One man was struck by lightning",
+   "scene": "storm: ranger looks up; a bolt hits him on \"struck\"",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.62,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.62,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s02",
+   "start": 1.36,
+   "end": 3.0,
+   "line": "seven times.",
+   "scene": "seven bolts land around him, a counter climbs to 7",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.08,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.0
+    },
+    {
+     "at": 0.28,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.08
+    },
+    {
+     "at": 0.48000000000000004,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.16
+    },
+    {
+     "at": 0.68,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.24
+    },
+    {
+     "at": 0.88,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.32
+    },
+    {
+     "at": 1.08,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.4
+    },
+    {
+     "at": 1.2800000000000002,
+     "name": "pop",
+     "gain": -9,
+     "pitch": 1.48
+    },
+    {
+     "at": 0.1,
+     "name": "thunder",
+     "gain": -8
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s03",
+   "start": 3.0,
+   "end": 5.4,
+   "line": "And he lived through every single one.",
+   "scene": "ranger stands, hat smoking, thumbs up",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.6,
+     "name": "ding",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s04",
+   "start": 5.4,
+   "end": 6.95,
+   "line": "Roy Sullivan was a park ranger",
+   "scene": "day: ranger, hands on hips, beside the Shenandoah park sign",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "flash",
+    "dur": 0.25
+   },
+   "sfx": [],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s05",
+   "start": 6.95,
+   "end": 8.1,
+   "line": "in Virginia.",
+   "scene": "camera cranes up over the forest to the ridges",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0,
+     "name": "whoosh",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s06",
+   "start": 8.1,
+   "end": 9.35,
+   "line": "In nineteen forty-two,",
+   "scene": "storm: the lookout tower from below",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "thunder",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s07",
+   "start": 9.35,
+   "end": 12.45,
+   "line": "lightning hit him in a fire lookout tower.",
+   "scene": "on the catwalk: bolt hits him; strike counter 1",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.59,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.59,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s08",
+   "start": 12.45,
+   "end": 14.85,
+   "line": "It burned a hole right through his shoe.",
+   "scene": "close: boot on the floor, hole burns through at the toe, smoke",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.75,
+     "name": "hit",
+     "gain": -12
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s09",
+   "start": 14.85,
+   "end": 16.28,
+   "line": "Twenty-seven years later,",
+   "scene": "wall calendar: pages fly off, 1942 to 1969",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "whip",
+    "dur": 0.3
+   },
+   "sfx": [
+    {
+     "at": 0.05,
+     "name": "counter",
+     "gain": -14,
+     "dur": 1.2
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s10",
+   "start": 16.28,
+   "end": 17.72,
+   "line": "it found him again.",
+   "scene": "storm clouds close in over the mountain road",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.5,
+     "name": "thunder",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s11",
+   "start": 17.72,
+   "end": 19.75,
+   "line": "In his truck, this time.",
+   "scene": "bolt hits the pickup on \"truck\"; counter 2",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.46,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.46,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s12",
+   "start": 19.75,
+   "end": 21.62,
+   "line": "It burned off his eyebrows.",
+   "scene": "giant face; on \"eyebrows\" the brows drop off, smoke",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.23,
+     "name": "buzz",
+     "gain": -10
+    },
+    {
+     "at": 0.89,
+     "name": "pop",
+     "gain": -8
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s13",
+   "start": 21.62,
+   "end": 23.22,
+   "line": "Then it got his shoulder.",
+   "scene": "front yard: bolt hits his shoulder; counter 3",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.82,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.82,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s14",
+   "start": 23.22,
+   "end": 24.9,
+   "line": "Then his hair caught fire.",
+   "scene": "ranger station: bolt, his hair goes up in flames; counter 4",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.64,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.64,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s15",
+   "start": 24.9,
+   "end": 25.88,
+   "line": "Twice.",
+   "scene": "on patrol by the truck: pouring water over his burning head; counter 5",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.12,
+     "name": "swish",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s16",
+   "start": 25.88,
+   "end": 27.48,
+   "line": "Then his ankle.",
+   "scene": "bolt hits his ankle, he hops; counter 6",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.7,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.7,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s17",
+   "start": 27.48,
+   "end": 28.32,
+   "line": "The seventh time,",
+   "scene": "a quiet pool, ranger with a rod, cloud above",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s18",
+   "start": 28.32,
+   "end": 29.62,
+   "line": "he was out fishing.",
+   "scene": "he casts; the float plops in",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.75,
+     "name": "pop",
+     "gain": -12,
+     "pitch": 0.7
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s19",
+   "start": 29.62,
+   "end": 32.1,
+   "line": "The bolt hit him right on top of the head.",
+   "scene": "bolt hits the top of his head, hat flies; counter 7",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.64,
+     "name": "thunder",
+     "gain": -6
+    },
+    {
+     "at": 0.64,
+     "name": "buzz",
+     "gain": -11
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s20",
+   "start": 32.1,
+   "end": 35.12,
+   "line": "And then a bear tried to steal his fish.",
+   "scene": "a black bear comes in and grabs at the trout on his line",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 1.0,
+     "name": "footstep",
+     "gain": -9
+    },
+    {
+     "at": 1.5,
+     "name": "footstep",
+     "gain": -9
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s21",
+   "start": 35.12,
+   "end": 36.98,
+   "line": "So he hit it with a stick.",
+   "scene": "he whacks the bear with a branch on \"hit\"; bear sees stars",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.58,
+     "name": "hit",
+     "gain": -5
+    },
+    {
+     "at": 0.6,
+     "name": "kick",
+     "gain": -9
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  },
+  {
+   "id": "s22",
+   "start": 36.98,
+   "end": 40.2,
+   "line": "Lucky or cursed?",
+   "scene": "ranger with a four-leaf clover and a black cat, big question mark above",
+   "set": "blue-ridge",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "pop",
+     "gain": -9
+    },
+    {
+     "at": 0.75,
+     "name": "pop",
+     "gain": -9
+    },
+    {
+     "at": 1.3,
+     "name": "stinger",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -27
+   }
+  }
+ ],
+ "music": [
+  {
+   "start": 0,
+   "end": 27.48,
+   "mood": "playful",
+   "intensity": 0.55
+  },
+  {
+   "start": 27.48,
+   "end": 32.1,
+   "mood": "tension",
+   "intensity": 0.5
+  },
+  {
+   "start": 32.1,
+   "end": 40.2,
+   "mood": "playful",
+   "intensity": 0.6
+  }
+ ]
+}

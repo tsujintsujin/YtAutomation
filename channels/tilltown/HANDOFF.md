@@ -35,7 +35,8 @@ decision. Those steps are listed below.
 - Toon character renderer; a 3D Paris world; a 5-second test clip with voice, captions, music and ambience. Sent to Justin,
   who replied "sounds good" and asked to reuse the world.
 - Render speed fixed: 24-26 s for those 5 seconds instead of about 4 minutes.
-- Library in 8 categories, tested: the clip builds from it unchanged, and the same world gives different views.
+- Library in 10 categories, tested: the clip builds from it unchanged, and the same world gives different views.
+- A full 40-second 9:16 test (2026-11-09): LuckySticks' posted "struck by lightning seven times" Short remade in this look with its existing voice. Sent to Justin, private, not uploaded: `growkaz-stickman-studio/projects/sullivan-lightning/out/`. It rendered in 2m09s to 2m50s. One earlier run crashed and did not repeat; the error text was lost.
 
 **Not done**
 - The 34-shot opening in the new look. Only the test shot exists.
@@ -130,16 +131,18 @@ Estimates from that, if other shots are about as heavy: ~7 minutes for the 85-se
 
 | Category | In it now |
 |---|---|
-| `worlds/` | `paris-street` |
-| `sky/` | `dayStage`, `clouds` |
-| `ground/` | `road`, `sidewalks`, `grass`, `avenue` |
-| `buildings/` | `haussmannRow`, `block`, `facadeTex`, `farSkyline` |
-| `nature/` | `tree` |
-| `street-props/` | `lamp`, `morrisColumn`, `awning`, `cafeTables` |
+| `worlds/` | `paris-street`, `blue-ridge` |
+| `sky/` | `dayStage`, `stormStage`, `clouds`, `stormClouds` |
+| `ground/` | `road`, `sidewalks`, `grass`, `avenue`, `meadow`, `tufts`, `dirtRoad` |
+| `buildings/` | `haussmannRow`, `block`, `facadeTex`, `farSkyline`, `lookoutTower`, `cabin` |
+| `nature/` | `tree`, `pine`, `forest`, `ridges`, `pond` |
+| `street-props/` | `lamp`, `morrisColumn`, `awning`, `cafeTables`, `woodSign` |
+| `vehicles/` | `pickup` |
 | `landmarks/` | `eiffel` |
-| `characters/` | `drawToon`, `toonCard`, 7 expressions, `LUSTIG`, `PASSERSBY` |
+| `characters/` | `drawToon`, `toonCard`, 8 expressions, `LUSTIG`, `RANGER`, `PASSERSBY`, `drawBear`, `drawFish`, `drawCat`, `drawClover` |
+| `effects/` | `bolt`, `flash`, `smoke`, `flame`, `sparks`, `dizzy`, `project`, `hit`, `blurBack` |
 
-- Limits: daylight only; only the fedora hat; `paris-street` works looking down the street or from above, with nothing behind
+- Limits: day and storm only; fedora and ranger hats only; `paris-street` works looking down the street or from above, with nothing behind
   z = +18; café windows need an interior for close-ups.
 - **Reuse pieces, not finished shots.** Same shots across videos look mass-produced (`research/06-production.md`, "Template
   feel"; `RULES.md` section 6). Vary `seed`, layout, camera and action.
@@ -254,6 +257,8 @@ Learned the hard way on 2026-11-07 and 08. Each of these cost him real time.
 | First Chrome screenshot after loading can time out | Take it again |
 | A character in a dark building shadow casts no visible shadow | Place characters in the sun |
 | `ffmpeg` filter paths with `D:` break on the colon | Use a relative path |
+| A prop past the edge of a toon image is cut off flat | Pass a wider `W` to `toonCard` |
+| An effect placed with `project` lands in the frame corner | The position was NaN: the card has no `ground` height set |
 | The film-grade colour step runs in JS per pixel | Fine at 154 ms a frame; look here first if renders slow down |
 
 ## Bad scenarios and what we do
@@ -342,7 +347,7 @@ Justin sees it on the dashboard (http://127.0.0.1:8770, Tilltown tab and Analyti
 |---|---|
 | 2026-11-07 | Research done (`research/`), plan agreed, channel files written, name picked, topics written. |
 | 2026-11-08 | Kaz's plugin installed. Opening voiced, timed, bible and 34-shot list written. Dark look dropped for Ricks Clips. Toon characters, 3D Paris, 5-second test clip. Render on GPU (about 10x faster). Library in 8 categories. |
-| 2026-11-09 | This handoff; library and project sources backed up in git. |
+| 2026-11-09 | This handoff; library and project sources backed up in git. LuckySticks lightning Short remade as a 9:16 test; storm, mountains, tower, cabin, truck, pond, bear and effects added to the library. |
 
 ## Pick up here
 Next steps, item 1: look gaps and the missing places, then rebuild the 34-shot opening.

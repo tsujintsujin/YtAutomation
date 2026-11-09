@@ -12,14 +12,16 @@ import { drawToon, toonCard } from '/library/characters/toon.js';
 ## Categories
 | Folder | What it holds | In it now |
 |---|---|---|
-| `worlds/` | A whole place, ready to film: add a camera and characters | `paris-street` |
-| `sky/` | Light, sky, clouds. Every world starts here | `day.js`: `dayStage`, `clouds` |
-| `ground/` | What people stand on | `ground.js`: `road`, `sidewalks`, `grass`, `avenue` (and the `cobbles`, `slabs` textures) |
-| `buildings/` | Facades and rows of blocks | `haussmann.js`: `haussmannRow`, `block`, `facadeTex`, `farSkyline` |
-| `nature/` | Plants, later rocks and water | `trees.js`: `tree` |
-| `street-props/` | Objects placed in a street | `paris.js`: `lamp`, `morrisColumn`, `awning`, `cafeTables` |
+| `worlds/` | A whole place, ready to film: add a camera and characters | `paris-street`, `blue-ridge` (day or storm, optional road and pond) |
+| `sky/` | Light, sky, clouds. Every world starts here | `day.js`: `dayStage`, `clouds`; `storm.js`: `stormStage`, `stormClouds` |
+| `ground/` | What people stand on | `ground.js`: `road`, `sidewalks`, `grass`, `avenue` (and the `cobbles`, `slabs` textures); `terrain.js`: `meadow`, `tufts`, `dirtRoad` |
+| `buildings/` | Facades and whole buildings | `haussmann.js`: `haussmannRow`, `block`, `facadeTex`, `farSkyline`; `park.js`: `lookoutTower`, `cabin` |
+| `nature/` | Plants, mountains, water | `trees.js`: `tree`, `pine`, `forest`; `mountains.js`: `ridges`; `water.js`: `pond` |
+| `street-props/` | Objects placed in a scene | `paris.js`: `lamp`, `morrisColumn`, `awning`, `cafeTables`; `park.js`: `woodSign` |
+| `vehicles/` | Things that drive | `truck.js`: `pickup` |
 | `landmarks/` | One-off famous structures | `eiffel.js`: `eiffel` |
-| `characters/` | The toon renderer and recurring outfits | `toon.js`: `drawToon`, `toonCard`, 7 expressions; `cast.js`: `LUSTIG`, `PASSERSBY` |
+| `characters/` | The toon renderer, recurring outfits, animals | `toon.js`: `drawToon`, `toonCard`, 8 expressions, fedora and ranger hats; `cast.js`: `LUSTIG`, `RANGER`, `PASSERSBY`; `animals.js`: `drawBear`, `drawFish`, `drawCat`, `drawClover` |
+| `effects/` | Cartoon effects drawn over a shot | `toon-fx.js`: `bolt`, `flash`, `smoke`, `flame`, `sparks`, `dizzy`, `project`, `hit`, `blurBack` |
 
 A new place (scrapyard, hotel room, Tilltown) goes in `worlds/`, built from the other categories. New pieces it needs go in
 their category, so the next world can use them. A new kind of thing gets a new folder and a row here.
@@ -32,8 +34,9 @@ their category, so the next world can use them. A new kind of thing gets a new f
   nothing. Up close, the café windows are plain amber and need an interior.
 - **Ground:** never lay a huge sheet under nearer ground (see `ground/ground.js`). `road` and `sidewalks` are a strip: use
   them between buildings or the sides show empty sky.
-- **Hats:** only `fedora` is drawn so far.
-- **Daylight only so far.** Night needs a `sky/night.js`.
+- **Hats:** `fedora` and `campaign` (ranger) so far.
+- **Day and storm only.** Night needs a `sky/night.js`.
+- **Cut-outs:** anything past the edge of a `toonCard` image is clipped; pass a wider `W` for long props. To place effects on a card with `project`, know its ground height.
 
 ## After adding something
 Add a view to `projects/library-preview/scenes/shots/preview.js`, then:

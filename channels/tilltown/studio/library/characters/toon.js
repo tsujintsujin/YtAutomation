@@ -14,6 +14,7 @@ export const EXPR = {
   worried: { brows: [[0.1, -0.04], [0.1, -0.04]], eyes: 'dot', mouth: 'wavy' },
   shocked: { brows: [[0.14, 0.14], [0.14, 0.14]], eyes: 'wide', mouth: 'o' },
   happy:   { brows: [[0.06, 0.06], [0.06, 0.06]], eyes: 'dot', mouth: 'smile' },
+  ouch:    { brows: [[-0.1, 0.06], [-0.1, 0.06]], eyes: 'x', mouth: 'o' },
 };
 
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -27,6 +28,7 @@ function arm(g, sx, sy, a1, a2, hand) {
   const hx = ex + Math.sin(a1 + a2) * L2, hy = ey + Math.cos(a1 + a2) * L2;
   line(g, [[sx, sy], [ex, ey], [hx, hy]], 4.6);
   outlined(g, () => { g.beginPath(); g.arc(hx, hy, 8.5, 0, Math.PI * 2); }, hand, 2.8);
+  return [hx, hy];
 }
 
 function hat(g, h, r, lw) {
@@ -43,6 +45,13 @@ function hat(g, h, r, lw) {
     outlined(g, () => { g.beginPath(); g.moveTo(-r * 0.69, by - r * 0.06); g.quadraticCurveTo(r * 0.04, by + r * 0.05, r * 0.77, by - r * 0.06); g.lineTo(r * 0.76, by - r * 0.2); g.quadraticCurveTo(r * 0.04, by - r * 0.09, -r * 0.7, by - r * 0.2); g.closePath(); }, band, lw * 0.8);
     g.globalAlpha = 0.35; line(g, [[-r * 0.42, by - r * 0.5], [-r * 0.24, by - r * 0.57]], r * 0.06, '#ffffff'); g.globalAlpha = 1;   // sheen
   }
+  if (h.type === 'campaign') {        // ranger's flat-brimmed hat with a pinched top
+    const by = -r * 0.64;
+    outlined(g, () => { g.beginPath(); g.ellipse(r * 0.02, by, r * 1.46, r * 0.2, -0.03, 0, Math.PI * 2); }, c, lw);
+    outlined(g, () => { g.beginPath(); g.moveTo(-r * 0.6, by); g.bezierCurveTo(-r * 0.62, by - r * 0.5, -r * 0.42, by - r * 0.92, -r * 0.16, by - r * 0.94); g.quadraticCurveTo(0, by - r * 0.76, r * 0.16, by - r * 0.94); g.bezierCurveTo(r * 0.42, by - r * 0.92, r * 0.62, by - r * 0.5, r * 0.6, by); g.quadraticCurveTo(0, by + r * 0.1, -r * 0.6, by); g.closePath(); }, c, lw);
+    outlined(g, () => { g.beginPath(); g.moveTo(-r * 0.6, by - r * 0.04); g.quadraticCurveTo(0, by + r * 0.08, r * 0.6, by - r * 0.04); g.lineTo(r * 0.58, by - r * 0.18); g.quadraticCurveTo(0, by - r * 0.06, -r * 0.58, by - r * 0.18); g.closePath(); }, band, lw * 0.8);
+    line(g, [[-r * 0.24, by - r * 0.72], [-r * 0.12, by - r * 0.46]], r * 0.05, 'rgba(40,28,14,.55)'); line(g, [[r * 0.24, by - r * 0.72], [r * 0.12, by - r * 0.46]], r * 0.05, 'rgba(40,28,14,.55)');
+  }
 }
 
 function face(g, fx, r, ex, o) {
@@ -51,11 +60,12 @@ function face(g, fx, r, ex, o) {
   eyes.forEach((x, i) => {
     const lx = x + look[0] * r * 0.05, ly = eyeY + look[1] * r * 0.05;
     if (o.blink) { line(g, [[x - r * 0.08, eyeY], [x + r * 0.08, eyeY]], r * 0.06); return; }
+    if (ex.eyes === 'x') { const q = r * 0.1; line(g, [[x - q, eyeY - q], [x + q, eyeY + q]], r * 0.06); line(g, [[x + q, eyeY - q], [x - q, eyeY + q]], r * 0.06); return; }
     if (ex.eyes === 'wide') { outlined(g, () => { g.beginPath(); g.ellipse(x, eyeY, r * 0.13, r * 0.15, 0, 0, Math.PI * 2); }, '#ffffff', r * 0.045); g.fillStyle = LINE; g.beginPath(); g.arc(lx, ly, r * 0.055, 0, Math.PI * 2); g.fill(); return; }
     g.fillStyle = LINE; g.beginPath(); g.ellipse(lx, ly, r * 0.075, r * 0.105, 0, 0, Math.PI * 2); g.fill();
     if (ex.eyes === 'lid') { g.fillStyle = o.headColor; g.fillRect(x - r * 0.12, eyeY - r * 0.16, r * 0.24, r * 0.15); line(g, [[x - r * 0.11, eyeY - r * 0.01], [x + r * 0.11, eyeY - r * 0.03]], r * 0.055); }
   });
-  ex.brows.forEach(([inner, outer], i) => {           // i = 0 front brow, 1 back brow; inner end is toward the nose
+  if (!o.noBrows) ex.brows.forEach(([inner, outer], i) => {           // i = 0 front brow, 1 back brow; inner end is toward the nose
     const x = eyes[i], dir = i === 0 ? 1 : -1, by = eyeY - r * 0.26;
     line(g, [[x - dir * r * 0.16, by - inner * r], [x + dir * r * 0.18, by - outer * r]], r * 0.1);
   });
@@ -71,14 +81,16 @@ function face(g, fx, r, ex, o) {
   }
 }
 
-// drawToon(g, { x, y, s, facing, outfit, expr, look, blink, talk, arms: { front: [a1, a2], back: [a1, a2] }, bob })
+// drawToon(g, { x, y, s, facing, outfit, expr, look, blink, talk, arms: { front: [a1, a2], back: [a1, a2] }, bob, tilt, noBrows, hatOff, prop })
+// prop(g, handFront, handBack) draws something in the figure's own coordinates, after the front arm.
 export function drawToon(g, o) {
   const of = o.outfit, f = o.facing ?? 1, ex = EXPR[o.expr] || EXPR.neutral;
   const r = 60, headY = -250 + (o.bob || 0), lw = 3.4;
+  if (o.hatOnly) { g.save(); g.translate(o.x, o.y); g.scale((o.s ?? 1) * f, o.s ?? 1); g.translate(0, headY); if (of.hat) hat(g, of.hat, r, lw); g.restore(); return; }
   const af = o.arms?.front || [0.12, -0.05], ab = o.arms?.back || [-0.1, 0.05];
-  g.save(); g.translate(o.x, o.y); g.scale((o.s ?? 1) * f, o.s ?? 1);
+  g.save(); g.translate(o.x, o.y); if (o.tilt) g.rotate(o.tilt); g.scale((o.s ?? 1) * f, o.s ?? 1);
   // back arm, legs + shoes
-  arm(g, -24, -184, ab[0], ab[1], of.hand || '#ffffff');
+  const handB = arm(g, -24, -184, ab[0], ab[1], of.hand || '#ffffff');
   for (const [hx, fx] of [[-11, -15], [11, 13]]) {
     line(g, [[hx, -108], [fx, -6]], 5);
     outlined(g, () => { g.beginPath(); g.ellipse(fx + 7, -5, 13, 6.5, 0, 0, Math.PI * 2); }, of.shoes || LINE, 2.5);
@@ -92,15 +104,24 @@ export function drawToon(g, o) {
     line(g, [[-13, -199], [-4, -168], [2, -150]], 3); line(g, [[13, -199], [8, -172], [2, -150]], 3);       // lapels
     for (const by of [-138, -120]) { g.fillStyle = LINE; g.beginPath(); g.arc(8, by, 3.2, 0, Math.PI * 2); g.fill(); }
   }
+  if (body.type === 'uniform') {
+    outlined(g, () => { g.beginPath(); g.moveTo(-14, -200); g.lineTo(2, -176); g.lineTo(18, -200); g.lineTo(16, -180); g.lineTo(2, -166); g.lineTo(-12, -180); g.closePath(); }, body.collar || '#e9e0c6', 2.6);
+    line(g, [[2, -166], [2, -116]], 2.6);
+    outlined(g, () => { g.beginPath(); g.rect(-36, -120, 72, 13); }, body.belt || '#5a3f2a', 2.6);
+    outlined(g, () => { g.beginPath(); g.rect(-5, -122, 14, 17); }, '#e8c65a', 2.2);
+    g.fillStyle = '#ffd34d'; g.strokeStyle = LINE; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 10; k++) { const q = k % 2 ? 4.6 : 10, a = (k * Math.PI) / 5 - 1.57; g.lineTo(17 + Math.cos(a) * q, -158 + Math.sin(a) * q); } g.closePath(); g.fill(); g.stroke();
+  }
   // front arm
-  arm(g, 22, -184, af[0], af[1], of.hand || '#ffffff');
+  const handF = arm(g, 22, -184, af[0], af[1], of.hand || '#ffffff');
+  if (o.prop) o.prop(g, handF, handB);
   // head, hair patch (back side), face, hat
   g.save(); g.translate(0, headY);
   const headColor = of.head || '#ffffff';
   outlined(g, () => { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); }, headColor, 3.8);
   if (of.hair) { g.save(); g.beginPath(); g.arc(0, 0, r - 3, 0, Math.PI * 2); g.clip(); outlined(g, () => { g.beginPath(); g.ellipse(-r * 0.92, -r * 0.12, r * 0.3, r * 0.42, 0.15, 0, Math.PI * 2); }, of.hair, 3); g.restore(); }
+  if (of.hairTop && (!of.hat || o.hatOff)) { g.save(); g.beginPath(); g.arc(0, 0, r - 2, 0, Math.PI * 2); g.clip(); outlined(g, () => { g.beginPath(); g.ellipse(-r * 0.05, -r * 0.82, r * 1.02, r * 0.5, -0.05, 0, Math.PI * 2); }, of.hairTop, 3); g.restore(); }
   face(g, r * 0.07, r, ex, { ...o, headColor });
-  if (of.hat) hat(g, of.hat, r, lw);
+  if (of.hat && !o.hatOff) hat(g, of.hat, r, lw);
   g.restore();
   g.restore();
 }
