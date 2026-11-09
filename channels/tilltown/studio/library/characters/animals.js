@@ -34,19 +34,6 @@ export function drawFish(g, x, y, s = 1, rot = 0) {
   g.restore();
 }
 
-export function drawCat(g, o) {
-  const black = '#26222a', lw = 3.5, b = o.bob || 0;
-  g.save(); g.translate(o.x, o.y); g.scale((o.s ?? 1) * (o.facing ?? 1), o.s ?? 1);
-  g.lineCap = 'round'; g.strokeStyle = LINE; g.lineWidth = 15; g.beginPath(); g.moveTo(-34, -14); g.bezierCurveTo(-92, -24, -84, -112, -56, -116 - b); g.stroke(); g.strokeStyle = black; g.lineWidth = 9; g.stroke();
-  out(g, () => { g.beginPath(); g.ellipse(-6, -52, 42, 54, 0, 0, 7); }, black, lw);
-  const hy = -126;
-  for (const s of [-1, 1]) out(g, () => { g.beginPath(); g.moveTo(s * 34, hy - 18); g.lineTo(s * 36, hy - 60); g.lineTo(s * 6, hy - 38); g.closePath(); }, black, lw);
-  out(g, () => { g.beginPath(); g.ellipse(0, hy, 44, 38, 0, 0, 7); }, black, lw);
-  for (const s of [-1, 1]) { g.fillStyle = '#ffd34d'; g.beginPath(); g.ellipse(s * 18, hy - 5, 11, 12, 0, 0, 7); g.fill(); g.fillStyle = '#100e14'; g.beginPath(); g.ellipse(s * 18, hy - 5, 3.5, 10, 0, 0, 7); g.fill(); }
-  g.fillStyle = '#e88aa0'; g.beginPath(); g.moveTo(-5, hy + 10); g.lineTo(5, hy + 10); g.lineTo(0, hy + 17); g.closePath(); g.fill();
-  g.restore();
-}
-
 export function drawClover(g, x, y, s = 1) {
   g.save(); g.translate(x, y); g.scale(s, s);
   g.strokeStyle = '#2f7a3a'; g.lineWidth = 7; g.lineCap = 'round'; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(8, 34, -6, 66); g.stroke();

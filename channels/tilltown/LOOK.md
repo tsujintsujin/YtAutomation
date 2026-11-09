@@ -31,12 +31,12 @@ Shorts looked at: "This Shape Saved Roller Coasters" (newest), "Why Perfect Rail
   canvas and placed in the 3D scene as a cut-out that faces the camera, so it casts a shadow and sits in the world.
 - Reusable worlds and characters live in `growkaz-stickman-studio/library/`, one folder per category (`README.md` lists them,
   `CATALOG.png` shows them). Build new places from it and add new pieces to it.
-- Captions: the engine's captions set to one word, white, black outline, as spoken.
+- Captions: the engine's captions set to 1-2 words, white, black outline, as spoken.
 - Voice: Mark (unchanged). Format: 16:9 long videos, 9:16 Shorts from the same scenes.
 
 ## Status
-- 2026-11-08: 5-second test clip made (project `look-ricks`, 16:9). Next: the opening is rebuilt in this look. The shot
-  list (`story/shots.json` of the eiffel-tower project) stays; only the drawing changes.
+- 2026-11-08: 5-second test clip made (project `look-ricks`, 16:9). Next: the opening is rebuilt in this look, from a script with
+  scene direction (`ANIMATION.md`). Its 34-shot list was made one shot per line, so it gets regrouped into scenes.
 - Known gaps against Ricks Clips: world detail (flat facades, faceted trees; theirs have textured rock, gravel, grass),
   no hand-drawn wobble in the outlines, no motion blur on fast moves.
 - Render: always add `--gl gpu --format jpeg --workers 2`. Without `--gl gpu` headless Chromium draws the 3D on the CPU

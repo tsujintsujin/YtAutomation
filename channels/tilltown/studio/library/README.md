@@ -20,7 +20,7 @@ import { drawToon, toonCard } from '/library/characters/toon.js';
 | `street-props/` | Objects placed in a scene | `paris.js`: `lamp`, `morrisColumn`, `awning`, `cafeTables`; `park.js`: `woodSign` |
 | `vehicles/` | Things that drive | `truck.js`: `pickup` |
 | `landmarks/` | One-off famous structures | `eiffel.js`: `eiffel` |
-| `characters/` | The toon renderer, recurring outfits, animals | `toon.js`: `drawToon`, `toonCard`, 8 expressions, fedora and ranger hats; `cast.js`: `LUSTIG`, `RANGER`, `PASSERSBY`; `animals.js`: `drawBear`, `drawFish`, `drawCat`, `drawClover` |
+| `characters/` | The toon renderer, recurring outfits, animals | `toon.js`: `drawToon`, `toonCard`, 8 expressions, fedora and ranger hats; `cast.js`: `LUSTIG`, `RANGER`, `PASSERSBY`; `animals.js`: `drawBear`, `drawFish`, `drawClover` |
 | `effects/` | Cartoon effects drawn over a shot | `toon-fx.js`: `bolt`, `flash`, `smoke`, `flame`, `sparks`, `dizzy`, `project`, `hit`, `blurBack` |
 
 A new place (scrapyard, hotel room, Tilltown) goes in `worlds/`, built from the other categories. New pieces it needs go in

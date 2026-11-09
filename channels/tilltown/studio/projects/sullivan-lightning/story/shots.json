@@ -36,7 +36,7 @@
    "start": 1.36,
    "end": 3.0,
    "line": "seven times.",
-   "scene": "seven bolts land around him, a counter climbs to 7",
+   "scene": "seven bolts hit him one after another, a counter climbs to 7",
    "set": "blue-ridge",
    "bars": null,
    "in": {
@@ -130,8 +130,7 @@
    "set": "blue-ridge",
    "bars": null,
    "in": {
-    "type": "flash",
-    "dur": 0.25
+    "type": "cut"
    },
    "sfx": [],
    "notes": "",
@@ -145,7 +144,7 @@
    "start": 6.95,
    "end": 8.1,
    "line": "in Virginia.",
-   "scene": "camera cranes up over the forest to the ridges",
+   "scene": "ranger points at a WELCOME TO VIRGINIA sign",
    "set": "blue-ridge",
    "bars": null,
    "in": {
@@ -264,7 +263,7 @@
    "start": 16.28,
    "end": 17.72,
    "line": "it found him again.",
-   "scene": "storm clouds close in over the mountain road",
+   "scene": "his truck on the mountain road, storm clouds closing in over it",
    "set": "blue-ridge",
    "bars": null,
    "in": {
@@ -457,7 +456,7 @@
    "start": 27.48,
    "end": 28.32,
    "line": "The seventh time,",
-   "scene": "a quiet pool, ranger with a rod, cloud above",
+   "scene": "he stands at the pool with his rod up, not cast yet",
    "set": "blue-ridge",
    "bars": null,
    "in": {
@@ -466,8 +465,8 @@
    "sfx": [],
    "notes": "",
    "amb": {
-    "name": "wind",
-    "gain": -27
+    "name": "rain",
+    "gain": -26
    }
   },
   {
@@ -491,8 +490,8 @@
    ],
    "notes": "",
    "amb": {
-    "name": "wind",
-    "gain": -27
+    "name": "rain",
+    "gain": -26
    }
   },
   {
@@ -549,8 +548,8 @@
    ],
    "notes": "",
    "amb": {
-    "name": "wind",
-    "gain": -27
+    "name": "rain",
+    "gain": -26
    }
   },
   {
@@ -578,8 +577,8 @@
    ],
    "notes": "",
    "amb": {
-    "name": "wind",
-    "gain": -27
+    "name": "rain",
+    "gain": -26
    }
   },
   {
@@ -587,7 +586,7 @@
    "start": 36.98,
    "end": 40.2,
    "line": "Lucky or cursed?",
-   "scene": "ranger with a four-leaf clover and a black cat, big question mark above",
+   "scene": "ranger holds up a four-leaf clover on \"lucky\"; on \"cursed\" a storm cloud rolls over him and a bolt lands beside him; big question mark",
    "set": "blue-ridge",
    "bars": null,
    "in": {
@@ -600,9 +599,9 @@
      "gain": -9
     },
     {
-     "at": 0.75,
-     "name": "pop",
-     "gain": -9
+     "at": 0.96,
+     "name": "thunder",
+     "gain": -7
     },
     {
      "at": 1.3,

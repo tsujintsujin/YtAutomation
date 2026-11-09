@@ -50,6 +50,11 @@ Wording: written for the ear; short sentences; plain words first, the real term 
 questions to the viewer, then the answer; "you" in every explanation; concrete over adjectives; numbers rounded for the
 ear unless the exactness is the point.
 
+### Scene direction (Justin 2026-11-09)
+The script is written with its direction: scene by scene, each with its place, who is in it, a camera note and an action for
+every line, and how it starts and ends. Same place and same action is one scene with camera angle changes, never one clip per
+line. Format, rules and the check before anything is shown: `ANIMATION.md`. Only the spoken lines are voiced.
+
 ## 4. Facts, copyright, legal (before any voice is made)
 - **Fact check:** every number, date, name and claim in `script.md` has a line in `sources.md` (claim → source URL →
   what the source says). A claim without a source is cut or rewritten.
@@ -72,6 +77,7 @@ ear unless the exactness is the point.
 - Voice: Chatterbox copying Mark (Justin 2026-11-07), so "Altered content: Yes" on every upload. Character dialogue
   is read by the narrator until Justin picks character voices (he chooses them; never add one without asking).
 - Every scene's design is its own; reusing Tilltown and the cast is fine, reusing whole scenes is not.
+- How a video is animated and checked: `ANIMATION.md`.
 
 ## 7. Posting
 - Long video: title, description (humanized, chapters, sources summary, "not financial advice"), tags, 3 thumbnails

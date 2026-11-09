@@ -112,7 +112,7 @@ export function drawToon(g, o) {
     g.fillStyle = '#ffd34d'; g.strokeStyle = LINE; g.lineWidth = 2; g.beginPath(); for (let k = 0; k < 10; k++) { const q = k % 2 ? 4.6 : 10, a = (k * Math.PI) / 5 - 1.57; g.lineTo(17 + Math.cos(a) * q, -158 + Math.sin(a) * q); } g.closePath(); g.fill(); g.stroke();
   }
   // front arm
-  const handF = arm(g, 22, -184, af[0], af[1], of.hand || '#ffffff');
+  const handF = o.hideFront ? [22, -184] : arm(g, 22, -184, af[0], af[1], of.hand || '#ffffff');
   if (o.prop) o.prop(g, handF, handB);
   // head, hair patch (back side), face, hat
   g.save(); g.translate(0, headY);

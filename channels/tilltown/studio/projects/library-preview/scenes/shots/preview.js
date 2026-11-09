@@ -14,7 +14,7 @@ import { blueRidge } from '/library/worlds/blue-ridge.js';
 import { lookoutTower, cabin } from '/library/buildings/park.js';
 import { pickup } from '/library/vehicles/truck.js';
 import { woodSign } from '/library/street-props/park.js';
-import { drawBear, drawFish, drawCat, drawClover } from '/library/characters/animals.js';
+import { drawBear, drawFish, drawClover } from '/library/characters/animals.js';
 import { bolt, smoke, flame, sparks, dizzy } from '/library/effects/toon-fx.js';
 
 const label = (g, s) => text(g, s, 44, 64, { size: 46, font: FONTS.ui, weight: 900, align: 'left', stroke: 10, strokeColor: 'rgba(0,0,0,.85)' });
@@ -36,12 +36,12 @@ view('s012', 'BUILDINGS: lookout tower, cabin', (T) => { const st = blueRidge(T,
 view('s013', 'VEHICLES: pickup / PROPS: park sign', (T) => { const st = blueRidge(T, { road: true, inner: 26 }).stage, p = pickup(T), s = woodSign(T, ['PARK', 'SIGN']); p.rotation.y = -1.1; s.position.set(-4.4, 0, -2); st.add(p, s); return st; }, [2.4, 1.6, 9.5], [-0.8, 1.7, 0]);
 registerShot('s014', { draw(g) {
   backdrop(g, mood('day').sky); g.fillStyle = '#6fb052'; g.fillRect(0, 860, E.W, 220);
-  drawToon(g, { x: 190, y: 960, s: 1.7, outfit: RANGER, expr: 'happy' }); drawBear(g, { x: 560, y: 960, s: 1.6, facing: -1, reach: 1 }); drawFish(g, 330, 640, 1.2, 1.5); drawCat(g, { x: 800, y: 960, s: 1.3 }); drawClover(g, 960, 620, 1.6);
+  drawToon(g, { x: 190, y: 960, s: 1.7, outfit: RANGER, expr: 'happy' }); drawBear(g, { x: 560, y: 960, s: 1.6, facing: -1, reach: 1 }); drawFish(g, 330, 640, 1.2, 1.5); drawClover(g, 960, 620, 1.6);
   bolt(g, 1, 1230, 90, 1160, 900, { seed: 4 }); flame(g, 1, 1420, 900, 2); smoke(g, 1620, 860, 1.2, { count: 8, s: 2 }); sparks(g, 1760, 560, 0.2, { s: 2 }); dizzy(g, 1, 1760, 820, 2);
-  label(g, 'CHARACTERS: ranger, bear, fish, cat, clover / EFFECTS');
+  label(g, 'CHARACTERS: ranger, bear, fish, clover / EFFECTS');
 } });
 registerShot('s009', { draw(g) {
   backdrop(g, mood('day').sky); g.fillStyle = '#b89c7c'; g.fillRect(0, 860, E.W, 220);
-  Object.keys(EXPR).forEach((e, i) => drawToon(g, { x: 150 + i * 270, y: 960, s: 1.7, facing: 1, outfit: i % 2 ? PASSERSBY[(i >> 1) % 3] : LUSTIG, expr: e }));
+  Object.keys(EXPR).forEach((e, i) => drawToon(g, { x: 130 + i * 236, y: 960, s: 1.7, facing: 1, outfit: i % 2 ? PASSERSBY[(i >> 1) % 3] : LUSTIG, expr: e }));
   label(g, 'CHARACTERS: toon + every expression');
 } });
