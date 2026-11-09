@@ -1,0 +1,38 @@
+{
+ "title": "Tilltown look test",
+ "duration": 5.0,
+ "shots": [
+  {
+   "id": "s001",
+   "start": 0,
+   "end": 5.0,
+   "line": "In 1925, a man in Paris sold the Eiffel Tower.",
+   "scene": "3D Paris street in bright daylight, the Eiffel Tower at the end of the street; Lustig (white toon head, fedora, dark suit, red tie) presents the tower on sold and smirks; slow push",
+   "set": "paris",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 2.12,
+     "name": "swish",
+     "gain": -16
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -26
+   }
+  }
+ ],
+ "music": [
+  {
+   "start": 0,
+   "end": 5.0,
+   "mood": "mystery",
+   "intensity": 0.45
+  }
+ ]
+}

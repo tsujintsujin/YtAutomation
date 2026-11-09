@@ -1,0 +1,916 @@
+{
+ "title": "The Man Who Sold the Eiffel Tower",
+ "duration": 85.14,
+ "shots": [
+  {
+   "id": "s001",
+   "start": 0.0,
+   "end": 3.71,
+   "line": "In 1925, a man in Paris sold the Eiffel Tower.",
+   "scene": "establishing wide: Paris street at night, the lit Eiffel Tower behind the rooftops; Lustig (red tie, fedora) by the café presents the tower on \"sold\" and smirks; PARIS 1925 readout on \"1925\"; slow push",
+   "set": "paris",
+   "bars": null,
+   "in": {
+    "type": "fade",
+    "dur": 0.5
+   },
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "blip",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s002",
+   "start": 3.71,
+   "end": 6.87,
+   "line": "All seven thousand three hundred tons of iron.",
+   "scene": "low angle close on one leg of the tower: riveted iron girders and X-bracing lit by its lamps, camera tilts up the leg; gold readout counts 0 -> 7,300 TONS from \"seven\" to \"tons\"",
+   "set": "tower",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.41,
+     "name": "counter",
+     "gain": -16,
+     "dur": 1.3
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s003",
+   "start": 6.87,
+   "end": 10.15,
+   "line": "The buyer was a scrap-metal dealer named André Poisson.",
+   "scene": "establishing wide: Poisson's scrapyard at dusk, scrap piles and a crane arm against an orange sky, Poisson (yellow cap) proud with crossed arms; callout ANDRE POISSON / SCRAP-METAL DEALER on \"Poisson\"; slow drift",
+   "set": "scrapyard",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.3,
+     "name": "hit",
+     "gain": -16,
+     "pitch": 0.6
+    },
+    {
+     "at": 2.53,
+     "name": "pop",
+     "gain": -12
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -24
+   }
+  },
+  {
+   "id": "s004",
+   "start": 10.15,
+   "end": 12.25,
+   "line": "The tower was never for sale.",
+   "scene": "TIME FREEZE two-shot under the street lamp: Poisson hands Lustig a fat envelope, banknotes hang frozen in the air, cool tint, slow roll; only Lustig moves: turns his head to camera and smirks on \"never\"; coral badge NOT FOR SALE on \"sale\"",
+   "set": "paris",
+   "bars": "scope",
+   "in": {
+    "type": "flash",
+    "dur": 0.4
+   },
+   "sfx": [
+    {
+     "at": 0.0,
+     "name": "freeze",
+     "gain": -5
+    },
+    {
+     "at": 1.43,
+     "name": "pop",
+     "gain": -12
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s005",
+   "start": 12.25,
+   "end": 13.73,
+   "line": "And when Poisson found out,",
+   "scene": "giant face Poisson, neutral -> shocked on \"found out\"; blurred dark scrapyard behind; slow push",
+   "set": "scrapyard",
+   "bars": "scope",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.91,
+     "name": "hit",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s006",
+   "start": 13.73,
+   "end": 15.41,
+   "line": "he didn't go to the police.",
+   "scene": "wide, night, rain: police station front with the POLICE lamp and double doors; Poisson walks in from the left and stops at the foot of the steps on \"didn't\", looking up at the door",
+   "set": "police",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.1,
+     "name": "footstep",
+     "gain": -14
+    },
+    {
+     "at": 0.42,
+     "name": "footstep",
+     "gain": -15
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -20
+   }
+  },
+  {
+   "id": "s007",
+   "start": 15.41,
+   "end": 17.27,
+   "line": "He was too embarrassed.",
+   "scene": "medium in the rain: Poisson turns away from the station, facepalm, nervous, then walks off left; the lit door blurred behind",
+   "set": "police",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 1.2,
+     "name": "footstep",
+     "gain": -15
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "rain",
+    "gain": -20
+   }
+  },
+  {
+   "id": "s008",
+   "start": 17.27,
+   "end": 18.89,
+   "line": "So the con man left the country...",
+   "scene": "night station platform: the train pulls out to the left, Lustig at a lit compartment window tips his hat, steam lit by the platform lamps; readout -> AUSTRIA",
+   "set": "station",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.1,
+     "name": "whoosh",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -24
+   }
+  },
+  {
+   "id": "s009",
+   "start": 18.89,
+   "end": 21.63,
+   "line": "and later, he came back to try it again.",
+   "scene": "Paris street again (callback to s001): Lustig walks in from the right with a suitcase, sets it down, looks up at the tower and tips his hat on \"again\"",
+   "set": "paris",
+   "bars": null,
+   "in": {
+    "type": "dip",
+    "dur": 0.5
+   },
+   "sfx": [
+    {
+     "at": 0.3,
+     "name": "footstep",
+     "gain": -15
+    },
+    {
+     "at": 0.75,
+     "name": "footstep",
+     "gain": -15
+    },
+    {
+     "at": 1.25,
+     "name": "hit",
+     "gain": -16
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s010",
+   "start": 21.63,
+   "end": 23.51,
+   "line": "How do you sell a landmark you don't own,",
+   "scene": "wide: the tower alone over the rooftops at night, a giant paper price tag swings from the first platform, a gold \"?\" on it; slow push",
+   "set": "tower",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "swish",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s011",
+   "start": 23.51,
+   "end": 25.79,
+   "line": "to a man who buys scrap for a living?",
+   "scene": "medium, scrapyard at dusk: Poisson drops an iron plate onto the platform scale on \"scrap\", the needle swings, he nods",
+   "set": "scrapyard",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 1.09,
+     "name": "hit",
+     "gain": -8,
+     "pitch": 0.6
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -24
+   }
+  },
+  {
+   "id": "s012",
+   "start": 25.79,
+   "end": 27.43,
+   "line": "It took three tricks.",
+   "scene": "top-down: a dark table in one light pool; a hand deals three gold cards numbered 1, 2, 3 face up, one per beat (\"three\", between, \"tricks\"), each with a \"?\"",
+   "set": "cards",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.5,
+     "name": "pop",
+     "gain": -10
+    },
+    {
+     "at": 0.72,
+     "name": "pop",
+     "gain": -10,
+     "pitch": 1.2
+    },
+    {
+     "at": 0.93,
+     "name": "pop",
+     "gain": -10,
+     "pitch": 1.4
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s013",
+   "start": 27.43,
+   "end": 30.05,
+   "line": "And here's the part that should worry you.",
+   "scene": "2025: YOU on the couch in a dark living room, the phone the only light (cool glow on the face); the phone buzzes on \"worry\", YOU looks down, worried",
+   "set": "apartment",
+   "bars": null,
+   "in": {
+    "type": "dip",
+    "dur": 0.6
+   },
+   "sfx": [
+    {
+     "at": 1.65,
+     "name": "phonebuzz",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "hum",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s014",
+   "start": 30.05,
+   "end": 33.19,
+   "line": "In 2025, people told the FTC they lost about",
+   "scene": "insert: the phone in YOU's hand, a message with a government-style seal, URGENT and PAY NOW; readout 2025 on \"2025\"",
+   "set": "apartment",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.23,
+     "name": "blip",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "hum",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s015",
+   "start": 33.19,
+   "end": 37.43,
+   "line": "nine hundred and twenty million dollars to scammers pretending to be the government.",
+   "scene": "data card over the blurred room: counter $0 -> $920 MILLION from \"nine\" to \"dollars\" in coral, label LOST TO GOVERNMENT IMPOSTERS, source FTC 2025",
+   "set": "apartment",
+   "bars": "none",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.15,
+     "name": "counter",
+     "gain": -14,
+     "dur": 1.3
+    },
+    {
+     "at": 1.45,
+     "name": "impact",
+     "gain": -8
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "hum",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s016",
+   "start": 37.43,
+   "end": 38.97,
+   "line": "The same three tricks.",
+   "scene": "top-down: the three gold cards again on the table, now a smartphone lies beside them, its screen lights the cards; slow rotate",
+   "set": "cards",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.3,
+     "name": "shimmer",
+     "gain": -12
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s017",
+   "start": 38.97,
+   "end": 42.09,
+   "line": "By the end of this video, you'll spot all three.",
+   "scene": "giant face YOU lit by the phone, worried -> determined on \"spot\"; three small gold cards pop beside the head on \"all three\"",
+   "set": "apartment",
+   "bars": "scope",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 1.95,
+     "name": "pop",
+     "gain": -12
+    },
+    {
+     "at": 2.1,
+     "name": "pop",
+     "gain": -12,
+     "pitch": 1.2
+    },
+    {
+     "at": 2.25,
+     "name": "pop",
+     "gain": -12,
+     "pitch": 1.4
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "hum",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s018",
+   "start": 42.09,
+   "end": 43.77,
+   "line": "Picture it in Tilltown.",
+   "scene": "3D: Tilltown main street at golden hour, low-poly shops with lit windows, the clock tower at the end; camera glides down the street toward the junk shop; TILLTOWN readout",
+   "set": "tilltown",
+   "bars": null,
+   "in": {
+    "type": "zoom",
+    "dur": 0.5
+   },
+   "sfx": [
+    {
+     "at": 0.0,
+     "name": "whoosh",
+     "gain": -12
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "murmur",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s019",
+   "start": 43.77,
+   "end": 46.51,
+   "line": "A letter lands on the junk dealer's counter.",
+   "scene": "junk shop inside, warm: shelves of old lamps, clocks and wheels, the dealer (green beanie) behind the counter; a courier's hand drops a letter on the counter on \"lands\", the dealer looks down, surprised",
+   "set": "tilltown",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.51,
+     "name": "hit",
+     "gain": -16,
+     "pitch": 1.4
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -18
+   }
+  },
+  {
+   "id": "s020",
+   "start": 46.51,
+   "end": 47.43,
+   "line": "Heavy paper.",
+   "scene": "insert: the dealer's hands lift the thick cream envelope, it barely bends",
+   "set": "tilltown",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.1,
+     "name": "swish",
+     "gain": -16
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -18
+   }
+  },
+  {
+   "id": "s021",
+   "start": 47.43,
+   "end": 49.19,
+   "line": "The mayor's own seal.",
+   "scene": "macro: the red wax seal with a gold clock-tower crest, a glint sweeps across on \"seal\"; slow push",
+   "set": "tilltown",
+   "bars": "scope",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.99,
+     "name": "shimmer",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -20
+   }
+  },
+  {
+   "id": "s022",
+   "start": 49.19,
+   "end": 51.61,
+   "line": "\"The old clock tower is coming down.",
+   "scene": "low angle: Tilltown's clock tower at dusk, pigeons; the camera tilts down from the clock face to the street on \"coming down\"",
+   "set": "tilltown",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.0,
+     "name": "clock",
+     "gain": -16
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "wind",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s023",
+   "start": 51.61,
+   "end": 53.49,
+   "line": "You have been chosen to bid.\"",
+   "scene": "giant face DEALER, surprised -> joy on \"chosen\", warm gold glow",
+   "set": "tilltown",
+   "bars": "scope",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.69,
+     "name": "ding",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -20
+   }
+  },
+  {
+   "id": "s024",
+   "start": 53.49,
+   "end": 55.61,
+   "line": "Would you argue with the mayor's seal?",
+   "scene": "over the shoulder: the dealer's blurred beanie and shoulder in the foreground, the letter and its glowing seal sharp in his hands, the clock tower in the window behind",
+   "set": "tilltown",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -18
+   }
+  },
+  {
+   "id": "s025",
+   "start": 55.61,
+   "end": 58.19,
+   "line": "That's exactly what Victor Lustig built.",
+   "scene": "giant face Lustig half in shadow, the Paris night bokeh behind; smirk on \"built\"; callout VICTOR LUSTIG on \"Victor Lustig\"",
+   "set": "paris",
+   "bars": "scope",
+   "in": {
+    "type": "whip",
+    "dur": 0.35
+   },
+   "sfx": [
+    {
+     "at": 0.0,
+     "name": "swish",
+     "gain": -10
+    },
+    {
+     "at": 1.19,
+     "name": "pop",
+     "gain": -12
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -28
+   }
+  },
+  {
+   "id": "s026",
+   "start": 58.19,
+   "end": 61.69,
+   "line": "He read in the papers that the Eiffel Tower cost a fortune to keep up.",
+   "scene": "medium, café table on the Paris street in golden light: Lustig holds up a newspaper, its front page faces us (a drawing of the tower, a coral cost line climbing on \"cost a fortune\"); he lowers it on \"keep up\", smirking",
+   "set": "paris",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.2,
+     "name": "swish",
+     "gain": -16
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "murmur",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s027",
+   "start": 61.69,
+   "end": 64.65,
+   "line": "He had letters printed with the French government's seal.",
+   "scene": "insert: a 1920s platen press slams on \"printed\", a letterhead with the red-and-gold government seal slides onto a growing stack; the seal glints on \"seal\"",
+   "set": "press",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.73,
+     "name": "hit",
+     "gain": -8
+    },
+    {
+     "at": 1.9,
+     "name": "hit",
+     "gain": -11
+    },
+    {
+     "at": 2.29,
+     "name": "shimmer",
+     "gain": -12
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "hum",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s028",
+   "start": 64.65,
+   "end": 67.11,
+   "line": "He set himself up at the Hôtel de Crillon,",
+   "scene": "establishing: the Crillon's colonnaded stone facade at night, lit windows, a doorman; Lustig walks up to the entrance; readout HOTEL DE CRILLON on \"Crillon\"",
+   "set": "crillon",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.4,
+     "name": "footstep",
+     "gain": -16
+    },
+    {
+     "at": 0.85,
+     "name": "footstep",
+     "gain": -16
+    },
+    {
+     "at": 1.95,
+     "name": "blip",
+     "gain": -14
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s029",
+   "start": 67.11,
+   "end": 70.01,
+   "line": "a palace of a hotel on the Place de la Concorde.",
+   "scene": "wide pull-out: the Place de la Concorde at night, the obelisk and a fountain, lamp posts, the hotel behind, the lit tower small in the distance",
+   "set": "crillon",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [],
+   "notes": "",
+   "amb": {
+    "name": "city",
+    "gain": -26
+   }
+  },
+  {
+   "id": "s030",
+   "start": 70.01,
+   "end": 73.21,
+   "line": "And he wrote to the top men in France's scrap-metal trade,",
+   "scene": "medium, hotel suite at night: Lustig writes at a desk by the tall window (the tower far off), green lamp; sealed envelopes stack up",
+   "set": "suite",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -20
+   }
+  },
+  {
+   "id": "s031",
+   "start": 73.21,
+   "end": 74.71,
+   "line": "inviting them to a meeting.",
+   "scene": "blueprint diagram: an envelope icon at the centre splits into envelopes that fly out along dotted lines to a ring of dealer heads, one with a yellow cap",
+   "set": "blueprint",
+   "bars": "none",
+   "in": {
+    "type": "zoom",
+    "dur": 0.4
+   },
+   "sfx": [
+    {
+     "at": 0.25,
+     "name": "whoosh",
+     "gain": -12
+    },
+    {
+     "at": 0.75,
+     "name": "pop",
+     "gain": -14
+    }
+   ],
+   "notes": ""
+  },
+  {
+   "id": "s032",
+   "start": 74.71,
+   "end": 77.81,
+   "line": "In a quiet room, he told them the tower had to come down:",
+   "scene": "establishing: the hotel meeting room, tall windows with the night tower view, long table, dealers seated (Poisson's yellow cap), Lustig standing at the head on the left; he chops his hand down on \"come down\"",
+   "set": "suite",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.0,
+     "name": "clock",
+     "gain": -22
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -18
+   }
+  },
+  {
+   "id": "s033",
+   "start": 77.81,
+   "end": 81.45,
+   "line": "costly repairs, and political problems he could not discuss.",
+   "scene": "medium over the dealers' blurred heads: Lustig by an easel with a tower drawing, coral marks pop on it on \"costly repairs\"; he turns, leans in and looks side to side on \"could not discuss\"",
+   "set": "suite",
+   "bars": null,
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.15,
+     "name": "pop",
+     "gain": -12
+    },
+    {
+     "at": 0.39,
+     "name": "pop",
+     "gain": -12,
+     "pitch": 1.2
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -18
+   }
+  },
+  {
+   "id": "s034",
+   "start": 81.45,
+   "end": 85.14,
+   "line": "It would go to the highest bidder.",
+   "scene": "giant face Poisson, awe -> determined; gold glints in his eyes on \"highest bidder\"; slow push; fade out",
+   "set": "suite",
+   "bars": "scope",
+   "in": {
+    "type": "cut"
+   },
+   "sfx": [
+    {
+     "at": 0.93,
+     "name": "shimmer",
+     "gain": -10
+    }
+   ],
+   "notes": "",
+   "amb": {
+    "name": "roomtone",
+    "gain": -20
+   }
+  }
+ ],
+ "music": [
+  {
+   "start": 0,
+   "end": 30.05,
+   "mood": "mystery",
+   "intensity": 0.45
+  },
+  {
+   "start": 30.05,
+   "end": 42.09,
+   "mood": "tension",
+   "intensity": 0.55
+  },
+  {
+   "start": 42.09,
+   "end": 55.61,
+   "mood": "playful",
+   "intensity": 0.4
+  },
+  {
+   "start": 55.61,
+   "end": 85.14,
+   "mood": "mystery",
+   "intensity": 0.55
+  }
+ ]
+}

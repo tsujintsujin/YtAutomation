@@ -1,0 +1,1320 @@
+{
+ "source": "whisper:small.en+script",
+ "words": [
+  {
+   "word": "In",
+   "start": 0.0,
+   "end": 0.16
+  },
+  {
+   "word": "1925,",
+   "start": 0.16,
+   "end": 0.98
+  },
+  {
+   "word": "a",
+   "start": 1.46,
+   "end": 1.54
+  },
+  {
+   "word": "man",
+   "start": 1.54,
+   "end": 1.72
+  },
+  {
+   "word": "in",
+   "start": 1.72,
+   "end": 1.98
+  },
+  {
+   "word": "Paris",
+   "start": 1.98,
+   "end": 2.28
+  },
+  {
+   "word": "sold",
+   "start": 2.28,
+   "end": 2.56
+  },
+  {
+   "word": "the",
+   "start": 2.56,
+   "end": 2.78
+  },
+  {
+   "word": "Eiffel",
+   "start": 2.78,
+   "end": 3.04
+  },
+  {
+   "word": "Tower.",
+   "start": 3.04,
+   "end": 3.32
+  },
+  {
+   "word": "All",
+   "start": 3.86,
+   "end": 4.12
+  },
+  {
+   "word": "seven",
+   "start": 4.12,
+   "end": 4.44
+  },
+  {
+   "word": "thousand",
+   "start": 4.44,
+   "end": 4.76
+  },
+  {
+   "word": "three",
+   "start": 4.76,
+   "end": 5.08
+  },
+  {
+   "word": "hundred",
+   "start": 5.08,
+   "end": 5.4
+  },
+  {
+   "word": "tons",
+   "start": 5.4,
+   "end": 5.96
+  },
+  {
+   "word": "of",
+   "start": 5.96,
+   "end": 6.2
+  },
+  {
+   "word": "iron.",
+   "start": 6.2,
+   "end": 6.5
+  },
+  {
+   "word": "The",
+   "start": 7.02,
+   "end": 7.2
+  },
+  {
+   "word": "buyer",
+   "start": 7.2,
+   "end": 7.46
+  },
+  {
+   "word": "was",
+   "start": 7.46,
+   "end": 7.76
+  },
+  {
+   "word": "a",
+   "start": 7.76,
+   "end": 8.06
+  },
+  {
+   "word": "scrap-metal",
+   "start": 8.06,
+   "end": 8.38
+  },
+  {
+   "word": "dealer",
+   "start": 8.38,
+   "end": 8.72
+  },
+  {
+   "word": "named",
+   "start": 8.72,
+   "end": 8.98
+  },
+  {
+   "word": "André",
+   "start": 8.98,
+   "end": 9.4
+  },
+  {
+   "word": "Poisson.",
+   "start": 9.4,
+   "end": 9.74
+  },
+  {
+   "word": "The",
+   "start": 10.3,
+   "end": 10.5
+  },
+  {
+   "word": "tower",
+   "start": 10.5,
+   "end": 10.78
+  },
+  {
+   "word": "was",
+   "start": 10.78,
+   "end": 11.0
+  },
+  {
+   "word": "never",
+   "start": 11.0,
+   "end": 11.32
+  },
+  {
+   "word": "for",
+   "start": 11.32,
+   "end": 11.58
+  },
+  {
+   "word": "sale.",
+   "start": 11.58,
+   "end": 11.88
+  },
+  {
+   "word": "And",
+   "start": 12.4,
+   "end": 12.56
+  },
+  {
+   "word": "when",
+   "start": 12.56,
+   "end": 12.74
+  },
+  {
+   "word": "Poisson",
+   "start": 12.74,
+   "end": 13.16
+  },
+  {
+   "word": "found",
+   "start": 13.16,
+   "end": 13.44
+  },
+  {
+   "word": "out,",
+   "start": 13.44,
+   "end": 13.74
+  },
+  {
+   "word": "he",
+   "start": 13.88,
+   "end": 14.12
+  },
+  {
+   "word": "didn't",
+   "start": 14.12,
+   "end": 14.36
+  },
+  {
+   "word": "go",
+   "start": 14.36,
+   "end": 14.5
+  },
+  {
+   "word": "to",
+   "start": 14.5,
+   "end": 14.62
+  },
+  {
+   "word": "the",
+   "start": 14.62,
+   "end": 14.7
+  },
+  {
+   "word": "police.",
+   "start": 14.7,
+   "end": 14.94
+  },
+  {
+   "word": "He",
+   "start": 15.56,
+   "end": 15.76
+  },
+  {
+   "word": "was",
+   "start": 15.76,
+   "end": 15.9
+  },
+  {
+   "word": "too",
+   "start": 15.9,
+   "end": 16.2
+  },
+  {
+   "word": "embarrassed.",
+   "start": 16.2,
+   "end": 16.76
+  },
+  {
+   "word": "So",
+   "start": 17.42,
+   "end": 17.64
+  },
+  {
+   "word": "the",
+   "start": 17.64,
+   "end": 17.8
+  },
+  {
+   "word": "con",
+   "start": 17.8,
+   "end": 17.96
+  },
+  {
+   "word": "man",
+   "start": 17.96,
+   "end": 18.22
+  },
+  {
+   "word": "left",
+   "start": 18.22,
+   "end": 18.48
+  },
+  {
+   "word": "the",
+   "start": 18.48,
+   "end": 18.7
+  },
+  {
+   "word": "country...",
+   "start": 18.7,
+   "end": 19.04
+  },
+  {
+   "word": "and",
+   "start": 19.04,
+   "end": 19.42
+  },
+  {
+   "word": "later,",
+   "start": 19.42,
+   "end": 19.7
+  },
+  {
+   "word": "he",
+   "start": 19.7,
+   "end": 20.1
+  },
+  {
+   "word": "came",
+   "start": 20.1,
+   "end": 20.26
+  },
+  {
+   "word": "back",
+   "start": 20.26,
+   "end": 20.48
+  },
+  {
+   "word": "to",
+   "start": 20.48,
+   "end": 20.64
+  },
+  {
+   "word": "try",
+   "start": 20.64,
+   "end": 20.82
+  },
+  {
+   "word": "it",
+   "start": 20.82,
+   "end": 20.92
+  },
+  {
+   "word": "again.",
+   "start": 20.92,
+   "end": 21.18
+  },
+  {
+   "word": "How",
+   "start": 21.78,
+   "end": 21.9
+  },
+  {
+   "word": "do",
+   "start": 21.9,
+   "end": 22.0
+  },
+  {
+   "word": "you",
+   "start": 22.0,
+   "end": 22.12
+  },
+  {
+   "word": "sell",
+   "start": 22.12,
+   "end": 22.3
+  },
+  {
+   "word": "a",
+   "start": 22.3,
+   "end": 22.44
+  },
+  {
+   "word": "landmark",
+   "start": 22.44,
+   "end": 22.8
+  },
+  {
+   "word": "you",
+   "start": 22.8,
+   "end": 23.06
+  },
+  {
+   "word": "don't",
+   "start": 23.06,
+   "end": 23.36
+  },
+  {
+   "word": "own,",
+   "start": 23.36,
+   "end": 23.66
+  },
+  {
+   "word": "to",
+   "start": 23.66,
+   "end": 23.98
+  },
+  {
+   "word": "a",
+   "start": 23.98,
+   "end": 24.1
+  },
+  {
+   "word": "man",
+   "start": 24.1,
+   "end": 24.24
+  },
+  {
+   "word": "who",
+   "start": 24.24,
+   "end": 24.4
+  },
+  {
+   "word": "buys",
+   "start": 24.4,
+   "end": 24.6
+  },
+  {
+   "word": "scrap",
+   "start": 24.6,
+   "end": 24.96
+  },
+  {
+   "word": "for",
+   "start": 24.96,
+   "end": 25.2
+  },
+  {
+   "word": "a",
+   "start": 25.2,
+   "end": 25.32
+  },
+  {
+   "word": "living?",
+   "start": 25.32,
+   "end": 25.44
+  },
+  {
+   "word": "It",
+   "start": 25.94,
+   "end": 26.18
+  },
+  {
+   "word": "took",
+   "start": 26.18,
+   "end": 26.32
+  },
+  {
+   "word": "three",
+   "start": 26.32,
+   "end": 26.7
+  },
+  {
+   "word": "tricks.",
+   "start": 26.7,
+   "end": 27.08
+  },
+  {
+   "word": "And",
+   "start": 27.58,
+   "end": 27.84
+  },
+  {
+   "word": "here's",
+   "start": 27.84,
+   "end": 28.22
+  },
+  {
+   "word": "the",
+   "start": 28.22,
+   "end": 28.36
+  },
+  {
+   "word": "part",
+   "start": 28.36,
+   "end": 28.56
+  },
+  {
+   "word": "that",
+   "start": 28.56,
+   "end": 28.76
+  },
+  {
+   "word": "should",
+   "start": 28.76,
+   "end": 29.08
+  },
+  {
+   "word": "worry",
+   "start": 29.08,
+   "end": 29.44
+  },
+  {
+   "word": "you.",
+   "start": 29.44,
+   "end": 30.06
+  },
+  {
+   "word": "In",
+   "start": 30.2,
+   "end": 30.28
+  },
+  {
+   "word": "2025,",
+   "start": 30.28,
+   "end": 30.96
+  },
+  {
+   "word": "people",
+   "start": 31.56,
+   "end": 31.68
+  },
+  {
+   "word": "told",
+   "start": 31.68,
+   "end": 31.92
+  },
+  {
+   "word": "the",
+   "start": 31.92,
+   "end": 32.1
+  },
+  {
+   "word": "FTC",
+   "start": 32.1,
+   "end": 32.52
+  },
+  {
+   "word": "they",
+   "start": 32.52,
+   "end": 32.86
+  },
+  {
+   "word": "lost",
+   "start": 32.86,
+   "end": 33.08
+  },
+  {
+   "word": "about",
+   "start": 33.08,
+   "end": 33.34
+  },
+  {
+   "word": "nine",
+   "start": 33.34,
+   "end": 33.475
+  },
+  {
+   "word": "hundred",
+   "start": 33.475,
+   "end": 33.61
+  },
+  {
+   "word": "and",
+   "start": 33.61,
+   "end": 33.745
+  },
+  {
+   "word": "twenty",
+   "start": 33.745,
+   "end": 33.88
+  },
+  {
+   "word": "million",
+   "start": 33.88,
+   "end": 34.64
+  },
+  {
+   "word": "dollars",
+   "start": 34.64,
+   "end": 35.04
+  },
+  {
+   "word": "to",
+   "start": 35.04,
+   "end": 35.3
+  },
+  {
+   "word": "scammers",
+   "start": 35.3,
+   "end": 35.72
+  },
+  {
+   "word": "pretending",
+   "start": 35.72,
+   "end": 36.16
+  },
+  {
+   "word": "to",
+   "start": 36.16,
+   "end": 36.44
+  },
+  {
+   "word": "be",
+   "start": 36.44,
+   "end": 36.54
+  },
+  {
+   "word": "the",
+   "start": 36.54,
+   "end": 36.66
+  },
+  {
+   "word": "government.",
+   "start": 36.66,
+   "end": 36.94
+  },
+  {
+   "word": "The",
+   "start": 37.58,
+   "end": 37.7
+  },
+  {
+   "word": "same",
+   "start": 37.7,
+   "end": 37.9
+  },
+  {
+   "word": "three",
+   "start": 37.9,
+   "end": 38.14
+  },
+  {
+   "word": "tricks.",
+   "start": 38.14,
+   "end": 38.52
+  },
+  {
+   "word": "By",
+   "start": 39.12,
+   "end": 39.22
+  },
+  {
+   "word": "the",
+   "start": 39.22,
+   "end": 39.38
+  },
+  {
+   "word": "end",
+   "start": 39.38,
+   "end": 39.52
+  },
+  {
+   "word": "of",
+   "start": 39.52,
+   "end": 39.68
+  },
+  {
+   "word": "this",
+   "start": 39.68,
+   "end": 39.8
+  },
+  {
+   "word": "video,",
+   "start": 39.8,
+   "end": 40.14
+  },
+  {
+   "word": "you'll",
+   "start": 40.54,
+   "end": 40.68
+  },
+  {
+   "word": "spot",
+   "start": 40.68,
+   "end": 40.92
+  },
+  {
+   "word": "all",
+   "start": 40.92,
+   "end": 41.22
+  },
+  {
+   "word": "three.",
+   "start": 41.22,
+   "end": 41.62
+  },
+  {
+   "word": "Picture",
+   "start": 42.24,
+   "end": 42.42
+  },
+  {
+   "word": "it",
+   "start": 42.42,
+   "end": 42.68
+  },
+  {
+   "word": "in",
+   "start": 42.68,
+   "end": 42.94
+  },
+  {
+   "word": "Tilltown.",
+   "start": 42.94,
+   "end": 43.92
+  },
+  {
+   "word": "A",
+   "start": 43.92,
+   "end": 44.04
+  },
+  {
+   "word": "letter",
+   "start": 44.04,
+   "end": 44.28
+  },
+  {
+   "word": "lands",
+   "start": 44.28,
+   "end": 44.7
+  },
+  {
+   "word": "on",
+   "start": 44.7,
+   "end": 44.96
+  },
+  {
+   "word": "the",
+   "start": 44.96,
+   "end": 45.1
+  },
+  {
+   "word": "junk",
+   "start": 45.1,
+   "end": 45.32
+  },
+  {
+   "word": "dealer's",
+   "start": 45.32,
+   "end": 45.72
+  },
+  {
+   "word": "counter.",
+   "start": 45.72,
+   "end": 46.06
+  },
+  {
+   "word": "Heavy",
+   "start": 46.66,
+   "end": 46.76
+  },
+  {
+   "word": "paper.",
+   "start": 46.76,
+   "end": 47.14
+  },
+  {
+   "word": "The",
+   "start": 47.58,
+   "end": 47.68
+  },
+  {
+   "word": "mayor's",
+   "start": 47.68,
+   "end": 48.08
+  },
+  {
+   "word": "own",
+   "start": 48.08,
+   "end": 48.42
+  },
+  {
+   "word": "seal.",
+   "start": 48.42,
+   "end": 48.8
+  },
+  {
+   "word": "\"The",
+   "start": 49.34,
+   "end": 49.54
+  },
+  {
+   "word": "old",
+   "start": 49.54,
+   "end": 49.8
+  },
+  {
+   "word": "clock",
+   "start": 49.8,
+   "end": 50.1
+  },
+  {
+   "word": "tower",
+   "start": 50.1,
+   "end": 50.48
+  },
+  {
+   "word": "is",
+   "start": 50.48,
+   "end": 50.68
+  },
+  {
+   "word": "coming",
+   "start": 50.68,
+   "end": 50.92
+  },
+  {
+   "word": "down.",
+   "start": 50.92,
+   "end": 51.32
+  },
+  {
+   "word": "You",
+   "start": 51.76,
+   "end": 51.94
+  },
+  {
+   "word": "have",
+   "start": 51.94,
+   "end": 52.12
+  },
+  {
+   "word": "been",
+   "start": 52.12,
+   "end": 52.3
+  },
+  {
+   "word": "chosen",
+   "start": 52.3,
+   "end": 52.56
+  },
+  {
+   "word": "to",
+   "start": 52.56,
+   "end": 52.84
+  },
+  {
+   "word": "bid.\"",
+   "start": 52.84,
+   "end": 53.04
+  },
+  {
+   "word": "Would",
+   "start": 53.64,
+   "end": 53.78
+  },
+  {
+   "word": "you",
+   "start": 53.78,
+   "end": 53.92
+  },
+  {
+   "word": "argue",
+   "start": 53.92,
+   "end": 54.24
+  },
+  {
+   "word": "with",
+   "start": 54.24,
+   "end": 54.44
+  },
+  {
+   "word": "the",
+   "start": 54.44,
+   "end": 54.56
+  },
+  {
+   "word": "mayor's",
+   "start": 54.56,
+   "end": 54.94
+  },
+  {
+   "word": "seal?",
+   "start": 54.94,
+   "end": 55.12
+  },
+  {
+   "word": "That's",
+   "start": 55.76,
+   "end": 56.0
+  },
+  {
+   "word": "exactly",
+   "start": 56.0,
+   "end": 56.44
+  },
+  {
+   "word": "what",
+   "start": 56.44,
+   "end": 56.8
+  },
+  {
+   "word": "Victor",
+   "start": 56.8,
+   "end": 57.12
+  },
+  {
+   "word": "Lustig",
+   "start": 57.12,
+   "end": 57.48
+  },
+  {
+   "word": "built.",
+   "start": 57.48,
+   "end": 57.72
+  },
+  {
+   "word": "He",
+   "start": 58.34,
+   "end": 58.42
+  },
+  {
+   "word": "read",
+   "start": 58.42,
+   "end": 58.6
+  },
+  {
+   "word": "in",
+   "start": 58.6,
+   "end": 58.78
+  },
+  {
+   "word": "the",
+   "start": 58.78,
+   "end": 58.88
+  },
+  {
+   "word": "papers",
+   "start": 58.88,
+   "end": 59.08
+  },
+  {
+   "word": "that",
+   "start": 59.08,
+   "end": 59.34
+  },
+  {
+   "word": "the",
+   "start": 59.34,
+   "end": 59.5
+  },
+  {
+   "word": "Eiffel",
+   "start": 59.5,
+   "end": 59.76
+  },
+  {
+   "word": "Tower",
+   "start": 59.76,
+   "end": 59.98
+  },
+  {
+   "word": "cost",
+   "start": 59.98,
+   "end": 60.24
+  },
+  {
+   "word": "a",
+   "start": 60.24,
+   "end": 60.44
+  },
+  {
+   "word": "fortune",
+   "start": 60.44,
+   "end": 60.7
+  },
+  {
+   "word": "to",
+   "start": 60.7,
+   "end": 60.96
+  },
+  {
+   "word": "keep",
+   "start": 60.96,
+   "end": 61.08
+  },
+  {
+   "word": "up.",
+   "start": 61.08,
+   "end": 61.34
+  },
+  {
+   "word": "He",
+   "start": 61.84,
+   "end": 61.98
+  },
+  {
+   "word": "had",
+   "start": 61.98,
+   "end": 62.14
+  },
+  {
+   "word": "letters",
+   "start": 62.14,
+   "end": 62.42
+  },
+  {
+   "word": "printed",
+   "start": 62.42,
+   "end": 62.74
+  },
+  {
+   "word": "with",
+   "start": 62.74,
+   "end": 63.06
+  },
+  {
+   "word": "the",
+   "start": 63.06,
+   "end": 63.2
+  },
+  {
+   "word": "French",
+   "start": 63.2,
+   "end": 63.36
+  },
+  {
+   "word": "government's",
+   "start": 63.36,
+   "end": 63.98
+  },
+  {
+   "word": "seal.",
+   "start": 63.98,
+   "end": 64.16
+  },
+  {
+   "word": "He",
+   "start": 64.8,
+   "end": 64.94
+  },
+  {
+   "word": "set",
+   "start": 64.94,
+   "end": 65.12
+  },
+  {
+   "word": "himself",
+   "start": 65.12,
+   "end": 65.28
+  },
+  {
+   "word": "up",
+   "start": 65.28,
+   "end": 65.64
+  },
+  {
+   "word": "at",
+   "start": 65.64,
+   "end": 65.96
+  },
+  {
+   "word": "the",
+   "start": 65.96,
+   "end": 66.06
+  },
+  {
+   "word": "Hôtel",
+   "start": 66.06,
+   "end": 66.4
+  },
+  {
+   "word": "de",
+   "start": 66.4,
+   "end": 66.6
+  },
+  {
+   "word": "Crillon,",
+   "start": 66.6,
+   "end": 67.26
+  },
+  {
+   "word": "a",
+   "start": 67.26,
+   "end": 67.36
+  },
+  {
+   "word": "palace",
+   "start": 67.36,
+   "end": 67.68
+  },
+  {
+   "word": "of",
+   "start": 67.68,
+   "end": 67.96
+  },
+  {
+   "word": "a",
+   "start": 67.96,
+   "end": 68.06
+  },
+  {
+   "word": "hotel",
+   "start": 68.06,
+   "end": 68.38
+  },
+  {
+   "word": "on",
+   "start": 68.38,
+   "end": 68.6
+  },
+  {
+   "word": "the",
+   "start": 68.6,
+   "end": 68.72
+  },
+  {
+   "word": "Place",
+   "start": 68.72,
+   "end": 68.9
+  },
+  {
+   "word": "de",
+   "start": 68.9,
+   "end": 69.08
+  },
+  {
+   "word": "la",
+   "start": 69.08,
+   "end": 69.18
+  },
+  {
+   "word": "Concorde.",
+   "start": 69.18,
+   "end": 69.58
+  },
+  {
+   "word": "And",
+   "start": 70.16,
+   "end": 70.3
+  },
+  {
+   "word": "he",
+   "start": 70.3,
+   "end": 70.42
+  },
+  {
+   "word": "wrote",
+   "start": 70.42,
+   "end": 70.6
+  },
+  {
+   "word": "to",
+   "start": 70.6,
+   "end": 70.78
+  },
+  {
+   "word": "the",
+   "start": 70.78,
+   "end": 70.92
+  },
+  {
+   "word": "top",
+   "start": 70.92,
+   "end": 71.1
+  },
+  {
+   "word": "men",
+   "start": 71.1,
+   "end": 71.36
+  },
+  {
+   "word": "in",
+   "start": 71.36,
+   "end": 71.58
+  },
+  {
+   "word": "France's",
+   "start": 71.58,
+   "end": 72.02
+  },
+  {
+   "word": "scrap-metal",
+   "start": 72.02,
+   "end": 72.6
+  },
+  {
+   "word": "trade,",
+   "start": 72.6,
+   "end": 73.04
+  },
+  {
+   "word": "inviting",
+   "start": 73.36,
+   "end": 73.64
+  },
+  {
+   "word": "them",
+   "start": 73.64,
+   "end": 73.84
+  },
+  {
+   "word": "to",
+   "start": 73.84,
+   "end": 74.0
+  },
+  {
+   "word": "a",
+   "start": 74.0,
+   "end": 74.1
+  },
+  {
+   "word": "meeting.",
+   "start": 74.1,
+   "end": 74.28
+  },
+  {
+   "word": "In",
+   "start": 74.86,
+   "end": 74.98
+  },
+  {
+   "word": "a",
+   "start": 74.98,
+   "end": 75.08
+  },
+  {
+   "word": "quiet",
+   "start": 75.08,
+   "end": 75.32
+  },
+  {
+   "word": "room,",
+   "start": 75.32,
+   "end": 75.64
+  },
+  {
+   "word": "he",
+   "start": 75.94,
+   "end": 76.08
+  },
+  {
+   "word": "told",
+   "start": 76.08,
+   "end": 76.26
+  },
+  {
+   "word": "them",
+   "start": 76.26,
+   "end": 76.44
+  },
+  {
+   "word": "the",
+   "start": 76.44,
+   "end": 76.6
+  },
+  {
+   "word": "tower",
+   "start": 76.6,
+   "end": 76.86
+  },
+  {
+   "word": "had",
+   "start": 76.86,
+   "end": 77.04
+  },
+  {
+   "word": "to",
+   "start": 77.04,
+   "end": 77.18
+  },
+  {
+   "word": "come",
+   "start": 77.18,
+   "end": 77.36
+  },
+  {
+   "word": "down:",
+   "start": 77.36,
+   "end": 77.7
+  },
+  {
+   "word": "costly",
+   "start": 77.96,
+   "end": 78.2
+  },
+  {
+   "word": "repairs,",
+   "start": 78.2,
+   "end": 78.68
+  },
+  {
+   "word": "and",
+   "start": 78.68,
+   "end": 78.98
+  },
+  {
+   "word": "political",
+   "start": 78.98,
+   "end": 79.36
+  },
+  {
+   "word": "problems",
+   "start": 79.36,
+   "end": 79.84
+  },
+  {
+   "word": "he",
+   "start": 79.84,
+   "end": 80.06
+  },
+  {
+   "word": "could",
+   "start": 80.06,
+   "end": 80.24
+  },
+  {
+   "word": "not",
+   "start": 80.24,
+   "end": 80.5
+  },
+  {
+   "word": "discuss.",
+   "start": 80.5,
+   "end": 81.04
+  },
+  {
+   "word": "It",
+   "start": 81.6,
+   "end": 81.84
+  },
+  {
+   "word": "would",
+   "start": 81.84,
+   "end": 81.92
+  },
+  {
+   "word": "go",
+   "start": 81.92,
+   "end": 82.1
+  },
+  {
+   "word": "to",
+   "start": 82.1,
+   "end": 82.24
+  },
+  {
+   "word": "the",
+   "start": 82.24,
+   "end": 82.38
+  },
+  {
+   "word": "highest",
+   "start": 82.38,
+   "end": 82.7
+  },
+  {
+   "word": "bidder.",
+   "start": 82.7,
+   "end": 83.06
+  }
+ ]
+}

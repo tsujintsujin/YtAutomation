@@ -1,0 +1,54 @@
+{
+  "name": "Tilltown",
+  "channel_id": "UCqZM2RVq6Fo56mV6pFONLZw",
+  "order": 1,
+  "platforms": [
+    "YouTube"
+  ],
+  "videos": "channels/tilltown/videos",
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "length_seconds": [
+    720,
+    960
+  ],
+  "voice": {
+    "engine": "chatterbox",
+    "copy": "tts/samples/voices/29_mark.mp3"
+  },
+  "image_style": "Code-animated 2D scenes (HyperFrames) in Tilltown + ~20-40 Gemini caricatures per video (RULES.md)",
+  "pipeline": false,
+  "upload": [
+    [
+      "Visibility",
+      "Private until Justin has watched video 1"
+    ],
+    [
+      "Altered content (AI)",
+      "Yes (Mark voice, Justin 2026-11-07)"
+    ],
+    [
+      "Made for kids",
+      "No"
+    ],
+    [
+      "Language",
+      "English (United States)"
+    ],
+    [
+      "Category",
+      "Education"
+    ],
+    [
+      "Subtitles",
+      "Upload the .srt"
+    ],
+    [
+      "Related video (Shorts)",
+      "Its long video"
+    ]
+  ]
+}
