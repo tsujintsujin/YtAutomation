@@ -55,7 +55,7 @@ ear unless the exactness is the point.
   what the source says). A claim without a source is cut or rewritten.
 - **Real people and companies:** say only what a named source or court record says. Allegations are called
   allegations, with who made them. No guessing at motives as fact.
-- **Copyright:** only our own animation and our own Gemini drawings. No film, TV or news clips, no logos used as
+- **Copyright:** only our own animation and art. No film, TV or news clips, no logos used as
   pictures, no photos. Music only from YouTube's Audio Library. Quotes stay short.
 - "Not financial advice" in every description; no telling viewers what to buy.
 
@@ -65,10 +65,10 @@ ear unless the exactness is the point.
 - Movement in the very first frame. Never a trailer that stops mid-story.
 - Made from the long video's scenes, re-laid out at 9:16. "Related video" = its long video.
 
-## 6. Look and sound (fixed after the phase-1 test)
-- Scenes: HyperFrames animation (Tilltown, its cast, charts, counters, maps, timelines, documents). Gemini only for
-  caricatures of real people, big dramatic moments and thumbnail art (~20-40 per video).
-- Captions: 2-4 words at a time, bold, one key word coloured.
+## 6. Look and sound (art reference changed by Justin 2026-11-08: Ricks Clips, see LOOK.md)
+- Scenes: white toon characters in a bright 3D world, per `LOOK.md`, rendered with Kaz's plugin engine (GrowKaz Stickman
+  Studio) and its Three.js kit. Not Kaz's dark stick-figure look; not Crayon Capital. No Gemini pictures in the videos.
+- Captions: on, 1-2 words, white bold (Montserrat) with a black outline, as spoken.
 - Voice: Chatterbox copying Mark (Justin 2026-11-07), so "Altered content: Yes" on every upload. Character dialogue
   is read by the narrator until Justin picks character voices (he chooses them; never add one without asking).
 - Every scene's design is its own; reusing Tilltown and the cast is fine, reusing whole scenes is not.

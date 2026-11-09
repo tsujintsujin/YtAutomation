@@ -1,0 +1,70 @@
+--- a/engine/player.js
++++ b/engine/player.js
+@@ -14,7 +14,8 @@
+ async function loadFonts() {
+   const F = [['Fredoka', '600', 'fredoka/files/fredoka-latin-600-normal.woff2'], ['Fredoka', '700', 'fredoka/files/fredoka-latin-700-normal.woff2'],
+     ['Nunito', '800', 'nunito/files/nunito-latin-800-normal.woff2'], ['Nunito', '900', 'nunito/files/nunito-latin-900-normal.woff2'],
+-    ['Playfair Display', '900', 'playfair-display/files/playfair-display-latin-900-italic.woff2', 'italic']];
++    ['Playfair Display', '900', 'playfair-display/files/playfair-display-latin-900-italic.woff2', 'italic'],
++    ['Montserrat', '800', 'montserrat/files/montserrat-latin-800-normal.woff2'], ['Montserrat', '900', 'montserrat/files/montserrat-latin-900-normal.woff2']];  // Tilltown captions
+   for (const [fam, w, file, style] of F) { try { const ff = new FontFace(fam, `url(/node_modules/@fontsource/${file})`, { weight: w, style: style || 'normal' }); await ff.load(); document.fonts.add(ff); } catch (e) { console.log('font missing', fam, w); } }
+ }
+ async function boot() {
+--- a/engine/styles.js
++++ b/engine/styles.js
+@@ -78,5 +78,21 @@
+       golden: { sky: ['#4a7a70', '#e0a050', '#f6dca8'], rim: '#f6c87a' },
+     },
+   },
++  // Tilltown (added 2026-11-08, per /video-styles "customise"): money and business stories. Deep indigo nights,
++  // warm amber gaslight for rims and windows, gold kept for money numbers. Copied from ember's structure.
++  tilltown: {
++    name: 'Tilltown', desc: 'Art reference Ricks Clips (Justin 2026-11-08): white toon characters in a bright, saturated 3D world, clean grade. Night moods kept for night scenes.',
++    ink: '#f4f1ea', inkFar: '#b9b3c4', feature: '#16141e', rimWidth: 4.5,
++    ui: { ...UI, card: 'rgba(16,18,40,.94)', cardLine: 'rgba(255,200,120,.3)', text: '#f0d8b0', sub: '#a8906c', accent: '#ff6f61', gold: '#ffcc4d', blueprint: '#8fb8e8', bpBg: '#0b1324', good: '#7fdc8a' },
++    grade: { contrast: 1.04, sat: 1.08, lift: [0, 0, 0], gamma: [1, 1, 1], gain: [1.02, 1.0, 0.98], vignette: 0.12, grain: 0, bloom: 0.25 },
++    moods: {
++      day: { sky: ['#2a66c9', '#5d9be6', '#a9d2f6'], ambient: '#a8c4ec', key: '#fff3dc', rim: '#fff1d6', fog: '#bcd6f2', practical: '#ffe2a8' },
++      night: { sky: ['#060a1e', '#141c46', '#2e2f6a'], key: '#ffd59a', rim: '#ffc27a', practical: '#ffb54a', wall: '#20223c', floor: '#171a30', dark: '#0b0d1c', fog: '#323a6a' },
++      dusk: { sky: ['#1c1838', '#5a3a6a', '#d8784a', '#f6c47a'], key: '#ffc27a', rim: '#ffc27a', practical: '#ffcc6a' },
++      golden: { rim: '#ffc27a' },
++      interiorWarm: { rim: '#ffc27a', practical: '#ffcc6a' },
++      void: { sky: ['#070a18', '#10162c'], rim: '#ffcc4d' },
++    },
++  },
+ };
+ export const STYLE_IDS = Object.keys(STYLES);
+--- a/engine/ui2d.js
++++ b/engine/ui2d.js
+@@ -81,11 +81,16 @@
+ }
+ // Word-level captions (great for 9:16). Shows a 3–4 word phrase, current word highlighted.
+ export function captions(g, globalT, o = {}) {
+-  const words = E.words; if (!words.length) return; const { y = V(E.H - 150, E.H * 0.79), size = V(58, 74), max = 4, color = '#ffffff', hi = S().ui.gold } = o;
++  const words = E.words; if (!words.length) return; const { y = V(E.H - 150, E.H * 0.79), size = V(58, 74), max = 4, color = '#ffffff', hi = S().ui.gold, upper = true, font = FONTS.title, weight = 700 } = o;  // upper/font/weight: Tilltown captions are as spoken, Montserrat
+   let i = -1; for (let k = words.length - 1; k >= 0; k--) if (globalT >= words[k].start - 0.05) { if (globalT <= words[k].end + 0.35) i = k; break; } if (i < 0) return;
+-  const st = Math.floor(i / max) * max, group = words.slice(st, st + max); const strs = group.map(w => w.word.trim().toUpperCase());
+-  const w0 = strs.map(s => measure(g, s, size)).reduce((a, b) => a + b, 0) + size * 0.3 * (strs.length - 1);
++  let st = Math.floor(i / max) * max, group = words.slice(st, st + max);
++  if (o.phrase) {   // Tilltown: chunks of up to `max` words that also break after punctuation ("In 1925," / "a man" / "in Paris")
++    if (!E._capChunks) { E._capChunks = []; let cur = []; words.forEach((w, k) => { cur.push(k); if (cur.length >= max || /[.,?!:;]$/.test(w.word.trim())) { E._capChunks.push(cur); cur = []; } }); if (cur.length) E._capChunks.push(cur); }
++    const c = E._capChunks.find(ch => ch.includes(i)); st = c[0]; group = c.map(k => words[k]);
++  }
++  const strs = group.map(w => upper ? w.word.trim().toUpperCase() : w.word.trim());
++  const w0 = strs.map(s => measure(g, s, size, font, weight)).reduce((a, b) => a + b, 0) + size * 0.3 * (strs.length - 1);
+   const sz = size * Math.min(1, (E.W * 0.88) / w0);   // shrink long phrases to fit the frame
+-  const gap = sz * 0.3, widths = strs.map(s => measure(g, s, sz)), total = widths.reduce((a, b) => a + b, 0) + gap * (strs.length - 1);
+-  let x = E.W / 2 - total / 2; strs.forEach((s, k) => { const cur = st + k === i; const pop = cur ? 1 + 0.08 * ease.out(prog(globalT, group[k].start, group[k].start + 0.12)) : 1; g.save(); g.translate(x + widths[k] / 2, y); g.scale(pop, pop); text(g, s, 0, 0, { size: sz, color: cur ? hi : color, stroke: sz * 0.16, strokeColor: 'rgba(0,0,0,.85)' }); g.restore(); x += widths[k] + gap; });
++  const gap = sz * 0.3, widths = strs.map(s => measure(g, s, sz, font, weight)), total = widths.reduce((a, b) => a + b, 0) + gap * (strs.length - 1);
++  let x = E.W / 2 - total / 2; strs.forEach((s, k) => { const cur = st + k === i; const pop = cur ? 1 + 0.08 * ease.out(prog(globalT, group[k].start, group[k].start + 0.12)) : 1; g.save(); g.translate(x + widths[k] / 2, y); g.scale(pop, pop); text(g, s, 0, 0, { size: sz, color: cur ? hi : color, stroke: sz * 0.16, strokeColor: 'rgba(0,0,0,.85)', font, weight }); g.restore(); x += widths[k] + gap; });
+ }
+--- a/package.json
++++ b/package.json
+@@ -6,6 +6,7 @@
+   "description": "GrowKaz Stickman Studio: code-rendered cinematic stick-figure story videos (2D canvas + Three.js), rendered frame-by-frame",
+   "dependencies": {
+     "@fontsource/fredoka": "5.1.0",
++    "@fontsource/montserrat": "^5.3.0",
+     "@fontsource/nunito": "5.1.0",
+     "@fontsource/playfair-display": "5.1.0",
+     "playwright": "1.56.0",
